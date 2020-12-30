@@ -54,8 +54,8 @@ router.get('/nutrient/get/all', (req, res) => {
 });
 
 //특정 영양소 조회
-router.get('/nutrient/get/:nId', (req, res) => {
-    let nId = req.params.nId;
+router.get('/nutrient/get', (req, res) => {
+    let nId = req.query.nId;
 
     if (f.isNone(nId)) {
         res.json({status: 'ERR_WRONG_PARAM'});
@@ -80,7 +80,12 @@ router.get('/nutrient/get/:nId', (req, res) => {
                 return;
             }
             conn.release();
-            res.json({status: 'OK', result: result});
+            if (result.length < 1) {
+                res.json({status: 'ERR_NO_DATA'});
+                return;
+            }
+
+            res.json({status: 'OK', result: result[0]});
         });
     });
 });
@@ -200,9 +205,9 @@ router.get('/food/get/all', (req, res) => {
 });
 
 //특정 음식 조회
-router.get('/food/get/:fId', (req ,res) => {
+router.get('/food/get', (req ,res) => {
 
-    let fId = req.params.fId;
+    let fId = req.query.fId;
 
     if (f.isNone(fId)) {
         res.json({status: 'ERR_WRONG_PARAM'});
@@ -226,12 +231,57 @@ router.get('/food/get/:fId', (req ,res) => {
                 return;
             }
             conn.release();
-            res.json({status: 'OK', result: result});
+            if (result.length < 1) {
+                res.json({ status: 'ERR_NO_DATA'});
+                return;
+            }
+
+            res.json({status: 'OK', result: result[0]});
         });
     });
 
 
 });
+
+//음식 삭제 
+router.post('/food/delete', (req, res) => {
+    let fId = req.body.fId;
+    if (f.isNone(fId)) {
+        res.json({status: 'ERR_WRONG_PARAM'});
+        return;
+    }
+    let query = "DELETE FROM t_foods WHERE n_id = ?";
+    let params = [fId];
+    getConnection((error, conn) => {
+        if (error) {
+            console.log(error);
+            conn.release();
+            res.json({ status: 'ERR_MYSQL_POOL' });
+            return;
+        }
+
+        conn.query(query, params, (error, result) => {
+            if (error) {
+                console.log(error);
+                conn.release();
+                res.json({status: 'ERR_MYSQL_QUERY'});
+            }
+
+            conn.release();
+            res.json({status: 'OK'});
+        });
+    });
+});
+
+//음식 저장 (추가, 수정)
+router.get('/food/save', (req ,res) => {
+    let mode = req.body.mode; // ADD, MODIFY
+    let fId;
+    let name = req.body.name;
+    let keyword = req.body.keyword;
+});
+
+
 
 
 
