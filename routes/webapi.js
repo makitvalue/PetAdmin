@@ -108,7 +108,7 @@ router.post('/nutrient/save', (req, res) => {
     }
 
     if (mode === 'MODIFY') {
-        nId = req.body.n_id;
+        nId = req.body.nId;
         if (f.isNone(nId)) {
             res.json({status: 'ERR_WRONG_PARAM'});
             return;
@@ -147,7 +147,7 @@ router.post('/nutrient/save', (req, res) => {
 
 //영양소 삭제 
 router.post('/nutrient/delete', (req, res) => {
-    let nId = req.body.n_id;
+    let nId = req.body.nId;
     if (f.isNone(nId)) {
         res.json({status: 'ERR_WRONG_PARAM'});
         return;
