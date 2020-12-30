@@ -110,9 +110,7 @@ router.post('/nutrient/save', (req, res) => {
 
     if (mode === 'ADD') {
         query += "INSERT INTO t_nutrients(n_name, n_keyword, n_effect, n_desc, n_desc_over) VALUES(?, ?, ?, ?, ?)";
-    }
-
-    if (mode === 'MODIFY') {
+    } else if (mode === 'MODIFY') {
         nId = req.body.nId;
         if (f.isNone(nId)) {
             res.json({status: 'ERR_WRONG_PARAM'});
@@ -123,7 +121,12 @@ router.post('/nutrient/save', (req, res) => {
         query += " n_desc_over = ?, n_updated_date = NOW()";
         query += " WHERE n_id = ?";
         params.push(nId);
+    } else {
+        res.json({status: 'ERR_WRONG_MODE'});
+        return;
     }
+
+    
 
     getConnection((error, conn) => {
         if (error) {
@@ -157,7 +160,17 @@ router.post('/nutrient/delete', (req, res) => {
         res.json({status: 'ERR_WRONG_PARAM'});
         return;
     }
-    let query = "DELETE FROM t_nutrients WHERE n_id = ?";
+
+    let existCheckQuery = "";
+    existCheckQuery += "SELECT nTab.n_id,";
+        existCheckQuery += "COUNT(mfnTab.mfn_n_id) AS mfnCnt,";
+        existCheckQuery += "COUNT(mdnfTab.mdnf_target_id) AS mdnfCnt,";
+        existCheckQuery += "COUNT(mpnf.mpnf_target_id) AS mpnfCnt,";
+        existCheckQuery += "COUNT(msnf.msnf_target_id) AS msnfCnt ";
+    existCheckQuery += "FROM t_nutrients AS nTab ";
+        existCheckQuery += "LEFT JOIN t_";
+
+    let deleteQuery = "DELETE FROM t_nutrients WHERE n_id = ?";
     let params = [nId];
     getConnection((error, conn) => {
         if (error) {
@@ -167,7 +180,7 @@ router.post('/nutrient/delete', (req, res) => {
             return;
         }
 
-        conn.query(query, params, (error, result) => {
+        conn.query(deleteQuery, params, (error, result) => {
             if (error) {
                 console.log(error);
                 conn.release();
@@ -280,7 +293,6 @@ router.get('/food/save', (req ,res) => {
     let name = req.body.name;
     let keyword = req.body.keyword;
 });
-
 
 
 
