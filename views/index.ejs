@@ -1,1 +1,79 @@
-index
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <meta http-equiv="cleartype" content="on" />
+    <meta name="description" content="PetAdmin" />
+    <meta name="keywords"  content="" />
+    <meta name="theme-color" content="#333333">
+
+    <title>반려앱 | 관리자</title>
+
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+    <link rel="stylesheet" type="text/css" href="/css/common.css" />
+
+    <% if (menu == 'login') { %>
+        <link rel="stylesheet" type="text/css" href="/css/login.css" />
+
+    <% } else if (menu == 'main') { %>
+        <link rel="stylesheet" type="text/css" href="/css/main.css" />
+    <% } else if (menu == 'nutrient' || menu == 'nutrient_add' || menu == 'nutrient_detail') { %>
+        <link rel="stylesheet" type="text/css" href="/css/nutrient.css" />
+    <% } %>
+</head>
+<body>
+    <input class="js-input-hidden-menu" type="hidden" value="<%=menu%>" />
+
+    <header>
+        <a href="/"><div class="title-wrapper">
+            <p class="title">반려앱 ADMIN</p>
+        </div></a>
+    </header>
+
+    <nav class="js-nav-side-menu side-menu">
+        <a href="/"><div class="main-menu">홈</div></a>
+        <div class="main-menu">데이터 관리</div>
+        <ul class="sub-menu">
+            <a href="/nutrient"><li>영양소</li></a>
+            <a href="/food"><li>음식</li></a>
+        </ul>
+        <a href="/user"><div class="main-menu">사용자 관리</div></a>
+    </nav>
+
+    <article>
+
+    <% if (menu == 'login') { %>
+        <% include ./login %>
+
+    <% } else if (menu == 'main') { %> 
+        <% include ./main %>
+
+    <% } else if (menu == 'nutrient') { %> 
+        <% include ./nutrient %>
+    <% } else if (menu == 'nutrient_add') { %> 
+        <% include ./nutrient_add %>
+    <% } else if (menu == 'nutrient_detail') { %> 
+        <% include ./nutrient_detail %>
+    <% } %>
+
+    </article>
+
+    <footer>
+        <div class="wrapper">FOOTER</div>
+    </footer>
+
+    <script src="/js/common.js"></script>
+
+    <% if (menu == 'login') { %>
+        <script src="/js/login.js"></script>
+
+    <% } else if (menu == 'main') { %>
+        <script src="/js/main.js"></script>
+    <% } else if (menu == 'nutrient' || menu == 'nutrient_add' || menu == 'nutrient_detail') { %>
+        <script src="/js/nutrient.js"></script>
+    <% } %>
+
+</body>
+</html>
