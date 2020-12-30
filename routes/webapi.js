@@ -162,16 +162,20 @@ router.post('/nutrient/delete', (req, res) => {
     }
 
     let existCheckQuery = "";
-    existCheckQuery += "SELECT nTab.n_id,";
-        existCheckQuery += "COUNT(mfnTab.mfn_n_id) AS mfnCnt,";
-        existCheckQuery += "COUNT(mdnfTab.mdnf_target_id) AS mdnfCnt,";
-        existCheckQuery += "COUNT(mpnf.mpnf_target_id) AS mpnfCnt,";
-        existCheckQuery += "COUNT(msnf.msnf_target_id) AS msnfCnt ";
+    existCheckQuery += "SELECT * ";
     existCheckQuery += "FROM t_nutrients AS nTab ";
-        existCheckQuery += "LEFT JOIN t_maps_food_nutrient ON n";
+        existCheckQuery += "LEFT JOIN (SELECT mfn_n_id, COUNT(*) AS mfnCnt FROM t_maps_food_nutrient GROUP BY mfn_n_id) AS mfnTab ";
+            existCheckQuery += "ON nTab.n_id = mfnTab.mfn_n_id "
+        existCheckQuery += "LEFT JOIN (SELECT msnf_target_id, COUNT(*) AS msnfCnt FROM t_maps_symptom_nutrient_food WHERE msnf_type = 'NUTRIENT' GROUP BY msnf_target_id) AS msnfTab ";
+            existCheckQuery += "ON nTab.n_id = msnfTab.msnf_target_id "
+        existCheckQuery += "LEFT JOIN (SELECT mpnf_target_id, COUNT(*) AS mpnfCnt FROM t_maps_product_nutrient_food WHERE mpnf_type = 'NUTRIENT' GROUP BY mpnf_target_id) AS mpnfTab ";
+            existCheckQuery += "ON nTab.n_id = mpnfTab.mpnf_target_id "
+        existCheckQuery += "LEFT JOIN (SELECT mdnf_target_id, COUNT(*) AS mdnfCnt FROM t_maps_disease_nutrient_food WHERE mdnf_type = 'NUTRIENT' GROUP BY mdnf_target_id) AS mdnfTab ";
+            existCheckQuery += "ON nTab.n_id = mdnfTab.mdnf_target_id "
+    existCheckQuery += "WHERE nTab.n_id = ?";
 
-    let deleteQuery = "DELETE FROM t_nutrients WHERE n_id = ?";
-    let params = [nId];
+    let existCheckParams = [nId];
+
     getConnection((error, conn) => {
         if (error) {
             console.log(error);
@@ -180,17 +184,63 @@ router.post('/nutrient/delete', (req, res) => {
             return;
         }
 
-        conn.query(deleteQuery, params, (error, result) => {
+        conn.query(existCheckQuery, existCheckParams, (error, result) => {
             if (error) {
                 console.log(error);
                 conn.release();
                 res.json({status: 'ERR_MYSQL_QUERY'});
+                return;
             }
 
-            conn.release();
-            res.json({status: 'OK'});
+            if (result < 1) {
+                conn.release();
+                res.json({status: 'ERR_NO_DATA'});
+                return;
+            }
+
+            if (result[0].mfnCnt > 0) {
+                conn.release();
+                res.json({status: 'ERR_EXISTS_FOOD'});
+                return;
+            } 
+
+            if (result[0].msnfCnt > 0) {
+                conn.release();
+                res.json({status: 'ERR_EXISTS_SYMPTOM'});
+                return;
+            } 
+
+            if (result[0].mpnfCnt > 0) {
+                conn.release();
+                res.json({status: 'ERR_EXISTS_PRODUCT'});
+                return;
+            } 
+
+            if (result[0].mdnfCnt > 0) {
+                conn.release();
+                res.json({status: 'ERR_EXISTS_DISEASE'});
+                return;
+            } 
+
+            let deleteQuery = "DELETE FROM t_nutrients WHERE n_id = ?";
+            let params = [nId];
+            conn.query(deleteQuery, params, (error, result) => {
+                if (error) {
+                    console.log(error);
+                    conn.release();
+                    res.json({status: 'ERR_MYSQL_QUERY'});
+                    return;
+                }
+    
+                conn.release();
+                res.json({status: 'OK'});
+            });
         });
     });
+
+
+
+
 });
 
 
