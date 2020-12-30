@@ -95,7 +95,7 @@ router.post('/nutrient/save', (req, res) => {
     let desc = req.body.desc;
     let descOver = req.body.descOver; 
 
-    if (f.isNone(mode) || f.isNone(nId) || f.isNone(name) || f.isNone(keyword) || f.isNone(effect) || f.isNone(desc) || f.isNone(descOver)) {
+    if (f.isNone(mode) || f.isNone(name) || f.isNone(keyword) || f.isNone(effect) || f.isNone(desc) || f.isNone(descOver)) {
         res.json({status: 'ERR_WRONG_PARAM'});
         return;
     }
