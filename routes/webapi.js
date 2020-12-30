@@ -118,7 +118,7 @@ router.post('/nutrient/save', (req, res) => {
         }
         query += "UPDATE t_nutrients SET";
         query += " n_name = ?, n_keyword = ?, n_effect = ?, n_desc = ?,";
-        query += " n_desc_over = ?, n_updated_date = NOW()";
+        query += " n_desc_over = ?";
         query += " WHERE n_id = ?";
         params.push(nId);
     } else {
@@ -168,7 +168,7 @@ router.post('/nutrient/delete', (req, res) => {
         existCheckQuery += "COUNT(mpnf.mpnf_target_id) AS mpnfCnt,";
         existCheckQuery += "COUNT(msnf.msnf_target_id) AS msnfCnt ";
     existCheckQuery += "FROM t_nutrients AS nTab ";
-        existCheckQuery += "LEFT JOIN t_";
+        existCheckQuery += "LEFT JOIN t_maps_food_nutrient ON n";
 
     let deleteQuery = "DELETE FROM t_nutrients WHERE n_id = ?";
     let params = [nId];
