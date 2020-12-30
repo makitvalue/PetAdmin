@@ -30,5 +30,150 @@ router.get('/', (req, res) => {
 
 });
 
+//영양소 전체 조회
+router.get('/nutrient/get/all', (req, res) => {
+    let query = "SELECT * FROM t_nutrients"
+
+    getConnection((error, conn) => {
+        if (error) {
+            console.log(error);
+            res.json({ status: 'ERR_MYSQL_POOL' });
+            return;
+        }
+        conn.query(query, (error, result) => {
+            if (error) {
+                console.log(error);
+                conn.release();
+                res.json({status: 'ERR_MYSQL_QUERY'});
+                return;
+            }
+            conn.release();
+            res.json({status: 'OK', result: result});
+        });
+    });
+});
+
+//특정 영양소 조회
+router.get('/nutrient/get/:n_id', (req, res) => {
+    let n_id = req.params.n_id;
+
+    if (f.isNone(n_id)) {
+        res.json({status: 'ERR_WRONG_PARAM'});
+        return;
+    }
+
+    let query = "SELECT * FROM t_nutrients WHERE n_id = ?"
+
+    getConnection((error, conn) => {
+        if (error) {
+            console.log(error);
+            res.json({ status: 'ERR_MYSQL_POOL' });
+            return;
+        }
+
+        let params = [n_id];
+        conn.query(query, params, (error, result) => {
+            if (error) {
+                console.log(error);
+                conn.release();
+                res.json({status: 'ERR_MYSQL_QUERY'});
+                return;
+            }
+            conn.release();
+            res.json({status: 'OK', result: result});
+        });
+    });
+});
+
+//영양소 저장 (추가, 수정)
+router.post('/nutrient/save', (req, res) => {
+    let mode = req.body.mode; // ADD, MODIFY
+    let n_id;
+    let name = req.body.name;
+    let keyword = req.body.keyword;
+    let effect = req.body.effect;
+    let desc = req.body.desc;
+    let descOver = req.body.descOver; 
+
+    if (f.isNone(mode) || f.isNone(n_id) || f.isNone(name) || f.isNone(keyword) || f.isNone(effect) || f.isNone(desc) || f.isNone(descOver)) {
+        res.json({status: 'ERR_WRONG_PARAM'});
+        return;
+    }
+
+    let query = "";
+    let params = [name, keyword, effect, desc, descOver];
+
+    if (mode === 'ADD') {
+        query += "INSERT INTO t_nutrients(n_name, n_keyword, n_effect, n_desc, n_desc_over) VALUES(?, ?, ?, ?, ?)";
+    }
+
+    if (mode === 'MODIFY') {
+        n_id = req.body.n_id;
+        if (f.isNone(n_id)) {
+            res.json({status: 'ERR_WRONG_PARAM'});
+            return;
+        }
+        query += "UPDATE t_nutrients SET";
+        query += " n_name = ?, n_keyword = ?, n_effect = ?, n_desc = ?,";
+        query += " n_desc_over = ?, n_updated_date = NOW()";
+        query += " WHERE n_id = ?";
+        params.push(n_id);
+    }
+
+    getConnection((error, conn) => {
+        if (error) {
+            console.log(error);
+            conn.release();
+            res.json({ status: 'ERR_MYSQL_POOL' });
+            return;
+        }
+
+        conn.query(query, params, (error, result) => {
+            if (error) {
+                console.log(error);
+                conn.release();
+                res.json({status: 'ERR_MYSQL_QUERY'});
+                return;
+            }
+
+            conn.release();
+            res.json({status: 'OK', result: result});
+        });
+    });
+
+
+
+});
+
+//영양소 삭제 
+router.post('/nutrient/delete', (req, res) => {
+    let n_id = req.body.n_id;
+    if (f.isNone(n_id)) {
+        res.json({status: 'ERR_WRONG_PARAM'});
+        return;
+    }
+    let query = "DELETE FROM t_nutrients WHERE n_id = ?";
+    let params = [n_id];
+    getConnection((error, conn) => {
+        if (error) {
+            console.log(error);
+            conn.release();
+            res.json({ status: 'ERR_MYSQL_POOL' });
+            return;
+        }
+
+        conn.query(query, params, (error, result) => {
+            if (error) {
+                console.log(error);
+                conn.release();
+                res.json({status: 'ERR_MYSQL_QUERY'});
+            }
+
+            conn.release();
+            res.json({status: 'OK'});
+        });
+    });
+});
+
 
 module.exports = router;
