@@ -102,7 +102,7 @@ router.post('/nutrient/save', (req, res) => {
     let desc = req.body.desc;
     let descOver = req.body.descOver; 
 
-    if (f.isNone(mode) || f.isNone(name) || f.isNone(keyword) || f.isNone(effect) || f.isNone(desc) || f.isNone(descOver)) {
+    if (f.isNone(mode) || f.isNone(name) || f.isNone(keyword) || f.isNone(effect)) {
         res.json({status: 'ERR_WRONG_PARAM'});
         return;
     }
@@ -405,10 +405,16 @@ router.post('/food/save', (req ,res) => {
     let name = req.body.name;
     let keyword = req.body.keyword;
     let desc = req.body.desc;
+    let nutrients = req.body.nutrients;
+    let nutrientList = [];
 
-    if (f.isNone(mode) || f.isNone(name) || f.isNone(keyword) || f.isNone(desc)) {
+    if (f.isNone(mode) || f.isNone(name) || f.isNone(keyword)) {
         res.json({status: 'ERR_WRONG_PARAM'});
         return;
+    }
+
+    if (!f.isNone(nutrients)) {
+        nutrientList = nutrients.split('|');
     }
 
     let query = "";
@@ -446,9 +452,67 @@ router.post('/food/save', (req ,res) => {
                 res.json({status: 'ERR_MYSQL_QUERY'});
                 return;
             }
+            if (nutrientList.length > 0) {
+                let query = '';
+                if (mode === 'ADD') {
+                    query = 'INSERT INTO t_maps_food_nutrient(mfn_f_id, mfn_n_id) VALUES';
+                    nutrientList.forEach((nutrient, index) => {
+                        if (index != 0) {
+                            query += ', (' + fId + ', ' + nutrient + ')';                    
+                        } else {
+                            query += ' (' + fId + ', ' + nutrient + ')';
+                        }
+                    });
+                    conn.query(query, (error, result) => {
+                        if (error) {
+                            console.log(error);
+                            conn.release();
+                            res.json({status: 'ERR_MYSQL_QUERY'});
+                            return;
+                        }
+                        conn.release();
+                        res.json({status: 'OK', result: result});
+                    });
 
-            conn.release();
-            res.json({status: 'OK', result: result});
+                } else if (mode === 'MODIFY') {
+                    query = 'DELETE FROM t_maps_food_nutrient WHERE mfn_f_id = ?';
+                    let deleteParams = [fId];
+                    conn.query(query, deleteParams, (error, result) => {
+                        if (error) {
+                            console.log(error);
+                            conn.release();
+                            res.json({status: 'ERR_MYSQL_QUERY'});
+                            return;
+                        }
+
+                        query = 'INSERT INTO t_maps_food_nutrient(mfn_f_id, mfn_n_id) VALUES';
+                        nutrientList.forEach((nutrient, index) => {
+                            if (index != 0) {
+                                query += ', (' + fId + ', ' + nutrient + ')';                    
+                            } else {
+                                query += ' (' + fId + ', ' + nutrient + ')';
+                            }
+                        });
+                        conn.query(query, (error, result) => {
+                            if (error) {
+                                console.log(error);
+                                conn.release();
+                                res.json({status: 'ERR_MYSQL_QUERY'});
+                                return;
+                            }
+                            conn.release();
+                            res.json({status: 'OK', result: result});
+                        });
+                                    
+                    });
+                }
+
+            } else {
+                conn.release();
+                res.json({status: 'OK', result: result});
+            }
+
+
         });
     });
 
