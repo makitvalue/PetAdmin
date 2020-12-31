@@ -495,7 +495,12 @@ router.post('/food/save', (req ,res) => {
                         conn.release();
                         res.json({status: 'OK', result: result});
                     });
+                } else {
+                    conn.release();
+                    res.json({status: 'OK', result: result});
                 }
+
+
                 
 
             } else if (mode === 'MODIFY') {
@@ -529,7 +534,10 @@ router.post('/food/save', (req ,res) => {
                             conn.release();
                             res.json({status: 'OK', result: result});
                         });
-                    }                   
+                    } else {
+                        conn.release();
+                        res.json({status: 'OK', result: result});
+                    }            
                                 
                 });
             
