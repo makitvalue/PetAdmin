@@ -767,9 +767,9 @@ router.post('/disease/save', (req, res) => {
                     query = 'INSERT INTO t_maps_disease_nutrient_food(mdnf_d_id, mdnf_type, mdnf_target_id) VALUES';
                     nutrientFoodData.forEach((data, index) => {
                         if (index != 0) {
-                            query += ', (' + dId + ', ' + data.type + ', ' + data.targetId + ')';                    
+                            query += ', (' + dId + ', "' + data.type + '", ' + data.targetId + ')';                    
                         } else {
-                            query += ' (' + dId + ', ' + data.type +', ' + data.targetId + ')';
+                            query += ' (' + dId + ', "' + data.type +'", ' + data.targetId + ')';
                         }
                     });
                     conn.query(query, (error, result) => {
