@@ -21,6 +21,10 @@
         <link rel="stylesheet" type="text/css" href="/css/main.css" />
     <% } else if (menu == 'nutrient' || menu == 'nutrient_add' || menu == 'nutrient_detail') { %>
         <link rel="stylesheet" type="text/css" href="/css/nutrient.css" />
+    <% } else if (menu == 'food' || menu == 'food_add' || menu == 'food_detail') { %>
+        <link rel="stylesheet" type="text/css" href="/css/food.css" />
+    <% } else if (menu == 'disease' || menu == 'disease_add' || menu == 'disease_detail') { %>
+        <link rel="stylesheet" type="text/css" href="/css/disease.css" />
     <% } %>
 </head>
 <body>
@@ -38,6 +42,9 @@
         <ul class="sub-menu">
             <a href="/nutrient"><li>영양소</li></a>
             <a href="/food"><li>음식</li></a>
+            <a href="/disease"><li>질병</li></a>
+            <a href="/symptom"><li>증상</li></a>
+            <a href="/product"><li>제품</li></a>
         </ul>
         <a href="/user"><div class="main-menu">사용자 관리</div></a>
     </nav>
@@ -56,6 +63,20 @@
         <% include ./nutrient_add %>
     <% } else if (menu == 'nutrient_detail') { %> 
         <% include ./nutrient_detail %>
+
+    <% } else if (menu == 'food') { %> 
+        <% include ./food %>
+    <% } else if (menu == 'food_add') { %> 
+        <% include ./food_add %>
+    <% } else if (menu == 'food_detail') { %> 
+        <% include ./food_detail %>
+
+    <% } else if (menu == 'disease') { %> 
+        <% include ./disease %>
+    <% } else if (menu == 'disease_add') { %> 
+        <% include ./disease_add %>
+    <% } else if (menu == 'disease_detail') { %> 
+        <% include ./disease_detail %>
     <% } %>
 
     </article>
@@ -64,6 +85,7 @@
         <div class="wrapper">FOOTER</div>
     </footer>
 
+    <script src="/js/config.js"></script>
     <script src="/js/common.js"></script>
 
     <% if (menu == 'login') { %>
@@ -73,6 +95,10 @@
         <script src="/js/main.js"></script>
     <% } else if (menu == 'nutrient' || menu == 'nutrient_add' || menu == 'nutrient_detail') { %>
         <script src="/js/nutrient.js"></script>
+    <% } else if (menu == 'food' || menu == 'food_add' || menu == 'food_detail') { %>
+        <script src="/js/food.js"></script>
+    <% } else if (menu == 'disease' || menu == 'disease_add' || menu == 'disease_detail') { %>
+        <script src="/js/disease.js"></script>
     <% } %>
 
 </body>

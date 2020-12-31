@@ -32,4 +32,50 @@ router.get('/nutrient/detail/:nId', (req, res) => {
 });
 
 
+router.get('/food', (req, res) => {
+    res.render('index', { 
+        menu: 'food'
+    });
+});
+
+
+router.get('/food/add', (req, res) => {
+    res.render('index', { 
+        menu: 'food_add'
+    });
+});
+
+
+router.get('/food/detail/:fId', (req, res) => {
+    res.render('index', { 
+        menu: 'food_detail',
+
+        fId: req.params.fId
+    });
+});
+
+
+router.get('/disease', (req, res) => {
+    res.render('index', { 
+        menu: 'disease'
+    });
+});
+
+
+router.get('/disease/add', (req, res) => {
+    res.render('index', { 
+        menu: 'disease_add'
+    });
+});
+
+
+router.get('/disease/detail/:dId', (req, res) => {
+    res.render('index', { 
+        menu: 'disease_detail',
+
+        dId: req.params.dId
+    });
+});
+
+
 module.exports = router;

@@ -21,9 +21,6 @@ body {
 	word-break: keep-all;
 	position: relative;
 }
-body.overflow-hidden {
-	overflow: hidden;
-}
 
 a, a:hover, a:visited, a:hover, a:focus, a:active {
 	color: #FFFFFF;
@@ -192,6 +189,96 @@ article {
     padding-left: 240px;
 }
 
+article .wrapper {
+    padding-top: 64px;
+}
+article .wrapper button.data-add {
+    margin-top: 32px;
+    font-size: 1.2rem;
+    padding: 8px 16px;
+}
+article .wrapper .form-box {
+    margin-top: 32px;
+}
+article .wrapper .form-box > p {
+    font-size: 1.2rem;
+    margin: 0;
+}
+article .wrapper .form-box > input,
+article .wrapper .form-box > select,
+article .wrapper .form-box > textarea {
+    margin-top: 12px;
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+}
+article .wrapper .form-box > textarea {
+    height: 200px;
+    vertical-align: middle;
+}
+article .wrapper .form-box .keyword-list {
+    margin-top: 6px;
+    font-size: 0;
+}
+article .wrapper .form-box .keyword-list .keyword {
+    display: inline-block;
+    vertical-align: top;
+    font-size: 1rem;
+    padding: 8px 12px;
+    margin: 6px 12px 6px 0;
+}
+article .wrapper .form-box .keyword-list .keyword-add {
+    display: inline-block;
+    vertical-align: top;
+    margin: 6px 0;
+}
+article .wrapper .form-box .keyword-list .keyword-add input {
+    font-size: 1rem;
+    padding: 8px;
+    width: 120px;
+}
+article .wrapper .form-box .keyword-list .keyword-add button {
+    font-size: 1rem;
+    padding: 8px 16px;
+}
+article .wrapper .form-box .relationship-list {
+    margin-top: 6px;
+    font-size: 0;
+}
+article .wrapper .form-box .relationship-list .relationship {
+    display: inline-block;
+    vertical-align: top;
+    font-size: 1rem;
+    padding: 8px 12px;
+    margin: 6px 12px 6px 0;
+}
+article .wrapper .form-box .relationship-list .relationship span {
+    color: #777777;
+    font-weight: 300;
+}
+article .wrapper .form-box .relationship-list .relationship:hover span {
+    color: #CCCCCC;
+}
+article .wrapper .form-box .relationship-list .relationship-add {
+    display: inline-block;
+    vertical-align: top;
+    margin: 6px 0;
+    font-size: 1rem;
+    padding: 8px 16px;
+}
+article .wrapper .buttons {
+    font-size: 0;
+    text-align: center;
+    margin-top: 32px;
+    padding-bottom: 64px;
+}
+article .wrapper .buttons button {
+    font-size: 1.2rem;
+    padding: 12px 18px;
+    margin: 0 16px;
+}
+
+
 footer {
     background: #555555;
     padding-left: 240px;
@@ -199,4 +286,121 @@ footer {
 footer .wrapper {
     padding: 84px 0;
     text-align: center;
+}
+
+
+.overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background: rgba(0, 0, 0, .5);
+	z-index: 999;
+}
+
+
+.data-list {
+    margin: 32px 0;
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #555555;
+}
+.data-list thead tr th {
+    font-size: 1rem;
+    padding: 16px;
+    background: #555555;
+    text-align: center;
+    border-left: 1px solid #333333;
+}
+.data-list thead tr th:first-child {
+    border-left: none;
+}
+.data-list tbody tr {
+    border-bottom: 1px solid #555555;
+}
+.data-list tbody tr:last-child {
+    border-bottom: none;
+}
+.data-list tbody tr td {
+    font-size: 0.8rem;
+    font-weight: 300;
+    text-align: center;
+    border-left: 1px solid #555555;
+    padding: 8px;
+}
+.data-list tbody tr td:first-child {
+    border-left: none;
+}
+.data-list tbody tr td.buttons {
+    padding: 4px;
+    font-size: 0;
+}
+.data-list tbody tr td.buttons button {
+    padding: 4px 12px;
+    margin: 4px;
+    font-size: 0.8rem;
+}
+
+
+.dialog-search-relationship {
+    z-index: 999;
+    width: 1024px;
+    max-width: 95%;
+    max-height: 95%;
+    background: #333333;
+	position: fixed;
+	right: 50%;
+	bottom: 50%;
+    -webkit-transform: translate(50%, 50%);
+	-moz-transform: translate(50%, 50%);
+	-ms-transform: translate(50%, 50%);
+	-o-transform: translate(50%, 50%);
+	transform: translate(50%, 50%);
+    box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2), 0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0,0,0,.12);
+    overflow: hidden;
+    overflow-y: auto;
+}
+.dialog-search-relationship .header {
+    padding: 32px;
+	position: relative;
+}
+.dialog-search-relationship .header i {
+    position: absolute;
+    right: 32px;
+	bottom: 50%;
+    -webkit-transform: translateY(50%);
+	-moz-transform: translateY(50%);
+	-ms-transform: translateY(50%);
+	-o-transform: translateY(50%);
+    transform: translateY(50%);
+    cursor: pointer;
+    font-size: 3rem;
+}
+.dialog-search-relationship .body .tab-wrapper {
+    font-size: 0;
+    border-top: 1px solid #555555;
+    border-bottom: 1px solid #333333;
+}
+.dialog-search-relationship .body .tab-wrapper .tab {
+    display: inline-block;
+    vertical-align: top;
+    width: 50%;
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-align: center;
+    cursor: pointer;
+    padding: 16px 0;
+}
+.dialog-search-relationship .body .tab-wrapper .tab.selected {
+    background: #555555;
+}
+.dialog-search-relationship .body .data-list {
+    margin: 0;
+}
+.dialog-search-relationship .body .data-list tbody tr {
+    cursor: pointer;
+}
+.dialog-search-relationship .body .data-list tbody tr.selected {
+    background: #555555;
 }

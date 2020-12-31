@@ -33,8 +33,8 @@ function getNutrientList() {
             html +=     '<td>' + nutrient.n_id + '</td>';
             html +=     '<td>' + nutrient.n_name + '</td>';
             html +=     '<td>' + nutrient.n_effect + '</td>';
-            html +=     '<td>' + nutrient.n_desc + '</td>';
-            html +=     '<td>' + nutrient.n_desc_over + '</td>';
+            html +=     '<td>' + noneToDash(nutrient.n_desc) + '</td>';
+            html +=     '<td>' + noneToDash(nutrient.n_desc_over) + '</td>';
             html +=     '<td class="buttons">';
             html +=         '<a href="/nutrient/detail/' + nutrient.n_id + '"><button class="default">자세히</button></a>';
             html +=         '<button class="js-button-remove default remove">삭제</button>';
@@ -65,7 +65,17 @@ function removeNutrient(nId) {
     .then((data) => { return data.json(); })
     .then((response) => {
         if (response.status != 'OK') {
-            alert('에러가 발생했습니다.');
+            if (response.status == 'ERR_EXISTS_FOOD') {
+                alert('연관된 음식 데이터가 존재합니다.');
+            } else if (response.status == 'ERR_EXISTS_SYMPTOM') {
+                alert('연관된 증상 데이터가 존재합니다.');
+            } else if (response.status == 'ERR_EXISTS_PRODUCT') {
+                alert('연관된 제품 데이터가 존재합니다.');
+            } else if (response.status == 'ERR_EXISTS_DISEASE') {
+                alert('연관된 질병 데이터가 존재합니다.');
+            } else {
+                alert('에러가 발생했습니다.');
+            }
             return;
         }
 
@@ -95,6 +105,7 @@ function getNutrient(nId) {
 
         let html = '';
         for (let i = 0; i < keywordList.length; i++) {
+            if (keywordList[i] === '') continue;
             html += '<button class="js-button-keyword default keyword">' + keywordList[i] + '</button>';
         }
         divKeywordAdd.insertAdjacentHTML('beforebegin', html);
@@ -123,6 +134,12 @@ function saveNutrient(mode, callback) {
     divKeywordList.querySelectorAll('.js-button-keyword').forEach((buttonKeyword) => {
         keywordList.push(buttonKeyword.innerText);
     });
+
+    if (keywordList.length == 0) {
+        alert('영양소 검색어 키워드를 입력해주세요.');
+        return;
+    } 
+
     let keyword = keywordList.join('|');
 
     fetch('/webapi/nutrient/save', {
