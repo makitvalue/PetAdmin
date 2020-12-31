@@ -731,9 +731,10 @@ router.post('/disease/save', (req, res) => {
     let query = '';
     let params = [name, keyword, bpId, reason, management];
 
-    if (mode === 'ADD') {
+    //저장인지 수정인지 확인
+    if (mode === 'ADD') { //추가일떄
         query += "INSERT INTO t_diseases(d_name, d_keyword, d_bp_id, d_reason, d_management) VALUES(?, ?, ?, ?, ?)";
-    } else if (mode === 'MODIFY') {
+    } else if (mode === 'MODIFY') { //수정일때
         dId = req.body.dId;
         if (f.isNone(dId)) {
             res.json({status: 'ERR_WRONG_PARAM'});
@@ -756,6 +757,7 @@ router.post('/disease/save', (req, res) => {
             return;
         }
 
+        //기본정보 INSERT 혹은 UPDATE 실행
         conn.query(query, params, (error, result) => {
             if (error) {
                 console.log(error);
@@ -763,10 +765,10 @@ router.post('/disease/save', (req, res) => {
                 res.json({status: 'ERR_MYSQL_QUERY'});
                 return;
             }
+            //연관된 영양소/음식이 있는지 확인
             if (nutrientFoodData.length > 0) {
-
                 let query = '';
-                if (mode === 'ADD') {
+                if (mode === 'ADD') { // 추가일떄
                     dId = result.insertId;
                     query = 'INSERT INTO t_maps_disease_nutrient_food(mdnf_d_id, mdnf_type, mdnf_target_id) VALUES ';
                     nutrientFoodData.forEach((data, index) => {
@@ -776,6 +778,8 @@ router.post('/disease/save', (req, res) => {
                             query += ' (' + dId + ', "' + data.type +'", ' + data.targetId + ')';
                         }
                     });
+
+                    //연관된 영양소/음식 INSERT 실행
                     conn.query(query, (error, result) => {
                         if (error) {
                             console.log(error);
@@ -783,6 +787,8 @@ router.post('/disease/save', (req, res) => {
                             res.json({status: 'ERR_MYSQL_QUERY'});
                             return;
                         } 
+
+                        //연관된 증상 있는지 확인
                         if (symptomData.length > 0) {
                             query = 'INSERT INTO t_maps_symptom_disease(msd_s_id, msd_d_id) VALUES ';
                             params = [dId];
@@ -794,6 +800,7 @@ router.post('/disease/save', (req, res) => {
                                 }
                             });
 
+                            //연관된 증상 INSERT 실행
                             conn.query(query, params, (error, result) => {
                                 if (error) {
                                     console.log(error);
@@ -811,9 +818,11 @@ router.post('/disease/save', (req, res) => {
                   
                     });
 
-                } else if (mode === 'MODIFY') {
+                } else if (mode === 'MODIFY') { // 수정일때
                     query = 'DELETE FROM t_maps_disease_nutrient_food WHERE mdnf_d_id = ?';
                     let deleteParams = [dId];
+
+                    //기존 연관된 영양소들 DELETE 실행
                     conn.query(query, deleteParams, (error, result) => {
                         if (error) {
                             console.log(error);
@@ -830,6 +839,7 @@ router.post('/disease/save', (req, res) => {
                                 query += ' (' + dId + ', "' + data.type +'", ' + data.targetId + ')';
                             }
                         });
+                        //새로 입력된 연관된 영양소들 INSERT 실행
                         conn.query(query, (error, result) => {
                             if (error) {
                                 console.log(error);
@@ -838,7 +848,8 @@ router.post('/disease/save', (req, res) => {
                                 return;
                             }
 
-                            if (symptomData.length > 0) {
+                            //관련된 증상이 있는지 확인
+                            if (symptomData.length > 0) { 
                                 query = 'INSERT INTO t_maps_symptom_disease(msd_s_id, msd_d_id) VALUES ';
                                 params = [dId];
                                 symptomData.forEach((data, index) => {
@@ -849,6 +860,7 @@ router.post('/disease/save', (req, res) => {
                                     }
                                 });
 
+                                //관련된 증상 INSERT 실행
                                 conn.query(query, params, (error, result) => {
                                     if (error) {
                                         console.log(error);
