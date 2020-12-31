@@ -624,7 +624,9 @@ router.get('/disease/get', (req, res) => {
 
                 let nutrientFoodInfo = result;
 
-                query = 'SELECT * FROM t_maps_symptom_disease WHERE msd_d_id = ?';
+                query = 'SELECT * FROM t_maps_symptom_disease AS msdTab ';
+                query += 'JOIN t_symptoms AS sTab ON sTab.s_id = msdTab.msd_s_id ';
+                query += 'WHERE msd_d_id = ?';
                 params = [dId];
 
                 conn.query(query, params, (error, result) => {
@@ -974,14 +976,14 @@ router.get('/symptom/get', (req, res) => {
                 return;
             }
 
-            let diseaseInfo = result[0];
+            let symptomInfo = result[0];
 
-            let query = 'SELECT * FROM t_maps_disease_nutrient_food AS mdnfTab ';
-            query += 'LEFT JOIN t_foods AS fTab ON fTab.f_id = mdnfTab.mdnf_target_id ';
-            query += 'LEFT JOIN t_nutrients AS nTab ON nTab.n_id = mdnfTab.mdnf_target_id ';
-            query += 'WHERE mdnfTab.mdnf_d_id = ?';
+            let query = 'SELECT * FROM t_maps_symptom_nutrient_food AS msnfTab ';
+            query += 'LEFT JOIN t_foods AS fTab ON fTab.f_id = msnfTab.msnf_target_id ';
+            query += 'LEFT JOIN t_nutrients AS nTab ON nTab.n_id = msnfTab.msnf_target_id ';
+            query += 'WHERE msnfTab.msnf_s_id = ?';
     
-            params = [dId];
+            params = [sId];
 
             conn.query(query, params, (error, result) => {
                 if (error) {
@@ -990,10 +992,27 @@ router.get('/symptom/get', (req, res) => {
                     res.json({status: 'ERR_MYSQL_QUERY'});
                     return;
                 }
-                res.json({status: 'OK', result: {
-                    disease: diseaseInfo,
-                    nutrientFoodList: result
-                }});
+
+                let nutrientFoodInfo = result;
+
+                query = 'SELECT * FROM t_maps_symptom_disease AS msdTab ';
+                query += 'JOIN t_disease AS dTab ON dTab.d_id = msdTab.msd_d_id ';
+                query += 'WHERE msd_s_id = ?';
+                params = [sId];
+
+                conn.query(query, params, (error, result) => {
+                    if (error) {
+                        console.log(error);
+                        conn.release();
+                        res.json({status: 'ERR_MYSQL_QUERY'});
+                        return;
+                    }
+                    res.json({status: 'OK', result: {
+                        symptom: symptomInfo,
+                        nutrientFoodList: nutrientFoodInfo,
+                        diseaseList: result
+                    }});
+                });
             });
         });
     });
@@ -1010,7 +1029,7 @@ router.post('/symptom/delete', (req, res) => {
 
     let existCheckQuery = "";
     existCheckQuery += "SELECT * ";
-    existCheckQuery += "FROM t_diseases AS dTab ";
+    existCheckQuery += "FROM t_symptom AS sTab ";
         existCheckQuery += "LEFT JOIN (SELECT mdnf_d_id, COUNT(*) AS mdnfCnt FROM t_maps_disease_nutrient_food GROUP BY mdnf_d_id) AS mdnfTab ";
             existCheckQuery += "ON dTab.d_id = mdnfTab.mdnf_d_id ";
         existCheckQuery += "LEFT JOIN (SELECT msd_d_id, COUNT(*) AS msdCnt FROM t_maps_symptom_disease GROUP BY msd_d_id) AS msdTab ";
