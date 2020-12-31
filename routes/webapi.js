@@ -291,13 +291,36 @@ router.get('/food/get', (req ,res) => {
                 res.json({status: 'ERR_MYSQL_QUERY'});
                 return;
             }
-            conn.release();
+
             if (result.length < 1) {
+                conn.release();
                 res.json({ status: 'ERR_NO_DATA'});
                 return;
             }
 
-            res.json({status: 'OK', result: result[0]});
+            foodInfo = result[0];
+
+            query = 'SELECT * FROM t_maps_food_nutrient AS fTab ';
+            query += 'LEFT JOIN t_nutrients AS nTab ON nTab.n_id = fTab.mfn_n_id ';
+            query += 'WHERE fTab.mfn_f_id = ?';
+            params = [fId];
+
+            conn.query(query, params, (error, result) => {
+                if (error) {
+                    console.log(error);
+                    conn.release();
+                    res.json({status: 'ERR_MYSQL_QUERY'});
+                    return;
+                } 
+
+                conn.release();
+                res.json({status: 'OK', result: {
+                    food: foodInfo,
+                    nutrientList: result
+                }});
+
+            });
+
         });
     });
 
@@ -622,28 +645,28 @@ router.post('/disease/delete', (req, res) => {
                 return;
             }
 
-            if (result[0].mfnCnt > 0) {
+            if (result[0].mdnfCnt > 0) {
                 deleteQuery = "DELETE dTab, mdnfTab ";
                 deleteQuery += "FROM t_diseases AS dTab ";
                 deleteQuery += "JOIN t_maps_disease_nutrient_food AS mdnfTab ON mdnfTab.mdnf_d_id = dTab.d_id ";
                 deleteQuery += "WHERE dTab.d_id = ?";
             } 
 
-            if (result[0].msnfCnt > 0) {
+            if (result[0].msdCnt > 0) {
                 conn.release();
                 res.json({status: 'ERR_EXISTS_SYMPTOM'});
                 return;
             } 
 
-            if (result[0].mpnfCnt > 0) {
+            if (result[0].mpdCnt > 0) {
                 conn.release();
                 res.json({status: 'ERR_EXISTS_PRODUCT'});
                 return;
             } 
 
-            if (result[0].mdnfCnt > 0) {
+            if (result[0].mbagdCnt > 0) {
                 conn.release();
-                res.json({status: 'ERR_EXISTS_DISEASE'});
+                res.json({status: 'ERR_EXISTS_BREED_AGE_GROUP'});
                 return;
             } 
 
