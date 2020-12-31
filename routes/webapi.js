@@ -875,34 +875,43 @@ router.post('/disease/save', (req, res) => {
                                 return;
                             }
 
-                            //관련된 증상이 있는지 확인
-                            if (symptomData.length > 0) { 
-                                query = 'INSERT INTO t_maps_symptom_disease(msd_s_id, msd_d_id) VALUES ';
-                                params = [dId];
-                                symptomData.forEach((data, index) => {
-                                    if (index != 0) {
-                                        query += ', (' + data + ', ' + dId + ') ';                    
-                                    } else {
-                                        query += '(' + data + ', ' + dId + ') '; 
-                                    }
-                                });
+                            query = 'DELETE FROM t_maps_symptom_disease WHERE msd_d_id = ?';
+                            params = [dId];
+                            conn.query(query, params, (error, result) => {
+                                if (error) {
+                                    console.log(error);
+                                    conn.release();
+                                    res.json({status: 'ERR_MYSQL_QUERY'});
+                                    return;
+                                }
+                                //관련된 증상이 있는지 확인
+                                if (symptomData.length > 0) { 
+                                    query = 'INSERT INTO t_maps_symptom_disease(msd_s_id, msd_d_id) VALUES ';
+                                    params = [dId];
+                                    symptomData.forEach((data, index) => {
+                                        if (index != 0) {
+                                            query += ', (' + data + ', ' + dId + ') ';                    
+                                        } else {
+                                            query += '(' + data + ', ' + dId + ') '; 
+                                        }
+                                    });
 
-                                //관련된 증상 INSERT 실행
-                                conn.query(query, params, (error, result) => {
-                                    if (error) {
-                                        console.log(error);
+                                    //관련된 증상 INSERT 실행
+                                    conn.query(query, params, (error, result) => {
+                                        if (error) {
+                                            console.log(error);
+                                            conn.release();
+                                            res.json({status: 'ERR_MYSQL_QUERY'});
+                                            return;
+                                        }
                                         conn.release();
-                                        res.json({status: 'ERR_MYSQL_QUERY'});
-                                        return;
-                                    }
+                                        res.json({status: 'OK', result: result});
+                                    });
+                                } else {
                                     conn.release();
                                     res.json({status: 'OK', result: result});
-                                });
-                            } else {
-                                conn.release();
-                                res.json({status: 'OK', result: result});
-                            }
-
+                                }
+                            });
                         });
                                     
                     });
