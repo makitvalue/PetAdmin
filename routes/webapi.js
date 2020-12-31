@@ -614,10 +614,18 @@ router.get('/disease/get', (req, res) => {
     
             params = [dId];
 
-            res.json({status: 'OK', result: {
-                disease: diseaseInfo,
-                nutrientFoodList: result
-            }});
+            conn.query(query, params, (error, result) => {
+                if (error) {
+                    console.log(error);
+                    conn.release();
+                    res.json({status: 'ERR_MYSQL_QUERY'});
+                    return;
+                }
+                res.json({status: 'OK', result: {
+                    disease: diseaseInfo,
+                    nutrientFoodList: result
+                }});
+            });
         });
     });
 });
