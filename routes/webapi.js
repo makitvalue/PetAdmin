@@ -1,5 +1,7 @@
 var express = require('express');
 var router = express.Router();
+var formidable = require('formidable');
+
 const getConnection = require('../lib/database');
 
 
@@ -396,12 +398,60 @@ router.post('/food/delete', (req, res) => {
 
 });
 
-//음식 저장 (추가, 수정)
+//음식 저장 (추가, 수정) 미완성
 router.post('/food/save', (req ,res) => {
     let mode = req.body.mode; // ADD, MODIFY
     let fId;
     let name = req.body.name;
     let keyword = req.body.keyword;
+    let desc = req.body.desc;
+
+    if (f.isNone(mode) || f.isNone(name) || f.isNone(keyword) || f.isNone(desc)) {
+        res.json({status: 'ERR_WRONG_PARAM'});
+        return;
+    }
+
+    let query = "";
+    let params = [name, keyword, desc];
+
+    if (mode === 'ADD') {
+        query += "INSERT INTO t_foods(f_name, f_keyword, f_desc) VALUES(?, ?, ?)";
+    } else if (mode === 'MODIFY') {
+        fId = req.body.fId;
+        if (f.isNone(fId)) {
+            res.json({status: 'ERR_WRONG_PARAM'});
+            return;
+        }
+        query += "UPDATE t_foods SET";
+        query += " f_name = ?, f_keyword = ?, f_desc = ?";
+        query += " WHERE f_id = ?";
+        params.push(fId);
+    } else {
+        res.json({status: 'ERR_WRONG_MODE'});
+        return;
+    }
+
+    getConnection((error, conn) => {
+        if (error) {
+            console.log(error);
+            conn.release();
+            res.json({ status: 'ERR_MYSQL_POOL' });
+            return;
+        }
+
+        conn.query(query, params, (error, result) => {
+            if (error) {
+                console.log(error);
+                conn.release();
+                res.json({status: 'ERR_MYSQL_QUERY'});
+                return;
+            }
+
+            conn.release();
+            res.json({status: 'OK', result: result});
+        });
+    });
+
 });
 
 
@@ -474,16 +524,16 @@ router.post('/disease/delete', (req, res) => {
 
     let existCheckQuery = "";
     existCheckQuery += "SELECT * ";
-    existCheckQuery += "FROM t_foods AS fTab ";
-        existCheckQuery += "LEFT JOIN (SELECT mfn_f_id, COUNT(*) AS mfnCnt FROM t_maps_food_nutrient GROUP BY mfn_f_id) AS mfnTab ";
-            existCheckQuery += "ON fTab.f_id = mfnTab.mfn_f_id ";
-        existCheckQuery += "LEFT JOIN (SELECT msnf_target_id, COUNT(*) AS msnfCnt FROM t_maps_symptom_nutrient_food WHERE msnf_type = 'FOOD' GROUP BY msnf_target_id) AS msnfTab ";
-            existCheckQuery += "ON fTab.f_id = msnfTab.msnf_target_id ";
-        existCheckQuery += "LEFT JOIN (SELECT mpnf_target_id, COUNT(*) AS mpnfCnt FROM t_maps_product_nutrient_food WHERE mpnf_type = 'FOOD' GROUP BY mpnf_target_id) AS mpnfTab ";
-            existCheckQuery += "ON fTab.f_id = mpnfTab.mpnf_target_id ";
-        existCheckQuery += "LEFT JOIN (SELECT mdnf_target_id, COUNT(*) AS mdnfCnt FROM t_maps_disease_nutrient_food WHERE mdnf_type = 'FOOD' GROUP BY mdnf_target_id) AS mdnfTab ";
-            existCheckQuery += "ON fTab.f_id = mdnfTab.mdnf_target_id ";
-    existCheckQuery += "WHERE fTab.f_id = ?";
+    existCheckQuery += "FROM t_diseases AS dTab ";
+        existCheckQuery += "LEFT JOIN (SELECT mdnf_d_id, COUNT(*) AS mdnfCnt FROM t_maps_disease_nutrient_food GROUP BY mdnf_d_id) AS mdnfTab ";
+            existCheckQuery += "ON dTab.d_id = mdnfTab.mdnf_d_id ";
+        existCheckQuery += "LEFT JOIN (SELECT msd_d_id, COUNT(*) AS msdCnt FROM t_maps_symptom_disease GROUP BY msd_d_id) AS msdTab ";
+            existCheckQuery += "ON dTab.d_id = msdTab.msd_d_id ";
+        existCheckQuery += "LEFT JOIN (SELECT mpd_d_id, COUNT(*) AS mpdCnt FROM t_maps_pet_disease GROUP BY mpd_d_id) AS mpdTab ";
+            existCheckQuery += "ON dTab.d_id = mpdTab.mpd_d_id ";
+        existCheckQuery += "LEFT JOIN (SELECT mbagd_d_id, COUNT(*) AS mbagdCnt FROM t_maps_breed_age_group_disease GROUP BY mbagd_d_id) AS mbagdTab ";
+            existCheckQuery += "ON dTab.d_id = mbagdTab.mbagd_d_id ";
+    existCheckQuery += "WHERE dTab.d_id = ?";
 
     let existCheckParams = [dId];
 
@@ -503,7 +553,7 @@ router.post('/disease/delete', (req, res) => {
                 return;
             }
 
-            let deleteQuery = "DELETE FROM t_foods WHERE f_id = ?";
+            let deleteQuery = "DELETE FROM t_diseases WHERE d_id = ?";
 
             if (result < 1) {
                 conn.release();
@@ -512,10 +562,10 @@ router.post('/disease/delete', (req, res) => {
             }
 
             if (result[0].mfnCnt > 0) {
-                deleteQuery = "DELETE fTab, mfnTab ";
-                deleteQuery += "FROM t_foods AS fTab ";
-                deleteQuery += "JOIN t_maps_food_nutrient AS mfnTab ON mfnTab.mfn_f_id = fTab.f_id ";
-                deleteQuery += "WHERE fTab.f_id = ?";
+                deleteQuery = "DELETE dTab, mdnfTab ";
+                deleteQuery += "FROM t_diseases AS dTab ";
+                deleteQuery += "JOIN t_maps_disease_nutrient_food AS mdnfTab ON mdnfTab.mdnf_d_id = dTab.d_id ";
+                deleteQuery += "WHERE dTab.d_id = ?";
             } 
 
             if (result[0].msnfCnt > 0) {
