@@ -471,9 +471,11 @@ router.post('/food/save', (req ,res) => {
                 res.json({status: 'ERR_MYSQL_QUERY'});
                 return;
             }
-            if (nutrientList.length > 0) {
-                let query = '';
-                if (mode === 'ADD') {
+            
+            let query = '';
+            if (mode === 'ADD') {
+                
+                if (nutrientList.length > 0) {
                     fId = result.insertId;
                     query = 'INSERT INTO t_maps_food_nutrient(mfn_f_id, mfn_n_id) VALUES';
                     nutrientList.forEach((nutrient, index) => {
@@ -493,18 +495,22 @@ router.post('/food/save', (req ,res) => {
                         conn.release();
                         res.json({status: 'OK', result: result});
                     });
+                }
+                
 
-                } else if (mode === 'MODIFY') {
-                    query = 'DELETE FROM t_maps_food_nutrient WHERE mfn_f_id = ?';
-                    let deleteParams = [fId];
-                    conn.query(query, deleteParams, (error, result) => {
-                        if (error) {
-                            console.log(error);
-                            conn.release();
-                            res.json({status: 'ERR_MYSQL_QUERY'});
-                            return;
-                        }
+            } else if (mode === 'MODIFY') {
 
+                query = 'DELETE FROM t_maps_food_nutrient WHERE mfn_f_id = ?';
+                let deleteParams = [fId];
+                conn.query(query, deleteParams, (error, result) => {
+                    if (error) {
+                        console.log(error);
+                        conn.release();
+                        res.json({status: 'ERR_MYSQL_QUERY'});
+                        return;
+                    }
+
+                    if (nutrientList.length > 0) {
                         query = 'INSERT INTO t_maps_food_nutrient(mfn_f_id, mfn_n_id) VALUES';
                         nutrientList.forEach((nutrient, index) => {
                             if (index != 0) {
@@ -523,9 +529,10 @@ router.post('/food/save', (req ,res) => {
                             conn.release();
                             res.json({status: 'OK', result: result});
                         });
-                                    
-                    });
-                }
+                    }                   
+                                
+                });
+            
 
             } else {
                 conn.release();
@@ -587,11 +594,19 @@ router.get('/disease/get', (req, res) => {
                 res.json({status: 'ERR_MYSQL_QUERY'});
                 return;
             }
-            conn.release();
+            
             if (result.length < 1) {
+                conn.release();
                 res.json({ status: 'ERR_NO_DATA'});
                 return;
             }
+
+            let diseaseInfo = result[0]; 
+    
+            // query = 'SELECT * FROM t_maps_disease_nutrient_food AS fTab ';
+            // query += 'LEFT JOIN t_nutrients AS nTab ON nTab.n_id = fTab.mfn_n_id ';
+            // query += 'WHERE fTab.mfn_f_id = ?';
+            // params = [fId];
 
             res.json({status: 'OK', result: result[0]});
         });
