@@ -32,7 +32,7 @@ function getNutrientList() {
             html += '<tr class="js-tr-nutrient" nId="' + nutrient.n_id + '">';
             html +=     '<td>' + nutrient.n_id + '</td>';
             html +=     '<td>' + nutrient.n_name + '</td>';
-            html +=     '<td>' + nutrient.n_effect + '</td>';
+            html +=     '<td>' + effectToString(nutrient.n_effect) + '</td>';
             html +=     '<td>' + noneToDash(nutrient.n_desc) + '</td>';
             html +=     '<td>' + noneToDash(nutrient.n_desc_over) + '</td>';
             html +=     '<td class="buttons">';

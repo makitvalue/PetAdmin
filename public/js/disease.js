@@ -139,15 +139,15 @@ function removeDisease(dId) {
     .then((data) => { return data.json(); })
     .then((response) => {
         if (response.status != 'OK') {
-            // if (response.status == 'ERR_EXISTS_SYMPTOM') {
-            //     alert('연관된 증상 데이터가 존재합니다.');
-            // } else if (response.status == 'ERR_EXISTS_PRODUCT') {
-            //     alert('연관된 제품 데이터가 존재합니다.');
-            // } else if (response.status == 'ERR_EXISTS_DISEASE') {
-            //     alert('연관된 질병 데이터가 존재합니다.');
-            // } else {
+            if (response.status == 'ERR_EXISTS_SYMPTOM') {
+                alert('연관된 증상 데이터가 존재합니다.');
+            } else if (response.status == 'ERR_EXISTS_PRODUCT') {
+                alert('연관된 제품 데이터가 존재합니다.');
+            } else if (response.status == 'ERR_EXISTS_BREED_AGE_GROUP') {
+                alert('연관된 견종별 나이대 그룹이 존재합니다.');
+            } else {
                 alert('에러가 발생했습니다.');
-            // }
+            }
             return;
         }
 
@@ -314,14 +314,14 @@ function initDisease() {
         let html = '';
         for (let key in bodyParts) {
             let value = bodyParts[key];
-            html += '<option value="' + key + '" ' + ((key == 0) ? 'selected' : '') + '>' + value + '</option>';
+            html += '<option value="' + key + '" ' + ((key == 0) ? 'selected' : '') + '>' + value + '(' + key + ')</option>';
         }
         selectBodyPart.innerHTML = html;
     }
 
     if (buttonFoodNutrientAdd) {
         buttonFoodNutrientAdd.addEventListener('click', () => {
-            document.querySelector('body').insertAdjacentHTML('beforeend', '<div class="js-div-overlay overlay"></div>');
+            document.querySelector('body').insertAdjacentHTML('beforeend', '<div class="js-div-overlay overlay" key="DIALOG_SEARCH_RELATIONSHIP" style="z-index: 999;"></div>');
 
             let html = '';
             html += '<div class="js-div-dialog-search-relationship dialog-search-relationship">';
@@ -344,7 +344,7 @@ function initDisease() {
 
             let iClose = document.querySelector('.js-div-dialog-search-relationship .js-i-close');
             iClose.addEventListener('click', () => {
-                document.querySelector('.js-div-overlay').remove();
+                document.querySelector('.js-div-overlay[key="DIALOG_SEARCH_RELATIONSHIP"]').remove();
                 document.querySelector('.js-div-dialog-search-relationship').remove();
             });
 
@@ -422,7 +422,7 @@ function initDisease() {
                                 html += '<tr class="js-tr-nutrient ' + ((selectedNIdList.indexOf(nutrient.n_id) === -1) ? '': 'selected') + '" nId="' + nutrient.n_id + '" nName="' + nutrient.n_name + '" >';
                                 html +=     '<td>' + nutrient.n_id + '</td>';
                                 html +=     '<td>' + nutrient.n_name + '</td>';
-                                html +=     '<td>' + nutrient.n_effect + '</td>';
+                                html +=     '<td>' + effectToString(nutrient.n_effect) + '</td>';
                                 html +=     '<td>' + noneToDash(nutrient.n_desc) + '</td>';
                                 html +=     '<td>' + noneToDash(nutrient.n_desc_over) + '</td>';
                                 html += '</tr>';
@@ -464,7 +464,7 @@ function initDisease() {
 
     if (buttonSymptomAdd) {
         buttonSymptomAdd.addEventListener('click', () => {
-            document.querySelector('body').insertAdjacentHTML('beforeend', '<div class="js-div-overlay overlay"></div>');
+            document.querySelector('body').insertAdjacentHTML('beforeend', '<div class="js-div-overlay overlay" key="DIALOG_SEARCH_RELATIONSHIP" style="z-index: 999;"></div>');
 
             let html = '';
             html += '<div class="js-div-dialog-search-relationship dialog-search-relationship">';
@@ -489,7 +489,7 @@ function initDisease() {
 
             let iClose = document.querySelector('.js-div-dialog-search-relationship .js-i-close');
             iClose.addEventListener('click', () => {
-                document.querySelector('.js-div-overlay').remove();
+                document.querySelector('.js-div-overlay[key="DIALOG_SEARCH_RELATIONSHIP"]').remove();
                 document.querySelector('.js-div-dialog-search-relationship').remove();
             });
 

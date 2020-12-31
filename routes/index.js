@@ -78,4 +78,50 @@ router.get('/disease/detail/:dId', (req, res) => {
 });
 
 
+router.get('/symptom', (req, res) => {
+    res.render('index', { 
+        menu: 'symptom'
+    });
+});
+
+
+router.get('/symptom/add', (req, res) => {
+    res.render('index', { 
+        menu: 'symptom_add'
+    });
+});
+
+
+router.get('/symptom/detail/:sId', (req, res) => {
+    res.render('index', { 
+        menu: 'symptom_detail',
+
+        sId: req.params.sId
+    });
+});
+
+
+router.get('/product', (req, res) => {
+    res.render('index', { 
+        menu: 'product'
+    });
+});
+
+
+router.get('/product/add', (req, res) => {
+    res.render('index', { 
+        menu: 'product_add'
+    });
+});
+
+
+router.get('/product/detail/:pId', (req, res) => {
+    res.render('index', { 
+        menu: 'product_detail',
+
+        pId: req.params.pId
+    });
+});
+
+
 module.exports = router;
