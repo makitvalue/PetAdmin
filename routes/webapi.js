@@ -610,11 +610,9 @@ router.get('/disease/get', (req, res) => {
             }
 
             let diseaseInfo = result[0]; 
+
     
-            // query = 'SELECT * FROM t_maps_disease_nutrient_food AS fTab ';
-            // query += 'LEFT JOIN t_nutrients AS nTab ON nTab.n_id = fTab.mfn_n_id ';
-            // query += 'WHERE fTab.mfn_f_id = ?';
-            // params = [fId];
+            params = [dId];
 
             res.json({status: 'OK', result: result[0]});
         });
@@ -738,7 +736,7 @@ router.post('/disease/save', (req, res) => {
             return;
         }
         query += "UPDATE t_diseases SET";
-        query += " d_name = ?, d_keyword = ?, d_dpId = ?, d_reason = ?, d_management = ?";
+        query += " d_name = ?, d_keyword = ?, d_dp_id = ?, d_reason = ?, d_management = ?";
         query += " WHERE d_id = ?";
         params.push(dId);
     } else {
