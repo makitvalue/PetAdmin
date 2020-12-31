@@ -424,17 +424,13 @@ router.post('/food/save', (req ,res) => {
     let name = req.body.name;
     let keyword = req.body.keyword;
     let desc = req.body.desc;
-    let nutrients = req.body.nutrients;
-    let nutrientList = [];
+    let nutrientList = req.body.nutrients;
 
     if (f.isNone(mode) || f.isNone(name) || f.isNone(keyword)) {
         res.json({status: 'ERR_WRONG_PARAM'});
         return;
     }
 
-    if (!f.isNone(nutrients)) {
-        nutrientList = nutrients.split('|');
-    }
 
     let query = "";
     let params = [name, keyword, desc];
@@ -609,12 +605,19 @@ router.get('/disease/get', (req, res) => {
                 return;
             }
 
-            let diseaseInfo = result[0]; 
+            let diseaseInfo = result[0];
 
+            let query = 'SELECT * FROM t_maps_disease_nutrient_food AS mdnfTab ';
+            query += 'LEFT JOIN t_foods AS fTab ON fTab.f_id = mdnfTab.mdnf_target_id ';
+            query += 'LEFT JOIN t_nutrients AS nTab ON nTab.n_id = mdnfTab.mdnf_target_id ';
+            query += 'WHERE mdnfTab.mdnf_d_id = ?';
     
             params = [dId];
 
-            res.json({status: 'OK', result: result[0]});
+            res.json({status: 'OK', result: {
+                disease: diseaseInfo,
+                nutrientFoodList: result
+            }});
         });
     });
 });
@@ -718,6 +721,7 @@ router.post('/disease/save', (req, res) => {
     let reason = req.body.reason;
     let management = req.body.management;
     let nutrientFoodData = req.body.nutrientFoodData;
+    let symptomData = req.body.symptomData;
     
     if (f.isNone(mode) || f.isNone(name) || f.isNone(keyword) || f.isNone(bpId)) {
         res.json({status: 'ERR_WRONG_PARAM'});
@@ -764,7 +768,7 @@ router.post('/disease/save', (req, res) => {
                 let query = '';
                 if (mode === 'ADD') {
                     dId = result.insertId;
-                    query = 'INSERT INTO t_maps_disease_nutrient_food(mdnf_d_id, mdnf_type, mdnf_target_id) VALUES';
+                    query = 'INSERT INTO t_maps_disease_nutrient_food(mdnf_d_id, mdnf_type, mdnf_target_id) VALUES ';
                     nutrientFoodData.forEach((data, index) => {
                         if (index != 0) {
                             query += ', (' + dId + ', "' + data.type + '", ' + data.targetId + ')';                    
@@ -778,9 +782,33 @@ router.post('/disease/save', (req, res) => {
                             conn.release();
                             res.json({status: 'ERR_MYSQL_QUERY'});
                             return;
+                        } 
+                        if (symptomData.length > 0) {
+                            query = 'INSERT INTO t_maps_symptom_disease(msd_s_id, msd_d_id) VALUES ';
+                            params = [dId];
+                            symptomData.forEach((data, index) => {
+                                if (index != 0) {
+                                    query += ', (' + data + ', ' + dId + ') ';                    
+                                } else {
+                                    query += '(' + data + ', ' + dId + ') '; 
+                                }
+                            });
+
+                            conn.query(query, params, (error, result) => {
+                                if (error) {
+                                    console.log(error);
+                                    conn.release();
+                                    res.json({status: 'ERR_MYSQL_QUERY'});
+                                    return;
+                                }
+                                conn.release();
+                                res.json({status: 'OK', result: result});
+                            });
+                        } else {
+                            conn.release();
+                            res.json({status: 'OK', result: result});
                         }
-                        conn.release();
-                        res.json({status: 'OK', result: result});
+                  
                     });
 
                 } else if (mode === 'MODIFY') {
@@ -797,9 +825,9 @@ router.post('/disease/save', (req, res) => {
                         query = 'INSERT INTO t_maps_disease_nutrient_food(mdnf_d_id, mdnf_type, mdnf_target_id) VALUES';
                         nutrientFoodData.forEach((data, index) => {
                             if (index != 0) {
-                                query += ', (' + dId + ', ' + data.type + ', ' + data.targetId + ')';                    
+                                query += ', (' + dId + ', "' + data.type + '", ' + data.targetId + ')';                    
                             } else {
-                                query += ' (' + dId + ', ' + data.type +', ' + data.targetId + ')';
+                                query += ' (' + dId + ', "' + data.type +'", ' + data.targetId + ')';
                             }
                         });
                         conn.query(query, (error, result) => {
@@ -809,8 +837,33 @@ router.post('/disease/save', (req, res) => {
                                 res.json({status: 'ERR_MYSQL_QUERY'});
                                 return;
                             }
-                            conn.release();
-                            res.json({status: 'OK', result: result});
+
+                            if (symptomData.length > 0) {
+                                query = 'INSERT INTO t_maps_symptom_disease(msd_s_id, msd_d_id) VALUES ';
+                                params = [dId];
+                                symptomData.forEach((data, index) => {
+                                    if (index != 0) {
+                                        query += ', (' + data + ', ' + dId + ') ';                    
+                                    } else {
+                                        query += '(' + data + ', ' + dId + ') '; 
+                                    }
+                                });
+
+                                conn.query(query, params, (error, result) => {
+                                    if (error) {
+                                        console.log(error);
+                                        conn.release();
+                                        res.json({status: 'ERR_MYSQL_QUERY'});
+                                        return;
+                                    }
+                                    conn.release();
+                                    res.json({status: 'OK', result: result});
+                                });
+                            } else {
+                                conn.release();
+                                res.json({status: 'OK', result: result});
+                            }
+
                         });
                                     
                     });
