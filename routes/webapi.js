@@ -128,8 +128,6 @@ router.post('/nutrient/save', (req, res) => {
         return;
     }
 
-    
-
     getConnection((error, conn) => {
         if (error) {
             console.log(error);
@@ -150,8 +148,6 @@ router.post('/nutrient/save', (req, res) => {
             res.json({status: 'OK', result: result});
         });
     });
-
-
 
 });
 
@@ -398,7 +394,7 @@ router.post('/food/delete', (req, res) => {
 
 });
 
-//음식 저장 (추가, 수정) 미완성
+//음식 저장 (추가, 수정)
 router.post('/food/save', (req ,res) => {
     let mode = req.body.mode; // ADD, MODIFY
     let fId;
@@ -667,7 +663,188 @@ router.post('/disease/delete', (req, res) => {
     });
 });
 
+//질병 저장 (추가, 수정)
+router.post('/disease/save', (req, res) => {
+    let mode = req.body.mode; // ADD, MODIFY
+    let dId;
+    let bpId = req.body.bpId;
+    let name = req.body.name;
+    let keyword = req.body.keyword;
+    let reason = req.body.reason;
+    let management = req.body.management;
+    let nutrientFoodData = req.body.nutrientFoodData;
+    
+    if (f.isNone(mode) || f.isNone(name) || f.isNone(keyword) || f.isNone(bpId)) {
+        res.json({status: 'ERR_WRONG_PARAM'});
+        return;
+    }
 
+    let query = '';
+    let params = [name, keyword, bpId, reason, management];
+
+    if (mode === 'ADD') {
+        query += "INSERT INTO t_diseases(d_name, d_keyword, d_bpId, d_reason, d_management) VALUES(?, ?, ?, ?, ?)";
+    } else if (mode === 'MODIFY') {
+        dId = req.body.dId;
+        if (f.isNone(dId)) {
+            res.json({status: 'ERR_WRONG_PARAM'});
+            return;
+        }
+        query += "UPDATE t_diseases SET";
+        query += " d_name = ?, d_keyword = ?, d_dpId = ?, d_reason = ?, d_management = ?";
+        query += " WHERE d_id = ?";
+        params.push(dId);
+    } else {
+        res.json({status: 'ERR_WRONG_MODE'});
+        return;
+    }
+
+    getConnection((error, conn) => {
+        if (error) {
+            console.log(error);
+            conn.release();
+            res.json({ status: 'ERR_MYSQL_POOL' });
+            return;
+        }
+
+        conn.query(query, params, (error, result) => {
+            if (error) {
+                console.log(error);
+                conn.release();
+                res.json({status: 'ERR_MYSQL_QUERY'});
+                return;
+            }
+            if (nutrientFoodData.length > 0) {
+                nutrientFoodData = JSON.parse(nutrientFoodData);
+                let query = '';
+                if (mode === 'ADD') {
+                    query = 'INSERT INTO t_maps_disease_nutrient_food(mdnf_d_id, mdnf_type, mdnf_target_id) VALUES';
+                    nutrientFoodData.forEach((data, index) => {
+                        if (index != 0) {
+                            query += ', (' + dId + ', ' + data.type + ', ' + data.targetId + ')';                    
+                        } else {
+                            query += ' (' + dId + ', ' + data.type +', ' + data.targetId + ')';
+                        }
+                    });
+                    conn.query(query, (error, result) => {
+                        if (error) {
+                            console.log(error);
+                            conn.release();
+                            res.json({status: 'ERR_MYSQL_QUERY'});
+                            return;
+                        }
+                        conn.release();
+                        res.json({status: 'OK', result: result});
+                    });
+
+                } else if (mode === 'MODIFY') {
+                    query = 'DELETE FROM t_maps_disease_nutrient_food WHERE mdnf_d_id = ?';
+                    let deleteParams = [dId];
+                    conn.query(query, deleteParams, (error, result) => {
+                        if (error) {
+                            console.log(error);
+                            conn.release();
+                            res.json({status: 'ERR_MYSQL_QUERY'});
+                            return;
+                        }
+
+                        query = 'INSERT INTO t_maps_disease_nutrient_food(mdnf_d_id, mdnf_type, mdnf_target_id) VALUES';
+                        nutrientFoodData.forEach((data, index) => {
+                            if (index != 0) {
+                                query += ', (' + dId + ', ' + data.type + ', ' + data.targetId + ')';                    
+                            } else {
+                                query += ' (' + dId + ', ' + data.type +', ' + data.targetId + ')';
+                            }
+                        });
+                        conn.query(query, (error, result) => {
+                            if (error) {
+                                console.log(error);
+                                conn.release();
+                                res.json({status: 'ERR_MYSQL_QUERY'});
+                                return;
+                            }
+                            conn.release();
+                            res.json({status: 'OK', result: result});
+                        });
+                                    
+                    });
+                }
+
+            } else {
+                conn.release();
+                res.json({status: 'OK', result: result});
+            }
+
+
+        });
+    });
+
+
+});
+
+
+//증상 전체 조회
+router.get('/symptom/get/all', (req, res) => {
+    let query = "SELECT * FROM t_symptoms";
+
+    getConnection((error, conn) => {
+        if (error) {
+            console.log(error);
+            res.json({ status: 'ERR_MYSQL_POOL' });
+            return;
+        }
+        conn.query(query, (error, result) => {
+            if (error) {
+                console.log(error);
+                conn.release();
+                res.json({status: 'ERR_MYSQL_QUERY'});
+                return;
+            }
+            conn.release();
+            res.json({status: 'OK', result: result});
+        });
+    });
+});
+
+//특정 증상 조회
+router.get('/symptom/get', (req, res) => {
+    
+    let sId = req.query.sId;
+
+    if (f.isNone(sId)) {
+        res.json({status: 'ERR_WRONG_PARAM'});
+        return;
+    }
+
+    let query = "SELECT * FROM t_symptoms WHERE s_id = ?";
+    let params = [sId];
+
+    getConnection((error, conn) => {
+        if (error) {
+            console.log(error);
+            res.json({ status: 'ERR_MYSQL_POOL' });
+            return;
+        }
+        conn.query(query, params, (error, result) => {
+            if (error) {
+                console.log(error);
+                conn.release();
+                res.json({status: 'ERR_MYSQL_QUERY'});
+                return;
+            }
+            conn.release();
+            if (result.length < 1) {
+                res.json({ status: 'ERR_NO_DATA'});
+                return;
+            }
+
+            res.json({status: 'OK', result: result[0]});
+        });
+    });
+
+});
+
+//
 
 
 
