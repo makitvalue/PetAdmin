@@ -451,6 +451,7 @@ router.post('/food/save', (req ,res) => {
             if (nutrientList.length > 0) {
                 let query = '';
                 if (mode === 'ADD') {
+                    fId = result.resultId;
                     query = 'INSERT INTO t_maps_food_nutrient(mfn_f_id, mfn_n_id) VALUES';
                     nutrientList.forEach((nutrient, index) => {
                         if (index != 0) {
@@ -718,6 +719,7 @@ router.post('/disease/save', (req, res) => {
                 nutrientFoodData = JSON.parse(nutrientFoodData);
                 let query = '';
                 if (mode === 'ADD') {
+                    dId = result.resultId;
                     query = 'INSERT INTO t_maps_disease_nutrient_food(mdnf_d_id, mdnf_type, mdnf_target_id) VALUES';
                     nutrientFoodData.forEach((data, index) => {
                         if (index != 0) {
@@ -844,7 +846,94 @@ router.get('/symptom/get', (req, res) => {
 
 });
 
-//
+//증상 삭제
+router.post('/symptom/delete', (req, res) => {
+    let sId = req.body.sId;
+    if (f.isNone(sId)) {
+        res.json({status: 'ERR_WRONG_PARAM'});
+        return;
+    }
+
+    let existCheckQuery = "";
+    existCheckQuery += "SELECT * ";
+    existCheckQuery += "FROM t_diseases AS dTab ";
+        existCheckQuery += "LEFT JOIN (SELECT mdnf_d_id, COUNT(*) AS mdnfCnt FROM t_maps_disease_nutrient_food GROUP BY mdnf_d_id) AS mdnfTab ";
+            existCheckQuery += "ON dTab.d_id = mdnfTab.mdnf_d_id ";
+        existCheckQuery += "LEFT JOIN (SELECT msd_d_id, COUNT(*) AS msdCnt FROM t_maps_symptom_disease GROUP BY msd_d_id) AS msdTab ";
+            existCheckQuery += "ON dTab.d_id = msdTab.msd_d_id ";
+        existCheckQuery += "LEFT JOIN (SELECT mpd_d_id, COUNT(*) AS mpdCnt FROM t_maps_pet_disease GROUP BY mpd_d_id) AS mpdTab ";
+            existCheckQuery += "ON dTab.d_id = mpdTab.mpd_d_id ";
+        existCheckQuery += "LEFT JOIN (SELECT mbagd_d_id, COUNT(*) AS mbagdCnt FROM t_maps_breed_age_group_disease GROUP BY mbagd_d_id) AS mbagdTab ";
+            existCheckQuery += "ON dTab.d_id = mbagdTab.mbagd_d_id ";
+    existCheckQuery += "WHERE dTab.d_id = ?";
+
+    let existCheckParams = [sId];
+
+    getConnection((error, conn) => {
+        if (error) {
+            console.log(error);
+            conn.release();
+            res.json({ status: 'ERR_MYSQL_POOL' });
+            return;
+        }
+
+        conn.query(existCheckQuery, existCheckParams, (error, result) => {
+            if (error) {
+                console.log(error);
+                conn.release();
+                res.json({status: 'ERR_MYSQL_QUERY'});
+                return;
+            }
+
+            let deleteQuery = "DELETE FROM t_diseases WHERE d_id = ?";
+
+            if (result < 1) {
+                conn.release();
+                res.json({status: 'ERR_NO_DATA'});
+                return;
+            }
+
+            if (result[0].mfnCnt > 0) {
+                deleteQuery = "DELETE dTab, mdnfTab ";
+                deleteQuery += "FROM t_diseases AS dTab ";
+                deleteQuery += "JOIN t_maps_disease_nutrient_food AS mdnfTab ON mdnfTab.mdnf_d_id = dTab.d_id ";
+                deleteQuery += "WHERE dTab.d_id = ?";
+            } 
+
+            if (result[0].msnfCnt > 0) {
+                conn.release();
+                res.json({status: 'ERR_EXISTS_SYMPTOM'});
+                return;
+            } 
+
+            if (result[0].mpnfCnt > 0) {
+                conn.release();
+                res.json({status: 'ERR_EXISTS_PRODUCT'});
+                return;
+            } 
+
+            if (result[0].mdnfCnt > 0) {
+                conn.release();
+                res.json({status: 'ERR_EXISTS_DISEASE'});
+                return;
+            } 
+
+
+            let params = [sId];
+            conn.query(deleteQuery, params, (error, result) => {
+                if (error) {
+                    console.log(error);
+                    conn.release();
+                    res.json({status: 'ERR_MYSQL_QUERY'});
+                    return;
+                }
+    
+                conn.release();
+                res.json({status: 'OK'});
+            });
+        });
+    });
+});
 
 
 
