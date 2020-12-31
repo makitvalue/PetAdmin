@@ -621,10 +621,27 @@ router.get('/disease/get', (req, res) => {
                     res.json({status: 'ERR_MYSQL_QUERY'});
                     return;
                 }
-                res.json({status: 'OK', result: {
-                    disease: diseaseInfo,
-                    nutrientFoodList: result
-                }});
+
+                let nutrientFoodInfo = result;
+
+                query = 'SELECT * FROM t_maps_symptom_disease WHERE msd_d_id = ?';
+                params = [dId];
+
+                conn.query(query, params, (error, result) => {
+                    if (error) {
+                        console.log(error);
+                        conn.release();
+                        res.json({status: 'ERR_MYSQL_QUERY'});
+                        return;
+                    }
+                    res.json({status: 'OK', result: {
+                        disease: diseaseInfo,
+                        nutrientFoodList: nutrientFoodInfo,
+                        symptomList: result
+                    }});
+                });
+
+
             });
         });
     });
@@ -957,7 +974,27 @@ router.get('/symptom/get', (req, res) => {
                 return;
             }
 
-            res.json({status: 'OK', result: result[0]});
+            let diseaseInfo = result[0];
+
+            let query = 'SELECT * FROM t_maps_disease_nutrient_food AS mdnfTab ';
+            query += 'LEFT JOIN t_foods AS fTab ON fTab.f_id = mdnfTab.mdnf_target_id ';
+            query += 'LEFT JOIN t_nutrients AS nTab ON nTab.n_id = mdnfTab.mdnf_target_id ';
+            query += 'WHERE mdnfTab.mdnf_d_id = ?';
+    
+            params = [dId];
+
+            conn.query(query, params, (error, result) => {
+                if (error) {
+                    console.log(error);
+                    conn.release();
+                    res.json({status: 'ERR_MYSQL_QUERY'});
+                    return;
+                }
+                res.json({status: 'OK', result: {
+                    disease: diseaseInfo,
+                    nutrientFoodList: result
+                }});
+            });
         });
     });
 
