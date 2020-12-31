@@ -760,7 +760,7 @@ router.post('/disease/save', (req, res) => {
                 return;
             }
             if (nutrientFoodData.length > 0) {
-                nutrientFoodData = JSON.parse(nutrientFoodData);
+
                 let query = '';
                 if (mode === 'ADD') {
                     dId = result.insertId;
