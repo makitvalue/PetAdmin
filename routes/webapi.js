@@ -728,7 +728,7 @@ router.post('/disease/save', (req, res) => {
     let params = [name, keyword, bpId, reason, management];
 
     if (mode === 'ADD') {
-        query += "INSERT INTO t_diseases(d_name, d_keyword, d_bpId, d_reason, d_management) VALUES(?, ?, ?, ?, ?)";
+        query += "INSERT INTO t_diseases(d_name, d_keyword, d_bp_id, d_reason, d_management) VALUES(?, ?, ?, ?, ?)";
     } else if (mode === 'MODIFY') {
         dId = req.body.dId;
         if (f.isNone(dId)) {
