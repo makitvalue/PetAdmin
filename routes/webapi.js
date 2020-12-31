@@ -451,7 +451,7 @@ router.post('/food/save', (req ,res) => {
             if (nutrientList.length > 0) {
                 let query = '';
                 if (mode === 'ADD') {
-                    fId = result.resultId;
+                    fId = result.insertId;
                     query = 'INSERT INTO t_maps_food_nutrient(mfn_f_id, mfn_n_id) VALUES';
                     nutrientList.forEach((nutrient, index) => {
                         if (index != 0) {
@@ -719,7 +719,7 @@ router.post('/disease/save', (req, res) => {
                 nutrientFoodData = JSON.parse(nutrientFoodData);
                 let query = '';
                 if (mode === 'ADD') {
-                    dId = result.resultId;
+                    dId = result.insertId;
                     query = 'INSERT INTO t_maps_disease_nutrient_food(mdnf_d_id, mdnf_type, mdnf_target_id) VALUES';
                     nutrientFoodData.forEach((data, index) => {
                         if (index != 0) {
