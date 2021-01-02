@@ -4,7 +4,7 @@ var router = express.Router();
 var formidable = require('formidable');
 
 // const getConnection = require('../lib/database');
-const pool = require('../base/database');
+const pool = require('../lib/database');
 // router.get('/test', async (req, res) => {
 //     try {
 //         let query = "SELECT * FROM t_crawlers WHERE c_id = ?";
@@ -701,7 +701,7 @@ router.post('/disease/delete', (req, res) => {
                 res.json({status: 'ERR_MYSQL_QUERY'});
                 return;
             }
-            
+
             let deleteQuery = "DELETE FROM t_diseases WHERE d_id = ?";
 
             if (result < 1) {
