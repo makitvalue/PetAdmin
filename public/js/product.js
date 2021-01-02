@@ -1,0 +1,5 @@
+
+function initProduct() {
+
+}
+initProduct();

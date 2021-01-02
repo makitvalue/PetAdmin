@@ -246,7 +246,7 @@ function foodInit() {
 
     if (buttonNutrientAdd) {
         buttonNutrientAdd.addEventListener('click', () => {
-            document.querySelector('body').insertAdjacentHTML('beforeend', '<div class="js-div-overlay overlay"></div>');
+            document.querySelector('body').insertAdjacentHTML('beforeend', '<div class="js-div-overlay overlay" key="DIALOG_SEARCH_RELATIONSHIP" style="z-index: 999;"></div>');
 
             let html = '';
             html += '<div class="js-div-dialog-search-relationship dialog-search-relationship">';
@@ -273,7 +273,7 @@ function foodInit() {
 
             let iClose = document.querySelector('.js-div-dialog-search-relationship .js-i-close');
             iClose.addEventListener('click', () => {
-                document.querySelector('.js-div-overlay').remove();
+                document.querySelector('.js-div-overlay[key="DIALOG_SEARCH_RELATIONSHIP"]').remove();
                 document.querySelector('.js-div-dialog-search-relationship').remove();
             });
 
@@ -291,7 +291,7 @@ function foodInit() {
                     html += '<tr class="js-tr-nutrient ' + ((selectedNIdList.indexOf(nutrient.n_id) === -1) ? '': 'selected') + '" nId="' + nutrient.n_id + '" nName="' + nutrient.n_name + '" >';
                     html +=     '<td>' + nutrient.n_id + '</td>';
                     html +=     '<td>' + nutrient.n_name + '</td>';
-                    html +=     '<td>' + nutrient.n_effect + '</td>';
+                    html +=     '<td>' + effectToString(nutrient.n_effect) + '</td>';
                     html +=     '<td>' + noneToDash(nutrient.n_desc) + '</td>';
                     html +=     '<td>' + noneToDash(nutrient.n_desc_over) + '</td>';
                     html += '</tr>';
