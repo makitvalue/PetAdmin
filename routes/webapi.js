@@ -929,7 +929,6 @@ router.post('/disease/save', (req, res) => {
 });
 
 
-
 //증상 전체 조회
 router.get('/symptom/get/all', (req, res) => {
     let query = "SELECT * FROM t_symptoms";
@@ -1141,7 +1140,7 @@ router.post('/symptom/save', (req, res) => {
                 let query = '';
                 if (mode === 'ADD') { // 추가일떄
                     sId = result.insertId;
-                    query = 'INSERT INTO t_maps_symptom_nutrient_food(msnf_d_id, msnf_type, msnf_target_id) VALUES ';
+                    query = 'INSERT INTO t_maps_symptom_nutrient_food(msnf_s_id, msnf_type, msnf_target_id) VALUES ';
                     nutrientFoodData.forEach((data, index) => {
                         if (index != 0) {
                             query += ', (' + sId + ', "' + data.type + '", ' + data.targetId + ')';                    
@@ -1271,5 +1270,9 @@ router.post('/symptom/save', (req, res) => {
 
 });
 
+//제품 전체 조회
+router.get('/product/get/all', (req, res) => {
+
+});
 
 module.exports = router;
