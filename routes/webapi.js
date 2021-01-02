@@ -761,17 +761,27 @@ router.post('/symptom/delete', async (req, res) => {
             res.json({status: 'ERR_WRONG_PARAM'});
             return;
         }
-        let query = 'DELETE FROM t_symptoms WHERE s_id = ?';    
-        let params = [sId];
-        let [result, fields] = await pool.query(query, params);
 
-        query = 'DELETE FROM t_maps_symptom_disease WHERE msd_s_id = ?';
-        [result, fields] = await pool.query(query, params);
+        let existCheckQuery = 'SELECT COUNT(*) AS msdCnt FROM t_maps_symptom_disease WHERE msd_s_id = ?';
+        let existCheckParams = [sId];
+        let [result, fields] = await pool.query(existCheckQuery, existCheckParams);
 
-        query = 'DELETE FROM t_maps_symptom_nutrient_food WHERE msnf_s_id = ?';
-        [result, fields] = await pool.query(query, params);
+        if (result[0].msdCnt > 0) {
+            res.json({status: 'ERR_EXIST_DISEASE'});
+            return;
+        } else {
+            let query = 'DELETE FROM t_symptoms WHERE s_id = ?';    
+            let params = [sId];
+            [result, fields] = await pool.query(query, params);
 
-        res.json({status: 'OK'});
+            // query = 'DELETE FROM t_maps_symptom_disease WHERE msd_s_id = ?';
+            // [result, fields] = await pool.query(query, params);
+    
+            query = 'DELETE FROM t_maps_symptom_nutrient_food WHERE msnf_s_id = ?';
+            [result, fields] = await pool.query(query, params);
+    
+            res.json({status: 'OK'});
+        }
 
     } catch (error) {
         console.log(error);
