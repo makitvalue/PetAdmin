@@ -167,31 +167,26 @@ router.post('/nutrient/delete', async (req, res) => {
         let [existResult, fields] = await pool.query(existCheckQuery, existCheckParams);
 
         if (existResult < 1) {
-            conn.release();
             res.json({status: 'ERR_NO_DATA'});
             return;
         }
 
         if (existResult[0].mfnCnt > 0) {
-            conn.release();
             res.json({status: 'ERR_EXISTS_FOOD'});
             return;
         } 
 
         if (existResult[0].msnfCnt > 0) {
-            conn.release();
             res.json({status: 'ERR_EXISTS_SYMPTOM'});
             return;
         } 
 
         if (existResult[0].mpnfCnt > 0) {
-            conn.release();
             res.json({status: 'ERR_EXISTS_PRODUCT'});
             return;
         } 
 
         if (existResult[0].mdnfCnt > 0) {
-            conn.release();
             res.json({status: 'ERR_EXISTS_DISEASE'});
             return;
         } 
@@ -236,7 +231,6 @@ router.get('/food/get', async (req ,res) => {
         let [result, fields] = await pool.query(query, params);
 
         if (result.length < 1) {
-            conn.release();
             res.json({ status: 'ERR_NO_DATA'});
             return;
         }
@@ -288,7 +282,6 @@ router.post('/food/delete', async (req, res) => {
         let deleteQuery = "DELETE FROM t_foods WHERE f_id = ?";
 
         if (result < 1) {
-            conn.release();
             res.json({status: 'ERR_NO_DATA'});
             return;
         }
@@ -301,19 +294,16 @@ router.post('/food/delete', async (req, res) => {
         } 
 
         if (result[0].msnfCnt > 0) {
-            conn.release();
             res.json({status: 'ERR_EXISTS_SYMPTOM'});
             return;
         } 
 
         if (result[0].mpnfCnt > 0) {
-            conn.release();
             res.json({status: 'ERR_EXISTS_PRODUCT'});
             return;
         } 
 
         if (result[0].mdnfCnt > 0) {
-            conn.release();
             res.json({status: 'ERR_EXISTS_DISEASE'});
             return;
         } 
@@ -438,7 +428,6 @@ router.get('/disease/get', async (req, res) => {
         let [result, fields] = await pool.query(query, params);
 
         if (result.length < 1) {
-            conn.release();
             res.json({ status: 'ERR_NO_DATA'});
             return;
         }
@@ -499,7 +488,6 @@ router.post('/disease/delete', async (req, res) => {
         let deleteQuery = "DELETE FROM t_diseases WHERE d_id = ?";
 
         if (result < 1) {
-            conn.release();
             res.json({status: 'ERR_NO_DATA'});
             return;
         }
@@ -512,19 +500,16 @@ router.post('/disease/delete', async (req, res) => {
         } 
 
         if (result[0].msdCnt > 0) {
-            conn.release();
             res.json({status: 'ERR_EXISTS_SYMPTOM'});
             return;
         } 
 
         if (result[0].mpdCnt > 0) {
-            conn.release();
             res.json({status: 'ERR_EXISTS_PRODUCT'});
             return;
         } 
 
         if (result[0].mbagdCnt > 0) {
-            conn.release();
             res.json({status: 'ERR_EXISTS_BREED_AGE_GROUP'});
             return;
         } 
