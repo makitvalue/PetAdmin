@@ -818,7 +818,6 @@ router.post('/disease/save', (req, res) => {
                         //연관된 증상 있는지 확인
                         if (symptomData.length > 0) {
                             query = 'INSERT INTO t_maps_symptom_disease(msd_s_id, msd_d_id) VALUES ';
-                            params = [dId];
                             symptomData.forEach((data, index) => {
                                 if (index != 0) {
                                     query += ', (' + data + ', ' + dId + ') ';                    
@@ -828,7 +827,7 @@ router.post('/disease/save', (req, res) => {
                             });
 
                             //연관된 증상 INSERT 실행
-                            conn.query(query, params, (error, result) => {
+                            conn.query(query, (error, result) => {
                                 if (error) {
                                     console.log(error);
                                     conn.release();
@@ -930,6 +929,7 @@ router.post('/disease/save', (req, res) => {
 });
 
 
+
 //증상 전체 조회
 router.get('/symptom/get/all', (req, res) => {
     let query = "SELECT * FROM t_symptoms";
@@ -979,7 +979,7 @@ router.get('/symptom/get', (req, res) => {
                 res.json({status: 'ERR_MYSQL_QUERY'});
                 return;
             }
-            conn.release();
+
             if (result.length < 1) {
                 res.json({ status: 'ERR_NO_DATA'});
                 return;
@@ -1016,6 +1016,7 @@ router.get('/symptom/get', (req, res) => {
                         res.json({status: 'ERR_MYSQL_QUERY'});
                         return;
                     }
+                    conn.release();
                     res.json({status: 'OK', result: {
                         symptom: symptomInfo,
                         nutrientFoodList: nutrientFoodInfo,
@@ -1028,7 +1029,7 @@ router.get('/symptom/get', (req, res) => {
 
 });
 
-//증상 삭제
+//증상 삭제 
 router.post('/symptom/delete', (req, res) => {
     let sId = req.body.sId;
     if (f.isNone(sId)) {
@@ -1036,20 +1037,8 @@ router.post('/symptom/delete', (req, res) => {
         return;
     }
 
-    let existCheckQuery = "";
-    existCheckQuery += "SELECT * ";
-    existCheckQuery += "FROM t_symptom AS sTab ";
-        existCheckQuery += "LEFT JOIN (SELECT mdnf_d_id, COUNT(*) AS mdnfCnt FROM t_maps_disease_nutrient_food GROUP BY mdnf_d_id) AS mdnfTab ";
-            existCheckQuery += "ON dTab.d_id = mdnfTab.mdnf_d_id ";
-        existCheckQuery += "LEFT JOIN (SELECT msd_d_id, COUNT(*) AS msdCnt FROM t_maps_symptom_disease GROUP BY msd_d_id) AS msdTab ";
-            existCheckQuery += "ON dTab.d_id = msdTab.msd_d_id ";
-        existCheckQuery += "LEFT JOIN (SELECT mpd_d_id, COUNT(*) AS mpdCnt FROM t_maps_pet_disease GROUP BY mpd_d_id) AS mpdTab ";
-            existCheckQuery += "ON dTab.d_id = mpdTab.mpd_d_id ";
-        existCheckQuery += "LEFT JOIN (SELECT mbagd_d_id, COUNT(*) AS mbagdCnt FROM t_maps_breed_age_group_disease GROUP BY mbagd_d_id) AS mbagdTab ";
-            existCheckQuery += "ON dTab.d_id = mbagdTab.mbagd_d_id ";
-    existCheckQuery += "WHERE dTab.d_id = ?";
-
-    let existCheckParams = [sId];
+    let query = 'DELETE FROM t_symptoms WHERE s_id = ?';    
+    let params = [sId];
 
     getConnection((error, conn) => {
         if (error) {
@@ -1059,7 +1048,7 @@ router.post('/symptom/delete', (req, res) => {
             return;
         }
 
-        conn.query(existCheckQuery, existCheckParams, (error, result) => {
+        conn.query(query, params, (error, result) => {
             if (error) {
                 console.log(error);
                 conn.release();
@@ -1067,56 +1056,220 @@ router.post('/symptom/delete', (req, res) => {
                 return;
             }
 
-            let deleteQuery = "DELETE FROM t_diseases WHERE d_id = ?";
+            query = 'DELETE FROM t_maps_symptom_disease WHERE msd_s_id = ?';
 
-            if (result < 1) {
-                conn.release();
-                res.json({status: 'ERR_NO_DATA'});
-                return;
-            }
-
-            if (result[0].mfnCnt > 0) {
-                deleteQuery = "DELETE dTab, mdnfTab ";
-                deleteQuery += "FROM t_diseases AS dTab ";
-                deleteQuery += "JOIN t_maps_disease_nutrient_food AS mdnfTab ON mdnfTab.mdnf_d_id = dTab.d_id ";
-                deleteQuery += "WHERE dTab.d_id = ?";
-            } 
-
-            if (result[0].msnfCnt > 0) {
-                conn.release();
-                res.json({status: 'ERR_EXISTS_SYMPTOM'});
-                return;
-            } 
-
-            if (result[0].mpnfCnt > 0) {
-                conn.release();
-                res.json({status: 'ERR_EXISTS_PRODUCT'});
-                return;
-            } 
-
-            if (result[0].mdnfCnt > 0) {
-                conn.release();
-                res.json({status: 'ERR_EXISTS_DISEASE'});
-                return;
-            } 
-
-
-            let params = [sId];
-            conn.query(deleteQuery, params, (error, result) => {
+            conn.query(query, params, (error, result) => {
                 if (error) {
                     console.log(error);
                     conn.release();
                     res.json({status: 'ERR_MYSQL_QUERY'});
                     return;
                 }
-    
-                conn.release();
-                res.json({status: 'OK'});
+
+                query = 'DELETE FROM t_maps_symptom_nutrient_food WHERE msnf_s_id = ?';
+
+                conn.query(query, params, (error, result) => {
+                    if (error) {
+                        console.log(error);
+                        conn.release();
+                        res.json({status: 'ERR_MYSQL_QUERY'});
+                        return;
+                    }
+                    res.json({status: 'OK'});
+                });
+
             });
+
         });
     });
+
 });
 
+//증상추가
+router.post('/symptom/save', (req, res) => {
+    let mode = req.body.mode; // ADD, MODIFY
+    let sId;
+    let name = req.body.name;
+    let keyword = req.body.keyword;
+    let bpId = req.body.bpId;
+    let nutrientFoodData = req.body.nutrientFoodData;
+    let diseaseData = req.body.diseaseData;
+    
+    if (f.isNone(mode) || f.isNone(name) || f.isNone(keyword) || f.isNone(bpId)) {
+        res.json({status: 'ERR_WRONG_PARAM'});
+        return;
+    }
+
+    let query = '';
+    let params = [name, keyword, bpId];
+
+    //저장인지 수정인지 확인
+    if (mode === 'ADD') { //추가일떄
+        query += "INSERT INTO t_symptoms(s_name, s_keyword, s_bp_id) VALUES(?, ?, ?)";
+    } else if (mode === 'MODIFY') { //수정일때
+        sId = req.body.sId;
+        if (f.isNone(sId)) {
+            res.json({status: 'ERR_WRONG_PARAM'});
+            return;
+        }
+        query += "UPDATE t_symptoms SET";
+        query += " s_name = ?, s_keyword = ?, s_bp_id = ?";
+        query += " WHERE s_id = ?";
+        params.push(sId);
+    } else {
+        res.json({status: 'ERR_WRONG_MODE'});
+        return;
+    }
+
+    getConnection((error, conn) => {
+        if (error) {
+            console.log(error);
+            conn.release();
+            res.json({ status: 'ERR_MYSQL_POOL' });
+            return;
+        }
+        //증상 추가 or 수정 쿼리실행
+        conn.query(query, params, (error, result) => {
+            if(error) {
+                console.log(error);
+                conn.release();
+                res.json({status: 'ERR_MYSQL_QUERY'});
+                return;
+            }
+
+            if (nutrientFoodData.length > 0) {
+                let query = '';
+                if (mode === 'ADD') { // 추가일떄
+                    sId = result.insertId;
+                    query = 'INSERT INTO t_maps_symptom_nutrient_food(msnf_d_id, msnf_type, msnf_target_id) VALUES ';
+                    nutrientFoodData.forEach((data, index) => {
+                        if (index != 0) {
+                            query += ', (' + sId + ', "' + data.type + '", ' + data.targetId + ')';                    
+                        } else {
+                            query += ' (' + sId + ', "' + data.type +'", ' + data.targetId + ')';
+                        }
+                    });
+
+                    //연관된 영양소/음식 INSERT 실행
+                    conn.query(query, (error, result) => {
+                        if (error) {
+                            console.log(error);
+                            conn.release();
+                            res.json({status: 'ERR_MYSQL_QUERY'});
+                            return;
+                        } 
+
+                        //연관된 질병 있는지 확인
+                        if (diseaseData.length > 0) {
+                            query = 'INSERT INTO t_maps_symptom_disease(msd_d_id, msd_s_id) VALUES ';
+                            diseaseData.forEach((data, index) => {
+                                if (index != 0) {
+                                    query += ', (' + data + ', ' + sId + ') ';                    
+                                } else {
+                                    query += '(' + data + ', ' + sId + ') '; 
+                                }
+                            });
+
+                            //연관된 증상 INSERT 실행
+                            conn.query(query, (error, result) => {
+                                if (error) {
+                                    console.log(error);
+                                    conn.release();
+                                    res.json({status: 'ERR_MYSQL_QUERY'});
+                                    return;
+                                }
+                                conn.release();
+                                res.json({status: 'OK', result: result});
+                            });
+                        } else {
+                            conn.release();
+                            res.json({status: 'OK', result: result});
+                        }
+                  
+                    });
+
+                } else if (mode === 'MODIFY') { // 수정일때
+                    query = 'DELETE FROM t_maps_symptom_nutrient_food WHERE msnf_s_id = ?';
+                    let deleteParams = [sId];
+
+                    //기존 연관된 영양소들 DELETE 실행
+                    conn.query(query, deleteParams, (error, result) => {
+                        if (error) {
+                            console.log(error);
+                            conn.release();
+                            res.json({status: 'ERR_MYSQL_QUERY'});
+                            return;
+                        }
+
+                        query = 'INSERT INTO t_maps_symptom_nutrient_food(msnf_s_id, msnf_type, msnf_target_id) VALUES';
+                        nutrientFoodData.forEach((data, index) => {
+                            if (index != 0) {
+                                query += ', (' + sId + ', "' + data.type + '", ' + data.targetId + ')';                    
+                            } else {
+                                query += ' (' + sId + ', "' + data.type +'", ' + data.targetId + ')';
+                            }
+                        });
+                        //새로 입력된 연관된 영양소들 INSERT 실행
+                        conn.query(query, (error, result) => {
+                            if (error) {
+                                console.log(error);
+                                conn.release();
+                                res.json({status: 'ERR_MYSQL_QUERY'});
+                                return;
+                            }
+
+                            query = 'DELETE FROM t_maps_symptom_disease WHERE msd_s_id = ?';
+                            params = [sId];
+                            conn.query(query, params, (error, result) => {
+                                if (error) {
+                                    console.log(error);
+                                    conn.release();
+                                    res.json({status: 'ERR_MYSQL_QUERY'});
+                                    return;
+                                }
+                                //관련된 질병이 있는지 확인
+                                if (symptomData.length > 0) { 
+                                    query = 'INSERT INTO t_maps_symptom_disease(msd_d_id, msd_s_id) VALUES ';
+                                    symptomData.forEach((data, index) => {
+                                        if (index != 0) {
+                                            query += ', (' + data + ', ' + dId + ') ';                    
+                                        } else {
+                                            query += '(' + data + ', ' + dId + ') '; 
+                                        }
+                                    });
+
+                                    //관련된 질병 INSERT 실행
+                                    conn.query(query, (error, result) => {
+                                        if (error) {
+                                            console.log(error);
+                                            conn.release();
+                                            res.json({status: 'ERR_MYSQL_QUERY'});
+                                            return;
+                                        }
+                                        conn.release();
+                                        res.json({status: 'OK', result: result});
+                                    });
+                                } else {
+                                    conn.release();
+                                    res.json({status: 'OK', result: result});
+                                }
+                            });
+                        });
+                                    
+                    });
+                }
+
+            } else {
+                conn.release();
+                res.json({status: 'OK', result: result});
+            }
+
+
+        });
+
+    });
+
+});
 
 
 module.exports = router;
