@@ -25,6 +25,12 @@
         <link rel="stylesheet" type="text/css" href="/css/food.css" />
     <% } else if (menu == 'disease' || menu == 'disease_add' || menu == 'disease_detail') { %>
         <link rel="stylesheet" type="text/css" href="/css/disease.css" />
+    <% } else if (menu == 'symptom' || menu == 'symptom_add' || menu == 'symptom_detail') { %>
+        <link rel="stylesheet" type="text/css" href="/css/symptom.css" />
+    <% } else if (menu == 'product' || menu == 'product_add' || menu == 'product_detail' || menu == 'product_category' || menu == 'product_brand') { %>
+        <link rel="stylesheet" type="text/css" href="/css/product.css" />
+    <% } else if (menu == 'breed') { %>
+        <link rel="stylesheet" type="text/css" href="/css/breed.css" />
     <% } %>
 </head>
 <body>
@@ -45,7 +51,10 @@
             <a href="/food"><li>음식</li></a>
             <a href="/disease"><li>질병</li></a>
             <a href="/symptom"><li>증상</li></a>
+            <a href="/product/category"><li>제품 카테고리</li></a>
+            <a href="/product/brand"><li>제품 브랜드</li></a>
             <a href="/product"><li>제품</li></a>
+            <a href="/breed"><li>견종</li></a>
         </ul>
         <a href="/user"><div class="main-menu">사용자 관리</div></a>
     </nav>
@@ -78,6 +87,27 @@
         <% include ./disease_add %>
     <% } else if (menu == 'disease_detail') { %> 
         <% include ./disease_detail %>
+
+    <% } else if (menu == 'symptom') { %> 
+        <% include ./symptom %>
+    <% } else if (menu == 'symptom_add') { %> 
+        <% include ./symptom_add %>
+    <% } else if (menu == 'symptom_detail') { %> 
+        <% include ./symptom_detail %>
+
+    <% } else if (menu == 'product') { %> 
+        <% include ./product %>
+    <% } else if (menu == 'product_add') { %> 
+        <% include ./product_add %>
+    <% } else if (menu == 'product_detail') { %> 
+        <% include ./product_detail %>
+    <% } else if (menu == 'product_category') { %> 
+        <% include ./product_category %>
+    <% } else if (menu == 'product_brand') { %> 
+        <% include ./product_brand %>
+
+    <% } else if (menu == 'breed') { %> 
+        <% include ./breed %>
     <% } %>
 
     </article>
@@ -100,6 +130,10 @@
         <script src="/js/food.js"></script>
     <% } else if (menu == 'disease' || menu == 'disease_add' || menu == 'disease_detail') { %>
         <script src="/js/disease.js"></script>
+    <% } else if (menu == 'symptom' || menu == 'symptom_add' || menu == 'symptom_detail') { %>
+        <script src="/js/symptom.js"></script>
+    <% } else if (menu == 'breed') { %>
+        <script src="/js/breed.js"></script>
     <% } %>
 
 </body>

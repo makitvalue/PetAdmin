@@ -1,7 +1,6 @@
 const menu = document.querySelector('.js-input-hidden-menu').value;
 const tbodyDiseaseList = document.querySelector('.js-tbody-disease-list');
 const inputName = document.querySelector('.js-input-name');
-const selectBodyPart = document.querySelector('.js-select-bodypart');
 const textareaReason = document.querySelector('.js-textarea-reason');
 const textareaManagement = document.querySelector('.js-textarea-management');
 const divKeywordList = document.querySelector('.js-div-keyword-list');
@@ -308,15 +307,6 @@ function initDisease() {
                 alert('질병이 수정되었습니다.');
             });
         });
-    }
-
-    if (selectBodyPart) {
-        let html = '';
-        for (let key in bodyParts) {
-            let value = bodyParts[key];
-            html += '<option value="' + key + '" ' + ((key == 0) ? 'selected' : '') + '>' + value + '(' + key + ')</option>';
-        }
-        selectBodyPart.innerHTML = html;
     }
 
     if (buttonFoodNutrientAdd) {

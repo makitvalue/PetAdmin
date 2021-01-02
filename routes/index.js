@@ -124,4 +124,25 @@ router.get('/product/detail/:pId', (req, res) => {
 });
 
 
+router.get('/product/category', (req, res) => {
+    res.render('index', { 
+        menu: 'product_category'
+    });
+});
+
+
+router.get('/product/brand', (req, res) => {
+    res.render('index', { 
+        menu: 'product_brand'
+    });
+});
+
+
+router.get('/breed', (req, res) => {
+    res.render('index', { 
+        menu: 'breed'
+    });
+});
+
+
 module.exports = router;
