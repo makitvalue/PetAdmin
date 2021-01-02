@@ -1084,7 +1084,7 @@ router.post('/symptom/delete', (req, res) => {
 
 });
 
-//증상추가
+//증상 저장 (추가, 수정)
 router.post('/symptom/save', (req, res) => {
     let mode = req.body.mode; // ADD, MODIFY
     let sId;
@@ -1227,9 +1227,9 @@ router.post('/symptom/save', (req, res) => {
                                     return;
                                 }
                                 //관련된 질병이 있는지 확인
-                                if (symptomData.length > 0) { 
+                                if (diseaseData.length > 0) { 
                                     query = 'INSERT INTO t_maps_symptom_disease(msd_d_id, msd_s_id) VALUES ';
-                                    symptomData.forEach((data, index) => {
+                                    diseaseData.forEach((data, index) => {
                                         if (index != 0) {
                                             query += ', (' + data + ', ' + dId + ') ';                    
                                         } else {
@@ -1270,8 +1270,33 @@ router.post('/symptom/save', (req, res) => {
 
 });
 
-//제품 전체 조회
-router.get('/product/get/all', (req, res) => {
+
+//전체 제품 카테고리 가져오기
+router.get('/product/category/get/all', (req, res) => {
+    let query = 'SELECT * FROM t_product_categories';
+    getConnection((error, conn) => {
+        if (error) {
+            console.log(error);
+            conn.release();
+            res.json({ status: 'ERR_MYSQL_POOL' });
+            return;
+        }
+        conn.query(query, (error, result) => {
+            if (error) {
+                console.log(error);
+                conn.release();
+                res.json({status: 'ERR_MYSQL_QUERY'});
+                return;
+            }
+            conn.release();
+            res.json({status: 'OK', result: result});
+        });
+
+    });
+});
+
+//제품 카테고리 추가
+router.post('/product/category/save', (req, res) => {
 
 });
 
