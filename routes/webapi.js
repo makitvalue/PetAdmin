@@ -647,6 +647,7 @@ router.post('/disease/save', async (req, res) => {
             }
 
         } else {
+
             query = 'DELETE FROM t_maps_symptom_disease WHERE msd_d_id = ?';
             params = [dId];
             [result, fields] = await pool.query(query, params);
@@ -654,6 +655,23 @@ router.post('/disease/save', async (req, res) => {
             query = 'DELETE FROM t_maps_disease_nutrient_food WHERE mdnf_d_id = ?';
             params = [dId];
             [result, fields] = await pool.query(query, params);
+
+            if (symptomData.length > 0) {
+                query = 'INSERT INTO t_maps_symptom_disease(msd_s_id, msd_d_id) VALUES ';
+                symptomData.forEach((data, index) => {
+                    if (index != 0) {
+                        query += ', (' + data + ', ' + dId + ') ';                    
+                    } else {
+                        query += '(' + data + ', ' + dId + ') '; 
+                    }
+                });
+
+                [result, fields] = await pool.query(query, params);
+
+                res.json({status: 'OK', result: result});
+            } else {
+                res.json({status: 'OK', result: result});
+            }
 
             res.json({status: 'OK', result: result});
 
@@ -881,6 +899,24 @@ router.post('/symptom/save', async (req, res) => {
             query = 'DELETE FROM t_maps_symptom_nutrient_food WHERE msnf_s_id = ?';
             params = [sId];
             [result, fiedls] = await pool.query(query, params);
+
+            //연관된 질병 있는지 확인
+            if (diseaseData.length > 0) {
+                query = 'INSERT INTO t_maps_symptom_disease(msd_d_id, msd_s_id) VALUES ';
+                diseaseData.forEach((data, index) => {
+                    if (index != 0) {
+                        query += ', (' + data + ', ' + sId + ') ';                    
+                    } else {
+                        query += '(' + data + ', ' + sId + ') '; 
+                    }
+                });
+
+                //연관된 질병 INSERT 실행
+                [result, fiedls] = await pool.query(query);
+                res.json({status: 'OK'});
+            } else {
+                res.json({status: 'OK'});
+            }
 
             res.json({status: 'OK', result: result});
 
