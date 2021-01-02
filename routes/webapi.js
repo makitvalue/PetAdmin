@@ -804,6 +804,8 @@ router.post('/symptom/save', async (req, res) => {
         //저장인지 수정인지 확인
         if (mode === 'ADD') { //추가일떄
             query += "INSERT INTO t_symptoms(s_name, s_keyword, s_bp_id) VALUES(?, ?, ?)";
+            [result, fields] = await pool.query(query, params);
+            sId = result.insertId;
         } else if (mode === 'MODIFY') { //수정일때
             sId = req.body.sId;
             if (f.isNone(sId)) {
@@ -814,17 +816,17 @@ router.post('/symptom/save', async (req, res) => {
             query += " s_name = ?, s_keyword = ?, s_bp_id = ?";
             query += " WHERE s_id = ?";
             params.push(sId);
+            [result, fields] = await pool.query(query, params);
         } else {
             res.json({status: 'ERR_WRONG_MODE'});
             return;
         }
-
-        [result, fields] = await pool.query(query, params);
+        
 
         if (nutrientFoodData.length > 0) {
             query = '';
             if (mode === 'ADD') { // 추가일떄
-                sId = result.insertId;
+                
                 query = 'INSERT INTO t_maps_symptom_nutrient_food(msnf_s_id, msnf_type, msnf_target_id) VALUES ';
                 nutrientFoodData.forEach((data, index) => {
                     if (index != 0) {
@@ -916,6 +918,8 @@ router.post('/symptom/save', async (req, res) => {
                         query += '(' + data + ', ' + sId + ') '; 
                     }
                 });
+
+                console.log(query);
 
                 //연관된 질병 INSERT 실행
                 [result, fiedls] = await pool.query(query);

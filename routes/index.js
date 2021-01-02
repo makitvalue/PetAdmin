@@ -145,4 +145,20 @@ router.get('/breed', (req, res) => {
 });
 
 
+router.get('/breed/add', (req, res) => {
+    res.render('index', { 
+        menu: 'breed_add'
+    });
+});
+
+
+router.get('/breed/detail/:bId', (req, res) => {
+    res.render('index', { 
+        menu: 'breed_detail',
+
+        bId: req.params.bId
+    });
+});
+
+
 module.exports = router;

@@ -5,10 +5,6 @@ const inputName = document.querySelector('.js-input-name');
 const selectEffect = document.querySelector('.js-select-effect');
 const textareaDesc = document.querySelector('.js-textarea-desc');
 const textareaDescOver = document.querySelector('.js-textarea-desc-over');
-const divKeywordList = document.querySelector('.js-div-keyword-list');
-const divKeywordAdd = document.querySelector('.js-div-keyword-add');
-const inputKeywordAdd = document.querySelector('.js-input-keyword-add');
-const buttonKeywordAdd = document.querySelector('.js-button-keyword-add');
 const buttonCancel = document.querySelector('.js-button-cancel');
 const buttonNutrientAdd = document.querySelector('.js-button-nutrient-add');
 const buttonNutrientSave = document.querySelector('.js-button-nutrient-save');
@@ -173,29 +169,6 @@ function initNutrient() {
         getNutrientList();
     } else if (menu == 'nutrient_detail') {
         getNutrient(inputHiddenNId.value);
-    }
-
-    if (buttonKeywordAdd) {
-        buttonKeywordAdd.addEventListener('click', () => {
-            let keyword = inputKeywordAdd.value.trim();
-    
-            if (keyword === '') {
-                alert('키워드를 입력해주세요.');
-                return;
-            }
-            
-            let html = '<button class="js-button-keyword default keyword">' + keyword + '</button>';
-            divKeywordAdd.insertAdjacentHTML('beforebegin', html);
-    
-            inputKeywordAdd.value = '';
-    
-            let buttonKeywordList = divKeywordList.querySelectorAll('.js-button-keyword');
-            let buttonKeyword = buttonKeywordList[buttonKeywordList.length - 1];
-    
-            buttonKeyword.addEventListener('click', function() {
-                this.remove();
-            });
-        });
     }
 
     if (buttonCancel) {

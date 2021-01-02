@@ -1,0 +1,55 @@
+
+.wrapper.breed .breed-age-group-list {
+    margin-top: 12px;
+    font-size: 0;
+}
+.wrapper.breed .breed-age-group-list .breed-age-group {
+    margin-bottom: 12px;
+    border: 1px solid #555555;
+    padding: 16px 0;
+    text-align: center;
+    position: relative;
+}
+.wrapper.breed .breed-age-group-list .breed-age-group label {
+    font-size: 1rem;
+}
+.wrapper.breed .breed-age-group-list .breed-age-group label.center {
+    margin: 0 16px;
+}
+.wrapper.breed .breed-age-group-list .breed-age-group input {
+    font-size: 1rem;
+    padding: 8px 0;
+    width: 60px;
+    margin-left: 8px;
+    text-align: center;
+}
+.wrapper.breed .breed-age-group-list .breed-age-group .remove {
+    width: 72px;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.5);
+}
+.wrapper.breed .breed-age-group-list .breed-age-group .remove:hover {
+    background: #000000;
+}
+.wrapper.breed .breed-age-group-list .breed-age-group .remove i {
+    font-size: 1.5rem;
+    position: absolute;
+	right: 50%;
+	bottom: 50%;
+    -webkit-transform: translate(50%, 50%);
+	-moz-transform: translate(50%, 50%);
+	-ms-transform: translate(50%, 50%);
+	-o-transform: translate(50%, 50%);
+	transform: translate(50%, 50%);
+}
+.wrapper.breed .breed-age-group-list .breed-age-group-add {
+    width: 100%;
+    padding: 16px 0;
+}
+.wrapper.breed .breed-age-group-list .breed-age-group-add i {
+    font-size: 1rem;
+}

@@ -1,4 +1,4 @@
-
+const menu = document.querySelector('.js-input-hidden-menu').value;
 const divThumbnail = document.querySelector('.js-div-thumbnail');
 const inputThumbnail = document.querySelector('.js-input-thumbnail');
 const buttonImageAdd = document.querySelector('.js-button-image-add');
@@ -60,6 +60,11 @@ function saveProductBrand(mode, pbId, name, callback) {
 
 
 function initProduct() {
+    if (menu == 'product') {
+        // getProductList();
+    } else if (menu == 'product_detail') {
+        // getProduct(inputHiddenPId.value);
+    }
     
     if (divThumbnail) {
         divThumbnail.addEventListener('click', () => {

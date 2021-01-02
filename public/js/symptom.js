@@ -1,10 +1,6 @@
 const menu = document.querySelector('.js-input-hidden-menu').value;
 const tbodySymptomList = document.querySelector('.js-tbody-symptom-list');
 const inputName = document.querySelector('.js-input-name');
-const divKeywordList = document.querySelector('.js-div-keyword-list');
-const divKeywordAdd = document.querySelector('.js-div-keyword-add');
-const inputKeywordAdd = document.querySelector('.js-input-keyword-add');
-const buttonKeywordAdd = document.querySelector('.js-button-keyword-add');
 const buttonCancel = document.querySelector('.js-button-cancel');
 const buttonSymptomAdd = document.querySelector('.js-button-symptom-add');
 const buttonSymptomSave = document.querySelector('.js-button-symptom-save');
@@ -29,7 +25,7 @@ function getSymptomList() {
         let html = '';
         for (let i = 0; i < symptomList.length; i++) {
             let symptom = symptomList[i];
-            html += '<tr class="js-tr-symptom" dId="' + symptom.s_id + '">';
+            html += '<tr class="js-tr-symptom" sId="' + symptom.s_id + '">';
             html +=     '<td>' + symptom.s_id + '</td>';
             html +=     '<td>' + symptom.s_name + '</td>';
             html +=     '<td>' + idToBodyPart(symptom.s_bp_id) + '(' + symptom.s_bp_id + ')</td>';
@@ -44,6 +40,7 @@ function getSymptomList() {
 
         tbodySymptomList.querySelectorAll('.js-button-remove').forEach((buttonRemove) => {
             buttonRemove.addEventListener('click', function() {
+                console.log(this);
                 let sId = this.parentElement.parentElement.getAttribute('sId');
                 removeSymptom(sId);
             });
@@ -247,29 +244,6 @@ function initSymptom() {
         getSymptomList();
     } else if (menu == 'symptom_detail') {
         getSymptom(inputHiddenSId.value);
-    }
-
-    if (buttonKeywordAdd) {
-        buttonKeywordAdd.addEventListener('click', () => {
-            let keyword = inputKeywordAdd.value.trim();
-    
-            if (keyword === '') {
-                alert('키워드를 입력해주세요.');
-                return;
-            }
-            
-            let html = '<button class="js-button-keyword default keyword">' + keyword + '</button>';
-            divKeywordAdd.insertAdjacentHTML('beforebegin', html);
-    
-            inputKeywordAdd.value = '';
-    
-            let buttonKeywordList = divKeywordList.querySelectorAll('.js-button-keyword');
-            let buttonKeyword = buttonKeywordList[buttonKeywordList.length - 1];
-    
-            buttonKeyword.addEventListener('click', function() {
-                this.remove();
-            });
-        });
     }
 
     if (buttonCancel) {

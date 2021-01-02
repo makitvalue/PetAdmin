@@ -3,10 +3,6 @@ const tbodyDiseaseList = document.querySelector('.js-tbody-disease-list');
 const inputName = document.querySelector('.js-input-name');
 const textareaReason = document.querySelector('.js-textarea-reason');
 const textareaManagement = document.querySelector('.js-textarea-management');
-const divKeywordList = document.querySelector('.js-div-keyword-list');
-const divKeywordAdd = document.querySelector('.js-div-keyword-add');
-const inputKeywordAdd = document.querySelector('.js-input-keyword-add');
-const buttonKeywordAdd = document.querySelector('.js-button-keyword-add');
 const buttonCancel = document.querySelector('.js-button-cancel');
 const buttonDiseaseAdd = document.querySelector('.js-button-disease-add');
 const buttonDiseaseSave = document.querySelector('.js-button-disease-save');
@@ -261,29 +257,6 @@ function initDisease() {
         getDiseaseList();
     } else if (menu == 'disease_detail') {
         getDisease(inputHiddenDId.value);
-    }
-
-    if (buttonKeywordAdd) {
-        buttonKeywordAdd.addEventListener('click', () => {
-            let keyword = inputKeywordAdd.value.trim();
-    
-            if (keyword === '') {
-                alert('키워드를 입력해주세요.');
-                return;
-            }
-            
-            let html = '<button class="js-button-keyword default keyword">' + keyword + '</button>';
-            divKeywordAdd.insertAdjacentHTML('beforebegin', html);
-    
-            inputKeywordAdd.value = '';
-    
-            let buttonKeywordList = divKeywordList.querySelectorAll('.js-button-keyword');
-            let buttonKeyword = buttonKeywordList[buttonKeywordList.length - 1];
-    
-            buttonKeyword.addEventListener('click', function() {
-                this.remove();
-            });
-        });
     }
 
     if (buttonCancel) {
