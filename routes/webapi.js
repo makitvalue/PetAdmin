@@ -1004,7 +1004,7 @@ router.get('/symptom/get', (req, res) => {
                 let nutrientFoodInfo = result;
 
                 query = 'SELECT * FROM t_maps_symptom_disease AS msdTab ';
-                query += 'JOIN t_disease AS dTab ON dTab.d_id = msdTab.msd_d_id ';
+                query += 'JOIN t_diseases AS dTab ON dTab.d_id = msdTab.msd_d_id ';
                 query += 'WHERE msd_s_id = ?';
                 params = [sId];
 
