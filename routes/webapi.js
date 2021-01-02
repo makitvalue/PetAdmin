@@ -1033,7 +1033,7 @@ router.post('/product/category/delete', async (req, res) => {
         let [result, fields] = await pool.query(existCheckQuery, existCheckParams);
 
         if (result.length > 0) {
-            res.json({status: 'ERR_EXIST_PRODUCT'});
+            res.json({status: 'ERR_EXISTS_PRODUCT'});
             return;
 
         } else {
@@ -1119,7 +1119,7 @@ router.post('/product/brand/delete', async (req, res) => {
         let [result, fields] = await pool.query(existCheckQuery, existCheckParams);
 
         if (result.length > 0) {
-            res.json({status: 'ERR_EXIST_PRODUCT'});
+            res.json({status: 'ERR_EXISTS_PRODUCT'});
             return; 
         } else {
             let deleteQuery = 'DELETE FROM t_product_brands WHERE pb_id = ?';
