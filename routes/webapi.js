@@ -1,3 +1,4 @@
+const { query } = require('express');
 var express = require('express');
 var router = express.Router();
 var formidable = require('formidable');
@@ -54,7 +55,6 @@ router.get('/nutrient/get/all', (req, res) => {
         });
     });
 });
-
 //특정 영양소 조회
 router.get('/nutrient/get', (req, res) => {
     let nId = req.query.nId;
@@ -91,7 +91,6 @@ router.get('/nutrient/get', (req, res) => {
         });
     });
 });
-
 //영양소 저장 (추가, 수정)
 router.post('/nutrient/save', (req, res) => {
     let mode = req.body.mode; // ADD, MODIFY
@@ -150,7 +149,6 @@ router.post('/nutrient/save', (req, res) => {
     });
 
 });
-
 //영양소 삭제 
 router.post('/nutrient/delete', (req, res) => {
     let nId = req.body.nId;
@@ -264,7 +262,6 @@ router.get('/food/get/all', (req, res) => {
         });
     });
 });
-
 //특정 음식 조회
 router.get('/food/get', (req ,res) => {
 
@@ -326,7 +323,6 @@ router.get('/food/get', (req ,res) => {
 
 
 });
-
 //음식 삭제 
 router.post('/food/delete', (req, res) => {
     let fId = req.body.fId;
@@ -416,7 +412,6 @@ router.post('/food/delete', (req, res) => {
     });
 
 });
-
 //음식 저장 (추가, 수정)
 router.post('/food/save', (req ,res) => {
     let mode = req.body.mode; // ADD, MODIFY
@@ -495,7 +490,7 @@ router.post('/food/save', (req ,res) => {
                     conn.release();
                     res.json({status: 'OK', result: result});
                 }
-                
+
             } else if (mode === 'MODIFY') {
 
                 query = 'DELETE FROM t_maps_food_nutrient WHERE mfn_f_id = ?';
@@ -569,7 +564,6 @@ router.get('/disease/get/all', (req, res) => {
         });
     });
 });
-
 //특정 질병 조회
 router.get('/disease/get', (req, res) => {
     let dId = req.query.dId;
@@ -645,7 +639,6 @@ router.get('/disease/get', (req, res) => {
         });
     });
 });
-
 //질병 삭제
 router.post('/disease/delete', (req, res) => {
     let dId = req.body.dId;
@@ -685,8 +678,6 @@ router.post('/disease/delete', (req, res) => {
                 return;
             }
 
-            let deleteQuery = "DELETE FROM t_diseases WHERE d_id = ?";
-
             if (result < 1) {
                 conn.release();
                 res.json({status: 'ERR_NO_DATA'});
@@ -718,9 +709,9 @@ router.post('/disease/delete', (req, res) => {
                 return;
             } 
 
-
-            let params = [dId];
-            conn.query(deleteQuery, params, (error, result) => {
+            let deleteQuery = "DELETE FROM t_diseases WHERE d_id = ?";
+            let deleteParams = [dId];
+            conn.query(deleteQuery, deleteParams, (error, result) => {
                 if (error) {
                     console.log(error);
                     conn.release();
@@ -734,7 +725,6 @@ router.post('/disease/delete', (req, res) => {
         });
     });
 });
-
 //질병 저장 (추가, 수정)
 router.post('/disease/save', (req, res) => {
     let mode = req.body.mode; // ADD, MODIFY
@@ -970,7 +960,6 @@ router.get('/symptom/get/all', (req, res) => {
         });
     });
 });
-
 //특정 증상 조회
 router.get('/symptom/get', (req, res) => {
     
@@ -1046,7 +1035,6 @@ router.get('/symptom/get', (req, res) => {
     });
 
 });
-
 //증상 삭제 
 router.post('/symptom/delete', (req, res) => {
     let sId = req.body.sId;
@@ -1102,7 +1090,6 @@ router.post('/symptom/delete', (req, res) => {
     });
 
 });
-
 //증상 저장 (추가, 수정)
 router.post('/symptom/save', (req, res) => {
     let mode = req.body.mode; // ADD, MODIFY
@@ -1227,6 +1214,7 @@ router.post('/symptom/save', (req, res) => {
                                 query += ' (' + sId + ', "' + data.type +'", ' + data.targetId + ')';
                             }
                         });
+
                         //새로 입력된 연관된 영양소들 INSERT 실행
                         conn.query(query, (error, result) => {
                             if (error) {
@@ -1311,6 +1299,31 @@ router.post('/symptom/save', (req, res) => {
 });
 
 
+//전체제품 가져오기 
+router.get('/product/get/all', (req, res) => {
+    let query = 'SELECT * FROM t_products';
+    getConnection((error, conn) => {
+        if (error) {
+            console.log(error);
+            conn.release();
+            res.json({ status: 'ERR_MYSQL_POOL' });
+            return;
+        }
+        conn.query(query, (error, result) => {
+            if (error) {
+                console.log(error);
+                conn.release();
+                res.json({status: 'ERR_MYSQL_QUERY'});
+                return;
+            }
+            conn.release();
+            res.json({status: 'OK', result: result});
+        });
+
+    });
+});
+
+
 //전체 제품 카테고리 가져오기
 router.get('/product/category/get/all', (req, res) => {
     let query = 'SELECT * FROM t_product_categories';
@@ -1334,10 +1347,373 @@ router.get('/product/category/get/all', (req, res) => {
 
     });
 });
-
-//제품 카테고리 추가
+//제품 카테고리 저장 (입력, 수정)
 router.post('/product/category/save', (req, res) => {
+    let mode = req.body.mode; // ADD, MODIFY
+    let pcId;
+    let name = req.body.name;
+
+    if (f.isNone(name)) {
+        res.json({status: 'ERR_WRONG_PARAM'});
+        return;
+    }
+
+    let query = 'INSERT INTO t_product_categories(pc_name) VALUES(?) ';
+    let params = [name];
+
+    if (mode === 'ADD') {
+
+    } else if (mode === 'MODIFY') {
+        pcId = req.body.pcId;
+        if (f.isNone(pcId)) {
+            res.json({status: 'ERR_WRONG_PARAM'});
+            return;
+        }
+
+        query += "UPDATE t_product_categries SET";
+        query += " pc_name = ?";
+        query += " WHERE pc_id = ?";
+        params.push(pcId);
+    }
+
+    getConnection((error, conn) => {
+        if (error) {
+            console.log(error);
+            conn.release();
+            res.json({ status: 'ERR_MYSQL_POOL' });
+            return;
+        }
+        conn.query(query, params, (error, result) => {
+            if (error) {
+                console.log(error);
+                conn.release();
+                res.json({status: 'ERR_MYSQL_QUERY'});
+                return;
+            }
+
+            conn.release();
+            res.json({status: 'OK'});
+
+        });
+    });
 
 });
+//제품 카테고리 삭제
+router.post('/product/category/delete', (req, res) => {
+    let pcId = req.body.pcId;
+    if (f.isNone(pcId)) {
+        res.json({status: 'ERR_WRONG_PARAM'});
+        return;
+    }
+
+    let existCheckQuery = 'SELECT * FROM t_products WHERE p_pc_id = ?';
+    let existCheckParams = [pcId];
+
+    getConnection((error, conn) => {
+        if (error) {
+            console.log(error);
+            conn.release();
+            res.json({ status: 'ERR_MYSQL_POOL' });
+            return;  
+        }
+
+        conn.query(existCheckQuery, existCheckParams, (error, result) => {
+            if (error) {
+                console.log(error);
+                conn.release();
+                res.json({status: 'ERR_MYSQL_QUERY'});
+                return;
+            }
+
+            if (result.length > 0) {
+                conn.release();
+                res.json({status: 'ERR_EXIST_PRODUCT'});
+                return;
+
+            } else {
+                let deleteQuery = 'DELETE FROM t_product_categories WHERE pc_id = ?';
+                let deleteParams = [pcId];
+                conn.query(deleteQuery, deleteParams, (error, result) => {
+                    if (error) {
+                        console.log(error);
+                        conn.release();
+                        res.json({status: 'ERR_MYSQL_QUERY'});
+                        return;
+                    }
+                    conn.release();
+                    res.json({status: 'OK'});
+                });
+            }
+
+        });
+    });
+});
+
+
+//전체 제품 브랜드 가져오기
+router.get('/product/brand/get/all', (req, res) => {
+    let query = 'SELECT * FROM t_product_brands';
+    getConnection((error, conn) => {
+        if (error) {
+            console.log(error);
+            conn.release();
+            res.json({ status: 'ERR_MYSQL_POOL' });
+            return;
+        }
+        conn.query(query, (error, result) => {
+            if (error) {
+                console.log(error);
+                conn.release();
+                res.json({status: 'ERR_MYSQL_QUERY'});
+                return;
+            }
+            conn.release();
+            res.json({status: 'OK', result: result});
+        });
+
+    });
+});
+//제품 브랜드 저장 (입력, 수정)
+router.post('/product/brand/save', (req, res) => {
+    let mode = req.body.mode; // ADD, MODIFY
+    let pbId;
+    let name = req.body.name;
+
+    if (f.isNone(name)) {
+        res.json({status: 'ERR_WRONG_PARAM'});
+        return;
+    }
+
+    let query = 'INSERT INTO t_product_brands(pb_name) VALUES(?) ';
+    let params = [name];
+
+    if (mode === 'ADD') {
+
+    } else if (mode === 'MODIFY') {
+        pbId = req.body.pbId;
+        if (f.isNone(pbId)) {
+            res.json({status: 'ERR_WRONG_PARAM'});
+            return;
+        }
+
+        query += "UPDATE t_product_brands SET";
+        query += " pb_name = ?";
+        query += " WHERE pb_id = ?";
+        params.push(pbId);
+    }
+
+    getConnection((error, conn) => {
+        if (error) {
+            console.log(error);
+            conn.release();
+            res.json({ status: 'ERR_MYSQL_POOL' });
+            return;
+        }
+        conn.query(query, params, (error, result) => {
+            if (error) {
+                console.log(error);
+                conn.release();
+                res.json({status: 'ERR_MYSQL_QUERY'});
+                return;
+            }
+
+            conn.release();
+            res.json({status: 'OK'});
+
+        });
+    });
+});
+//제품 브랜드 삭제 
+router.post('/product/brand/delete', (req, res) => {
+    let pbId = req.body.pbId;
+    if (f.isNone(pbId)) {
+        res.json({status: 'ERR_WRONG_PARAM'});
+        return;
+    }
+
+    let existCheckQuery = 'SELECT * FROM t_products WHERE p_pb_id = ?';
+    let existCheckParams = [pbId];
+
+    getConnection((error, conn) => {
+        if (error) {
+            console.log(error);
+            conn.release();
+            res.json({ status: 'ERR_MYSQL_POOL' });
+            return;  
+        }
+
+        conn.query(existCheckQuery, existCheckParams, (error, result) => {
+            if (error) {
+                console.log(error);
+                conn.release();
+                res.json({status: 'ERR_MYSQL_QUERY'});
+                return;
+            }
+
+            if (result.length > 0) {
+                conn.release();
+                res.json({status: 'ERR_EXIST_PRODUCT'});
+                return;
+                
+            } else {
+                let deleteQuery = 'DELETE FROM t_product_brands WHERE pb_id = ?';
+                let deleteParams = [pbId];
+                conn.query(deleteQuery, deleteParams, (error, result) => {
+                    if (error) {
+                        console.log(error);
+                        conn.release();
+                        res.json({status: 'ERR_MYSQL_QUERY'});
+                        return;
+                    }
+                    conn.release();
+                    res.json({status: 'OK'});
+                });
+            }
+
+        });
+    });
+});
+
+
+//전체 견종 가져오기
+router.get('/breeds/get/all', (req, res) => {
+    let query = 'SELECT * FROM t_breeds';
+    getConnection((error, conn) => {
+        if (error) {
+            console.log(error);
+            conn.release();
+            res.json({ status: 'ERR_MYSQL_POOL' });
+            return;
+        }
+        conn.query(query, (error, result) => {
+            if (error) {
+                console.log(error);
+                conn.release();
+                res.json({status: 'ERR_MYSQL_QUERY'});
+                return;
+            }
+            conn.release();
+            res.json({status: 'OK', result: result});
+        });
+    });
+
+});
+//견종 저장 (입력, 수정)
+router.post('/breeds/save', (req, res) => {
+    let mode = req.body.mode; // ADD, MODIFY
+    let bId;
+    let name = req.body.name;
+
+    if (f.isNone(name)) {
+        res.json({status: 'ERR_WRONG_PARAM'});
+        return;
+    }
+
+    let query = 'INSERT INTO t_breeds(b_name) VALUES(?) ';
+    let params = [name];
+
+    if (mode === 'ADD') {
+
+    } else if (mode === 'MODIFY') {
+        bId = req.body.bId;
+        if (f.isNone(bId)) {
+            res.json({status: 'ERR_WRONG_PARAM'});
+            return;
+        }
+
+        query += "UPDATE t_breeds SET";
+        query += " b_name = ?";
+        query += " WHERE b_id = ?";
+        params.push(bId);
+    }
+
+    getConnection((error, conn) => {
+        if (error) {
+            console.log(error);
+            conn.release();
+            res.json({ status: 'ERR_MYSQL_POOL' });
+            return;
+        }
+        conn.query(query, params, (error, result) => {
+            if (error) {
+                console.log(error);
+                conn.release();
+                res.json({status: 'ERR_MYSQL_QUERY'});
+                return;
+            }
+            conn.release();
+            res.json({status: 'OK'});
+        });
+    });
+});
+//견종 삭제
+router.post('/breeds/delete', (req, res) => {
+    let bId = req.body.bId;
+    if (f.isNone(bId)) {
+        res.json({status: 'ERR_WRONG_PARAM'});
+        return;
+    }
+
+    let existCheckQuery = '';
+    existCheckQuery += 'SELECT * ';
+    existCheckQuery +='FROM t_breeds AS bTab ';
+        existCheckQuery += 'LEFT JOIN (SELECT pe_b_id, COUNT(*) AS peCnt FROM t_pets GROUP BY pe_b_id) AS peTab ';
+            existCheckQuery += 'ON bTab.b_id = peTab.pe_b_id ';
+        existCheckQuery += 'LEFT JOIN (SELECT bag_b_id, COUNT(*) AS bagCnt FROM t_breeds_age_groups GROUP BY bag_b_id) AS bagTab ';
+            existCheckQuery += 'ON bTab.b_id = bagTab.bag_b_id ';
+    existCheckQuery += 'WHERE bTab.b_id = ?';
+
+    let existCheckParams = [bId];
+
+    getConnection((error, conn) => {
+        if (error) {
+            console.log(error);
+            conn.release();
+            res.json({ status: 'ERR_MYSQL_POOL' });
+            return;
+        }
+        conn.query(existCheckQuery, existCheckParams, (error, result) => {
+            if (error) {
+                console.log(error);
+                conn.release();
+                res.json({status: 'ERR_MYSQL_QUERY'});
+                return;
+            }
+
+            if (result < 1) {
+                conn.release();
+                res.json({status: 'ERR_NO_DATA'});
+                return;
+            }
+
+            if (result[0].peCnt > 0) {
+                conn.release();
+                res.json({status: 'ERR_EXISTS_PET'});
+                return;
+            } 
+
+            if (result[0].bagCnt > 0) {
+                conn.release();
+                res.json({status: 'ERR_EXISTS_BREEDS_AGE_GROUPS'});
+                return;
+            } 
+
+            let deleteQuery = 'DELETE FROM t_breeds WHERE b_id = ?';
+            let deleteParams = [bId];
+            conn.query(deleteQuery, deleteParams, (error, result) => {
+                if (error) {
+                    console.log(error);
+                    conn.release();
+                    res.json({status: 'ERR_MYSQL_QUERY'});
+                    return;
+                }
+                conn.release();
+                res.json({status: 'OK'});
+            });
+
+        });
+    });
+});
+
 
 module.exports = router;
