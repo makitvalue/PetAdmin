@@ -1231,9 +1231,9 @@ router.post('/symptom/save', (req, res) => {
                                     query = 'INSERT INTO t_maps_symptom_disease(msd_d_id, msd_s_id) VALUES ';
                                     diseaseData.forEach((data, index) => {
                                         if (index != 0) {
-                                            query += ', (' + data + ', ' + dId + ') ';                    
+                                            query += ', (' + data + ', ' + sId + ') ';                    
                                         } else {
-                                            query += '(' + data + ', ' + dId + ') '; 
+                                            query += '(' + data + ', ' + sId + ') '; 
                                         }
                                     });
 
