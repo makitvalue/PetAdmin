@@ -495,10 +495,7 @@ router.post('/food/save', (req ,res) => {
                     conn.release();
                     res.json({status: 'OK', result: result});
                 }
-
-
                 
-
             } else if (mode === 'MODIFY') {
 
                 query = 'DELETE FROM t_maps_food_nutrient WHERE mfn_f_id = ?';
@@ -917,11 +914,33 @@ router.post('/disease/save', (req, res) => {
                 }
 
             } else {
-                conn.release();
-                res.json({status: 'OK', result: result});
+
+                query = 'DELETE FROM t_maps_symptom_disease WHERE msd_d_id = ?';
+                params = [dId];
+
+                conn.query(query, params, (error, result) => {
+                    if (error) {
+                        console.log(error);
+                        conn.release();
+                        res.json({status: 'ERR_MYSQL_QUERY'});
+                        return;
+                    }
+
+                    query = 'DELETE FROM t_maps_disease_nutrient_food WHERE mdnf_d_id = ?';
+                    params = [dId];
+
+                    conn.query(query, params, (error, result) => {
+                        if (error) {
+                            console.log(error);
+                            conn.release();
+                            res.json({status: 'ERR_MYSQL_QUERY'});
+                            return;
+                        }
+                        conn.release();
+                        res.json({status: 'OK', result: result});
+                    });
+                });
             }
-
-
         });
     });
 
@@ -1259,13 +1278,34 @@ router.post('/symptom/save', (req, res) => {
                 }
 
             } else {
-                conn.release();
-                res.json({status: 'OK', result: result});
+
+                query = 'DELETE FROM t_maps_symptom_disease WHERE msd_s_id = ?';
+                params = [sId];
+
+                conn.query(query, params, (error, result) => {
+                    if (error) {
+                        console.log(error);
+                        conn.release();
+                        res.json({status: 'ERR_MYSQL_QUERY'});
+                        return;
+                    }
+
+                    query = 'DELETE FROM t_maps_symptom_nutrient_food WHERE msnf_s_id = ?';
+                    params = [sId];
+
+                    conn.query(query, params, (error, result) => {
+                        if (error) {
+                            console.log(error);
+                            conn.release();
+                            res.json({status: 'ERR_MYSQL_QUERY'});
+                            return;
+                        }
+                        conn.release();
+                        res.json({status: 'OK', result: result});
+                    });
+                });
             }
-
-
         });
-
     });
 
 });
