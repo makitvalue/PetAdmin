@@ -337,6 +337,8 @@ router.post('/food/save', async (req ,res) => {
 
         let query = "";
         let params = [name, keyword, desc];
+        let result;
+        let fields;
 
         if (mode === 'ADD') {
             query += "INSERT INTO t_foods(f_name, f_keyword, f_desc) VALUES(?, ?, ?)";
@@ -355,7 +357,7 @@ router.post('/food/save', async (req ,res) => {
             return;
         }
 
-        let [result, fields] = await pool.query(query, params);
+        [result, fields] = await pool.query(query, params);
 
         if (mode === 'ADD') {
             if (nutrientList.length > 0) {
@@ -544,6 +546,8 @@ router.post('/disease/save', async (req, res) => {
 
         let query = '';
         let params = [name, keyword, bpId, reason, management];
+        let result;
+        let fields;
 
         //저장인지 수정인지 확인
         if (mode === 'ADD') { //추가일떄
@@ -564,7 +568,7 @@ router.post('/disease/save', async (req, res) => {
         }
 
         //기본정보 INSERT 혹은 UPDATE 실행
-        let [result, fields] = await pool.query(query, params);
+        [result, fields] = await pool.query(query, params);
 
         //연관된 영양소/음식이 있는지 확인
         if (nutrientFoodData.length > 0) {
@@ -794,6 +798,8 @@ router.post('/symptom/save', async (req, res) => {
 
         let query = '';
         let params = [name, keyword, bpId];
+        let result;
+        let fields;
 
         //저장인지 수정인지 확인
         if (mode === 'ADD') { //추가일떄
@@ -808,7 +814,7 @@ router.post('/symptom/save', async (req, res) => {
             query += " s_name = ?, s_keyword = ?, s_bp_id = ?";
             query += " WHERE s_id = ?";
             params.push(sId);
-            let [result, fiedls] = await pool.query(query, params);
+            [result, fields] = await pool.query(query, params);
         
         } else {
             res.json({status: 'ERR_WRONG_MODE'});
