@@ -762,12 +762,12 @@ router.post('/symptom/delete', async (req, res) => {
             return;
         }
 
-        let existCheckQuery = 'SELECT COUNT(*) AS msdCnt FROM t_maps_symptom_disease WHERE msd_s_id = ?';
+        let existCheckQuery = 'SELECT * AS msdCnt FROM t_maps_symptom_disease WHERE msd_s_id = ?';
         let existCheckParams = [sId];
         let [result, fields] = await pool.query(existCheckQuery, existCheckParams);
 
-        if (result[0].msdCnt > 0) {
-            res.json({status: 'ERR_EXIST_DISEASE'});
+        if (result.length > 0) {
+            res.json({status: 'ERR_EXISTS_DISEASE'});
             return;
         } else {
             let query = 'DELETE FROM t_symptoms WHERE s_id = ?';    
