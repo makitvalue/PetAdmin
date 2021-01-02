@@ -814,12 +814,12 @@ router.post('/symptom/save', async (req, res) => {
             query += " s_name = ?, s_keyword = ?, s_bp_id = ?";
             query += " WHERE s_id = ?";
             params.push(sId);
-            [result, fields] = await pool.query(query, params);
-        
         } else {
             res.json({status: 'ERR_WRONG_MODE'});
             return;
         }
+
+        [result, fields] = await pool.query(query, params);
 
         if (nutrientFoodData.length > 0) {
             query = '';
