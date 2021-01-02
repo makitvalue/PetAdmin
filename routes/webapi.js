@@ -701,6 +701,8 @@ router.post('/disease/delete', (req, res) => {
                 res.json({status: 'ERR_MYSQL_QUERY'});
                 return;
             }
+            
+            let deleteQuery = "DELETE FROM t_diseases WHERE d_id = ?";
 
             if (result < 1) {
                 conn.release();
@@ -733,7 +735,7 @@ router.post('/disease/delete', (req, res) => {
                 return;
             } 
 
-            let deleteQuery = "DELETE FROM t_diseases WHERE d_id = ?";
+
             let deleteParams = [dId];
             conn.query(deleteQuery, deleteParams, (error, result) => {
                 if (error) {
