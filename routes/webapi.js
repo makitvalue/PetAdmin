@@ -1150,23 +1150,30 @@ router.get('/breeds/get/all', async (req, res) => {
     }
 
 });
+//특정 견종 가져오기
+router.get('/breeds/get', (req, res) => {
+    
+});
 //견종 저장 (입력, 수정)
 router.post('/breeds/save', async (req, res) => {
     try {
         let mode = req.body.mode; // ADD, MODIFY
         let bId;
         let name = req.body.name;
+        let keyword = req.body.keyword;
+        let breedAgeGroups = req.body.breedAgeGroups;
+        let deleteBreedAgeGroups = req.body.deleteBreedAgeGroups;
     
-        if (f.isNone(name)) {
+        if (f.isNone(name) || f.isNone(keyword)) {
             res.json({status: 'ERR_WRONG_PARAM'});
             return;
         }
     
         let query = '';
-        let params = [name];
+        let params = [name, keyword];
     
         if (mode === 'ADD') {
-            query = 'INSERT INTO t_breeds(b_name) VALUES(?) ';
+            query = 'INSERT INTO t_breeds(b_name, b_keyword) VALUES(?, ?) ';
         } else if (mode === 'MODIFY') {
             bId = req.body.bId;
             if (f.isNone(bId)) {
@@ -1183,6 +1190,54 @@ router.post('/breeds/save', async (req, res) => {
         }
 
         let [result, fields] = await pool.query(query, params);
+        
+        if (mode === 'ADD') {
+            bId = result.insertId;
+        }
+
+        query = 'DELETE FROM t_breed_age_groups WHERE bag_b_id = ?';
+        params = [bId];
+        [result, fields] = await pool.query(query, params);
+
+        if (deleteBreedAgeGroups.length > 0) {
+            query = 'DELETE FROM t_maps_breed_age_group_disease WHERE mbagd_bag_id = ';
+            deleteBreedAgeGroups.forEach((item, index) => {
+                if (index == 0) {
+                    query += `${item} `;
+                } else {
+                    query += `OR ${item} `;
+                }
+            });
+        }
+    
+        if (breedAgeGroups.length > 0) {
+
+            if (mode === 'ADD') {
+                query = 'INSERT INTO t_breed_age_groups(bag_b_id, bag_min_age, bag_max_age) VALUES ';
+                breedAgeGroups.forEach( (item, index) => {
+                    if (index == 0) {
+                        query += `(${bId}, ${item.minAge}, ${item.Maxage})`;
+                    } else {
+                        query += `, (${bId}, ${item.minAge}, ${item.Maxage})`;
+                    }
+                });
+
+            } else if (mode === 'MODIFY') {
+                query = 'INSERT INTO t_breed_age_groups(bag_id, bag_b_id, bag_min_age, bag_max_age) VALUES ';
+                breedAgeGroups.forEach( (item, index) => {
+                    if (index == 0) {
+                        query += `(${item.bagId}, ${bId}, ${item.minAge}, ${item.Maxage})`;
+                    } else {
+                        query += `, (${item.bagId}, ${bId}, ${item.minAge}, ${item.Maxage})`;
+                    } 
+                });
+            }
+
+
+        } else {
+
+        }
+
         res.json({status: 'OK'});
 
     } catch (error) {
