@@ -1212,6 +1212,7 @@ router.post('/breed/save', async (req, res) => {
     
             query = "UPDATE t_breeds SET";
             query += " b_name = ?";
+            query += " b_keyword = ?";
             query += " WHERE b_id = ?";
             params.push(bId);
         } else {
@@ -1320,6 +1321,67 @@ router.post('/breed/delete', async (req, res) => {
         res.json({status: 'ERROR_SERVER'}); 
     }
 
+
+});
+
+
+//이미지 저장 
+router.post('/upload/image', async (req, res) => {
+    let form = new formidable.IncomingForm();
+    form.encoding = 'utf-8';
+    form.uploadDir = 'upload/tmp';
+    form.multiples = true;
+    form.keepExtensions = true;
+
+    form.parse(req, function(error, body, files) {
+        if (error) {
+            res.json({ status: 'ERR_UPLOAD' });
+            return;
+        }
+
+        let dataType = body.dataType;
+        let mode = body.mode; // THUMB, DATA_IMAGE, DATA_IMAGE_DETAIL
+        let dataId = body.dataId; // 데이터 아이디
+        
+        let imageName = f.generateRandomId() + '.' + files.image.path.split('.')[1];
+        let imageFilePath = 'public/images/' + imageName;
+        let imagePath = '/images/' + imageName;
+
+        fs.rename(files.image.path, imageFilePath, function() {
+            let table = "t_" + dataType + "s";
+            let t = dataType[0];
+
+            if (mode == 'THUMB') {
+                // UPDATE data thumbnail
+                let query = "UPDATE " + table + " SET " + t + "_thumb_path = ? WHERE " + t + "_id = ?";
+                let params = [imagePath, dataId];
+                o.mysql.query(query, params, function(error, result) {
+                    if (error) {
+                        console.log(error);
+                        res.json({ status: 'ERR_MYSQL' });
+                        return;
+                    }
+
+                    res.json({ status: 'OK', imagePath: imagePath });
+                });
+
+            } else if (mode == 'DATA_IMAGE' || mode == 'DATA_IMAGE_DETAIL') {
+                // INSERT images
+                let query = "INSERT INTO t_images (i_type, i_path, i_target_id, i_order, i_data_type) VALUES (?, ?, ?, ?, ?)";
+                let params = [mode, imagePath, dataId, order, dataType];
+
+                o.mysql.query(query, params, function(error, result) {
+                    if (error) {
+                        console.log(error);
+                        res.json({ status: 'ERR_MYSQL' });
+                        return;
+                    }
+
+                    res.json({ status: 'OK', imagePath: imagePath, order: order });
+                });
+            }
+        });
+    });
 
 });
 
