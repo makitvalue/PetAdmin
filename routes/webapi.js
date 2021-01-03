@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var formidable = require('formidable');
+var sharp = require('sharp');
+var fs = require('fs');
 
 // const getConnection = require('../lib/database');
 const pool = require('../lib/database');
@@ -1307,7 +1309,7 @@ router.post('/breed/delete', async (req, res) => {
         } 
 
         if (result[0].bagCnt > 0) {
-            res.json({status: 'ERR_EXISTS_BREEDS_AGE_GROUPS'});
+            res.json({status: 'ERR_EXISTS_BREED_AGE_GROUP'});
             return;
         } 
 
@@ -1413,10 +1415,23 @@ router.post('/upload/image', async (req, res) => {
         let dataId = body.dataId; // 데이터 아이디
         
         let imageName = f.generateRandomId() + '.' + files.image.path.split('.')[1];
-        let imageFilePath = `public/images/${dataType}/${imageName}_original`;
-        let imagePath = `/images/${dataType}/${imageName}_original`;
+        let imageFilePath = `public/images/${dataType}/${imageName}_original.jpg`;
+        let imagePath = `/images/${dataType}/${imageName}_original.jpg`;
 
         fs.rename(files.image.path, imageFilePath, async function() {
+            
+            // let imageBuffer;
+            // fs.readFile(imageFilePath, (error, data) => {
+            //     if (error) {
+            //         console.log(error);
+            //         res.json({status: 'ERR_READ_IMAGE_FILE'});
+            //         return;
+            //     }
+            //     imageBuffer = data.toString();
+            // });
+
+            sharp(imageFilePath).resize()
+
 
             if (mode === 'THUMB') {
                 // UPDATE data thumbnail
@@ -1446,5 +1461,33 @@ router.post('/upload/image', async (req, res) => {
 
 });
 
+router.get('/image/resize/test', (req, res) => {
+
+    let originalFileName = "public/images/food/test.jpg";
+    let stats = fs.statSync(originalFileName);
+    let fileSize = stats.size;
+    let reFilePath = "public/images/food";
+    let reFileName = originalFileName.split('.')[0] + "_resized." + originalFileName.split('.')[1];
+
+    // console.log(reFileName)
+
+    // if (stats < 200000) {
+    //     //끝
+    // } else {
+    //     let pct = 0;
+    //     fs.copyFile(originalFileName, reFileName)
+
+    //     while (true) {
+
+    //     }
+    // }
+
+
+
+
+    // sharp("/public/images/food/test.jpg").resize
+
+    res.json({result: reFileName});
+});
 
 module.exports = router;
