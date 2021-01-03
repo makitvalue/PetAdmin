@@ -1237,9 +1237,9 @@ router.post('/breed/save', async (req, res) => {
                 query = 'INSERT INTO t_breed_age_groups(bag_b_id, bag_min_age, bag_max_age) VALUES ';
                 breedAgeGroups.forEach( (item, index) => {
                     if (index == 0) {
-                        query += `(${bId}, ${item.minAge}, ${item.Maxage})`;
+                        query += `(${bId}, ${item.minAge}, ${item.maxAge})`;
                     } else {
-                        query += `, (${bId}, ${item.minAge}, ${item.Maxage})`;
+                        query += `, (${bId}, ${item.minAge}, ${item.MaxAge})`;
                     }
                 });
 
@@ -1247,13 +1247,12 @@ router.post('/breed/save', async (req, res) => {
                 query = 'INSERT INTO t_breed_age_groups(bag_id, bag_b_id, bag_min_age, bag_max_age) VALUES ';
                 breedAgeGroups.forEach( (item, index) => {
                     if (index == 0) {
-                        query += `(${item.bagId}, ${bId}, ${item.minAge}, ${item.Maxage})`;
+                        query += `(${item.bagId}, ${bId}, ${item.minAge}, ${item.maxAge})`;
                     } else {
-                        query += `, (${item.bagId}, ${bId}, ${item.minAge}, ${item.Maxage})`;
+                        query += `, (${item.bagId}, ${bId}, ${item.minAge}, ${item.maxAge})`;
                     } 
                 });
             }
-            console.log(query);
             [result, fields] = await pool.query(query);
         } 
         res.json({status: 'OK'});
