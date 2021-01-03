@@ -1253,6 +1253,7 @@ router.post('/breed/save', async (req, res) => {
                     } 
                 });
             }
+            console.log(query);
             [result, fields] = await pool.query(query);
         } 
         res.json({status: 'OK'});
