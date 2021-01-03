@@ -1159,15 +1159,23 @@ router.get('/breed/get', async (req, res) => {
             return;
         }
 
-        let query = 'SELECT * FROM t_breed_age_groups WHERE bag_b_id = ?';
+        let query = 'SELECT * FROM t_breeds WHERE b_id = ?';
         let params = [bId];
         let [result, fields] = await pool.query(query, params);
+        let breedsInfo = result[0];
+
+        query = 'SELECT * FROM t_breed_age_groups WHERE bag_b_id = ?';
+        params = [bId];
+        [result, fields] = await pool.query(query, params);
 
         if (result.length < 0) {
             res.json({status: 'ERR_NO_DATA'});
             return;
         } else {
-            res.json({status: 'OK', result: result});
+            res.json({status: 'OK', result: {
+                breed : breedsInfo,
+                breedAgeGroupList: result
+            }});
         }
 
    } catch (error) {
