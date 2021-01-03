@@ -1253,12 +1253,8 @@ router.post('/breed/save', async (req, res) => {
                     } 
                 });
             }
-
-
-        } else {
-
-        }
-
+            [result, fields] = await pool.query(query);
+        } 
         res.json({status: 'OK'});
 
     } catch (error) {
