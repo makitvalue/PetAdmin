@@ -1335,7 +1335,10 @@ router.get('/breed/weak/disease/get', async (req, res) => {
         return;
     }
 
-    let query = 'SELECT * FROM t_maps_breed_age_group_disease WHERE mbagd_bag_id = ?';
+    let query = 'SELECT * FROM t_maps_breed_age_group_disease AS mbagdTab ';
+    query += ' JOIN t_diseases AS dTab ON dTab.d_id = mbagdTab.mbagd_d_id ';
+    query += ' WHERE mbagd_bag_id = ?';
+    
     let params = [bagId];
     let [result, fields] = await pool.query(query, params);
 
@@ -1473,14 +1476,17 @@ router.get('/image/resize/test', (req, res) => {
     if (stats < 200000) {
         //끝
     } else {
-        let pct = 0;
+        let per = 0;
         fs.copyFile(originalFileName, reFileName, (error) => {
+            if (error) {
+                res.json({status: 'ERR_FILE_COPY'});
+            }
+
+            while (stats > 200000) {
+
+            }
 
         });
-
-        while (true) {
-
-        }
     }
 
 
