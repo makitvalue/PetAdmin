@@ -1000,7 +1000,7 @@ router.post('/product/category/save', async (req, res) => {
                 res.json({status: 'ERR_WRONG_PARAM'});
                 return;
             }
-            query = "UPDATE t_product_categries SET";
+            query = "UPDATE t_product_categroies SET";
             query += " pc_name = ?";
             query += " WHERE pc_id = ?";
             params.push(pcId);
