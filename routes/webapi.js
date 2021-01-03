@@ -1395,40 +1395,32 @@ router.post('/upload/image', async (req, res) => {
         
         let imageName = f.generateRandomId() + '.' + files.image.path.split('.')[1];
         let imageFilePath = `public/images/${dataType}/${imageName}`;
-        let imagePath = '/images/' + imageName;
+        let imagePath = `/images/${dataType}/${imageName}`;
 
-        fs.rename(files.image.path, imageFilePath, function() {
-            let table = "t_" + dataType + "s";
-            let t = dataType[0];
+        fs.rename(files.image.path, imageFilePath, async function() {
 
-            if (mode == 'THUMB') {
+            if (mode === 'THUMB') {
                 // UPDATE data thumbnail
-                let query = "UPDATE " + table + " SET " + t + "_thumb_path = ? WHERE " + t + "_id = ?";
+
+                let query = '';
                 let params = [imagePath, dataId];
-                o.mysql.query(query, params, function(error, result) {
-                    if (error) {
-                        console.log(error);
-                        res.json({ status: 'ERR_MYSQL' });
-                        return;
-                    }
 
-                    res.json({ status: 'OK', imagePath: imagePath });
-                });
+                if (dataType === 'food') {
+                    query = 'UPDATE t_foods SET f_thumbnail = ? WHERE f_id = ? ';
+                } else if (dataType === 'product') {
+                    query = 'UPDATE t_products SET p_thumbnail = ? WHERE p_id = ?';                    
+                }
 
-            } else if (mode == 'DATA_IMAGE' || mode == 'DATA_IMAGE_DETAIL') {
+                let [result, fields] = await pool.query(query, params);
+                res.json({ status: 'OK', imagePath: imagePath });
+
+            } else if (mode === 'IMAGE') {
                 // INSERT images
-                let query = "INSERT INTO t_images (i_type, i_path, i_target_id, i_order, i_data_type) VALUES (?, ?, ?, ?, ?)";
-                let params = [mode, imagePath, dataId, order, dataType];
-
-                o.mysql.query(query, params, function(error, result) {
-                    if (error) {
-                        console.log(error);
-                        res.json({ status: 'ERR_MYSQL' });
-                        return;
-                    }
-
-                    res.json({ status: 'OK', imagePath: imagePath, order: order });
-                });
+                let query = "INSERT INTO t_images (i_type, i_path, i_target_id, i_data_type) VALUES (?, ?, ?, ?, ?)";
+                let params = [mode, imagePath, dataId, dataType];
+                let [result, fields] = await pool.query(query, params);
+                
+                res.json({ status: 'OK', imagePath: imagePath});
             }
         });
     });
