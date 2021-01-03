@@ -1233,16 +1233,12 @@ router.post('/breed/save', async (req, res) => {
         [result, fields] = await pool.query(query, params);
 
         if (deleteBreedAgeGroups.length > 0) {
-            query = 'DELETE FROM t_maps_breed_age_group_disease WHERE mbagd_bag_id = ';
+            query = 'DELETE FROM t_maps_breed_age_group_disease WHERE 1=1';
             deleteBreedAgeGroups.forEach((item, index) => {
-                if (index == 0) {
-                    query += `${item} `;
-                } else {
-                    query += `OR ${item} `;
-                }
+                query += ` OR mbagd_bag_id = ${item}`;
             });
+            [result, fields] = await pool.query(query);
         }
-        [result, fields] = await pool.query(query);
     
         if (breedAgeGroups.length > 0) {
 
@@ -1435,7 +1431,7 @@ router.post('/upload/image', async (req, res) => {
             //     imageBuffer = data.toString();
             // });
 
-            sharp(imageFilePath).resize()
+            sharp(imageFilePath).resize();
 
 
             if (mode === 'THUMB') {

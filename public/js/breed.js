@@ -86,7 +86,7 @@ function getBreed(bId) {
             html +=     '<label class="center">~</label>';
             html +=     '<label>MAX 나이</label><input class="js-input-max-age default" type="text" value="' + breedAgeGroup.bag_max_age + '" />';
             html +=     '<div class="js-div-remove remove"><i class="fal fa-times"></i></div>';
-            html +=     '<a href="/breed/weak/disease/' + breedAgeGroup.bag_id + '"><div class="js-div-disease disease"><i class="fal fa-virus"></i></div></a>';
+            html +=     '<a href="/breed/weak/disease/' + breedAgeGroup.bag_id + '"><div class="js-div-disease disease"><i class="fal fa-biohazard"></i></div></a>';
             html += '</div>';
 
             originalBagIdList.push(breedAgeGroup.bag_id);
