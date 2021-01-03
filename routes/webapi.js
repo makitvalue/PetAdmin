@@ -1415,13 +1415,13 @@ router.post('/upload/image', async (req, res) => {
         let mode = body.mode; // THUMB, DATA_IMAGE, DATA_IMAGE_DETAIL
         let dataId = body.dataId; // 데이터 아이디
         
-        let imageName = f.generateRandomId() + '.' + files.image.path.split('.')[1];
+        let imageName = f.generateRandomId();
         let imageFilePath = `public/images/${dataType}/${imageName}_original.jpg`;
 
         let reImageFilePath = `public/images/${dataType}/${imageName}.jpg`;
         let reImagePath = `/images/${dataType}/${imageName}.jpg`;
 
-        fs.rename(files.image.path, imageFilePath, async function() {
+        fs.rename(files.image.path, imageFilePath, function() {
 
             let stats = fs.statSync(imageFilePath);
             let originFileSize = stats.size;
@@ -1429,48 +1429,43 @@ router.post('/upload/image', async (req, res) => {
 
             let rw = 0;
 
-            if (originFileSize < 200000) {
-        
-            } else {
-                let reSize = originFileSize;
-                let per = 0;
-                let reImage;
-                if (error) {
-                    res.json({status: 'ERR_FILE_COPY'});
-                }
-                while (reSize > 200000) {
-                    console.log(reSize);
-                    per += 5;
-                    rw = parseInt(originWidth * ((100 - per) / 100));
-                    reImage = await sharp(originalFileName)
-                        .resize({width: rw})
-                        .toFile(reImageFilePath);
-                    reSize = fs.statSync(reImageFilePath).size;
-                }
-            }
+            fs.copyFile(imageFilePath, reImageFilePath, async () => {
 
-            if (mode === 'THUMB') {
-                // UPDATE data thumbnail
-                let query = '';
-                let params = [reImagePath, dataId];
-
-                if (dataType === 'food') {
-                    query = 'UPDATE t_foods SET f_thumbnail = ? WHERE f_id = ? ';
-                } else if (dataType === 'product') {
-                    query = 'UPDATE t_products SET p_thumbnail = ? WHERE p_id = ?';                    
+                if (originFileSize < 200000) {
+            
+                } else {
+                    let reSize = originFileSize;
+                    let per = 0;
+                    while (reSize > 200000) {
+                        per += 5;
+                        rw = parseInt(originWidth * ((100 - per) / 100));
+                        await sharp(imageFilePath)
+                            .resize({width: rw})
+                            .toFile(reImageFilePath);
+                        reSize = fs.statSync(reImageFilePath).size;
+                    }
                 }
-
-                let [result, fields] = await pool.query(query, params);
+    
+                if (mode === 'THUMB') {
+                    // UPDATE data thumbnail
+                    let query = '';
+                    let params = [reImagePath, dataId];
+    
+                    if (dataType === 'food') {
+                        query = 'UPDATE t_foods SET f_thumbnail = ? WHERE f_id = ? ';
+                    } else if (dataType === 'product') {
+                        query = 'UPDATE t_products SET p_thumbnail = ? WHERE p_id = ?';                    
+                    }
+                    let [result, fields] = await pool.query(query, params);
+    
+                } else if (mode === 'IMAGE') {
+                    // INSERT images
+                    let query = "INSERT INTO t_images (i_type, i_path, i_target_id, i_data_type) VALUES (?, ?, ?, ?, ?)";
+                    let params = [mode, reImagePath, dataId, dataType];
+                    let [result, fields] = await pool.query(query, params);
+                }
                 res.json({ status: 'OK', reImagePath: reImagePath });
-
-            } else if (mode === 'IMAGE') {
-                // INSERT images
-                let query = "INSERT INTO t_images (i_type, i_path, i_target_id, i_data_type) VALUES (?, ?, ?, ?, ?)";
-                let params = [mode, reImagePath, dataId, dataType];
-                let [result, fields] = await pool.query(query, params);
-
-                res.json({ status: 'OK', reImagePath: reImagePath});
-            }
+            });
 
         });
     });

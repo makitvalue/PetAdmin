@@ -1,5 +1,7 @@
 
 const tbodyFoodList = document.querySelector('.js-tbody-food-list');
+const divThumbnail = document.querySelector('.js-div-thumbnail');
+const inputThumbnail = document.querySelector('.js-input-thumbnail');
 const inputName = document.querySelector('.js-input-name');
 const textareaDesc = document.querySelector('.js-textarea-desc');
 const buttonCancel = document.querySelector('.js-button-cancel');
@@ -203,8 +205,18 @@ function foodInit() {
     if (buttonFoodAdd) {
         buttonFoodAdd.addEventListener('click', () => {
             saveFood('ADD', (response) => {
-                alert('음식이 추가되었습니다.');
-                location.href = '/food';
+                let fId = response.fId;
+
+                let form = inputThumbnail.parentElement;
+                let formData = new FormData(form);
+                formData.append('mode', 'THUMB');
+                formData.append('dataType', 'food');
+                formData.append('dataId', fId);
+
+                uploadImage(formData, (response) => {
+                    alert('음식이 추가되었습니다.');
+                    location.reload();
+                });
             });
         });
     }
@@ -295,6 +307,22 @@ function foodInit() {
                         }
                     });
                 });
+            });
+        });
+    }
+
+    if (divThumbnail) {
+        divThumbnail.addEventListener('click', () => {
+            inputThumbnail.click();
+        });
+
+        inputThumbnail.addEventListener('change', (event) => {
+            changeInputImage(event, (error, result) => {
+                if (error) {
+                    divThumbnail.style.backgroundImage = 'url()';
+                    return;
+                }
+                divThumbnail.style.backgroundImage = 'url(' + result + ')';
             });
         });
     }

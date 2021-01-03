@@ -42,8 +42,8 @@ function changeInputImage(event, callback) {
             return;
         }
 
-        if (file.size > 2000000) {
-            alert('최대 2MB 크기의 이미지 파일을 업로드할 수 있습니다.');
+        if (file.size > 3000000) {
+            alert('최대 3MB 크기의 이미지 파일을 업로드할 수 있습니다.');
             return;
         }
 
@@ -62,6 +62,22 @@ function effectToString(effect) {
     } else {
         return '효과없음';
     }
+}
+
+
+function uploadImage(formData, callback) {
+    fetch('/webapi/upload/image', {
+        method: 'POST',
+        body: formData
+    })
+    .then(data => data.json())
+    .then((response) => {
+        if (response.status != 'OK') {
+            alert("에러가 발생했습니다.");
+            return;
+        }
+        callback(response);
+    });
 }
 
 
