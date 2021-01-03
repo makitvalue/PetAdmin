@@ -1417,27 +1417,42 @@ router.post('/upload/image', async (req, res) => {
         
         let imageName = f.generateRandomId() + '.' + files.image.path.split('.')[1];
         let imageFilePath = `public/images/${dataType}/${imageName}_original.jpg`;
-        let imagePath = `/images/${dataType}/${imageName}_original.jpg`;
+
+        let reImageFilePath = `public/images/${dataType}/${imageName}.jpg`;
+        let reImagePath = `/images/${dataType}/${imageName}.jpg`;
 
         fs.rename(files.image.path, imageFilePath, async function() {
-            
-            // let imageBuffer;
-            // fs.readFile(imageFilePath, (error, data) => {
-            //     if (error) {
-            //         console.log(error);
-            //         res.json({status: 'ERR_READ_IMAGE_FILE'});
-            //         return;
-            //     }
-            //     imageBuffer = data.toString();
-            // });
 
-            sharp(imageFilePath).resize();
+            let stats = fs.statSync(imageFilePath);
+            let originFileSize = stats.size;
+            let originWidth = imageSize(imageFilePath).width;
 
+            let rw = 0;
+
+            if (originFileSize < 200000) {
+        
+            } else {
+                let reSize = originFileSize;
+                let per = 0;
+                let reImage;
+                if (error) {
+                    res.json({status: 'ERR_FILE_COPY'});
+                }
+                while (reSize > 200000) {
+                    console.log(reSize);
+                    per += 5;
+                    rw = parseInt(originWidth * ((100 - per) / 100));
+                    reImage = await sharp(originalFileName)
+                        .resize({width: rw})
+                        .toFile(reImageFilePath);
+                    reSize = fs.statSync(reImageFilePath).size;
+                }
+            }
 
             if (mode === 'THUMB') {
                 // UPDATE data thumbnail
                 let query = '';
-                let params = [imagePath, dataId];
+                let params = [reImagePath, dataId];
 
                 if (dataType === 'food') {
                     query = 'UPDATE t_foods SET f_thumbnail = ? WHERE f_id = ? ';
@@ -1446,15 +1461,15 @@ router.post('/upload/image', async (req, res) => {
                 }
 
                 let [result, fields] = await pool.query(query, params);
-                res.json({ status: 'OK', imagePath: imagePath });
+                res.json({ status: 'OK', reImagePath: reImagePath });
 
             } else if (mode === 'IMAGE') {
                 // INSERT images
                 let query = "INSERT INTO t_images (i_type, i_path, i_target_id, i_data_type) VALUES (?, ?, ?, ?, ?)";
-                let params = [mode, imagePath, dataId, dataType];
+                let params = [mode, reImagePath, dataId, dataType];
                 let [result, fields] = await pool.query(query, params);
 
-                res.json({ status: 'OK', imagePath: imagePath});
+                res.json({ status: 'OK', reImagePath: reImagePath});
             }
 
         });
