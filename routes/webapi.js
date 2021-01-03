@@ -1239,7 +1239,7 @@ router.post('/breed/save', async (req, res) => {
                     if (index == 0) {
                         query += `(${bId}, ${item.minAge}, ${item.maxAge})`;
                     } else {
-                        query += `, (${bId}, ${item.minAge}, ${item.MaxAge})`;
+                        query += `, (${bId}, ${item.minAge}, ${item.maxAge})`;
                     }
                 });
 
