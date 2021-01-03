@@ -3,6 +3,7 @@ var router = express.Router();
 var formidable = require('formidable');
 var sharp = require('sharp');
 var fs = require('fs');
+var imageSize = require('image-size');
 
 // const getConnection = require('../lib/database');
 const pool = require('../lib/database');
@@ -1241,6 +1242,7 @@ router.post('/breed/save', async (req, res) => {
                 }
             });
         }
+        [result, fields] = await pool.query(query);
     
         if (breedAgeGroups.length > 0) {
 
@@ -1337,7 +1339,7 @@ router.get('/breed/weak/disease/get', async (req, res) => {
 
     let query = 'SELECT * FROM t_maps_breed_age_group_disease AS mbagdTab ';
     query += ' JOIN t_diseases AS dTab ON dTab.d_id = mbagdTab.mbagd_d_id ';
-    query += ' WHERE mbagd_bag_id = ?';
+    query += ' WHERE mbagd_bag_id = ? ORDER BY mbagd_bcs';
 
     let params = [bagId];
     let [result, fields] = await pool.query(query, params);
@@ -1468,33 +1470,45 @@ router.get('/image/resize/test', (req, res) => {
 
     let originalFileName = "public/images/food/test.jpg";
     let stats = fs.statSync(originalFileName);
-    let fileSize = stats.size;
-    let reFilePath = "public/images/food";
+    let originFileSize = stats.size;
+    let originWidth = imageSize(originalFileName).width;
+
     let reFileName = originalFileName.split('.')[0] + "_resized." + originalFileName.split('.')[1];
+    let rw = 0;
 
+    console.log(originWidth);
 
-    if (stats < 200000) {
-        //끝
+    if (originFileSize < 200000) {
+
+        res.json({status: 'OK'});
+
     } else {
+        let reSize = originFileSize;
         let per = 0;
-        fs.copyFile(originalFileName, reFileName, (error) => {
+        fs.readFile(originalFileName, async (error, data) => {
+
+            let imageBuffer = data.toString();
+            let reImage;
             if (error) {
                 res.json({status: 'ERR_FILE_COPY'});
             }
 
-            while (stats > 200000) {
+            while (reSize > 200000) {
+                console.log(reSize);
+                per += 0;
+                rw = parseInt(originWidth * ((100 - per)/100));
+                reImage = await sharp(originalFileName)
+                    .resize(rw)
+                    .toFile(reFileName)
 
+                reSize = fs.statSync(reFileName).size;
+                console.log('rw:', imageSize(reFileName).width);
             }
 
+            res.json({status: 'OK'});
         });
     }
 
-
-
-
-    // sharp("/public/images/food/test.jpg").resize
-
-    res.json({result: reFileName});
 });
 
 module.exports = router;
