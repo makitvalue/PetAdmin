@@ -1,5 +1,4 @@
 
-const menu = document.querySelector('.js-input-hidden-menu').value;
 const tbodyNutrientList = document.querySelector('.js-tbody-nutrient-list');
 const inputName = document.querySelector('.js-input-name');
 const selectEffect = document.querySelector('.js-select-effect');

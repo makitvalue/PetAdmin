@@ -1,4 +1,4 @@
-const menu = document.querySelector('.js-input-hidden-menu').value;
+
 const tbodyFoodList = document.querySelector('.js-tbody-food-list');
 const inputName = document.querySelector('.js-input-name');
 const textareaDesc = document.querySelector('.js-textarea-desc');

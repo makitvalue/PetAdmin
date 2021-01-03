@@ -1,3 +1,5 @@
+
+const menu = document.querySelector('.js-input-hidden-menu').value;
 const navSideMenu = document.querySelector('.js-nav-side-menu');
 const divMobileMenu = document.querySelector('.js-div-mobile-menu');
 const selectBodyPart = document.querySelector('.js-select-bodypart');

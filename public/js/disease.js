@@ -1,4 +1,4 @@
-const menu = document.querySelector('.js-input-hidden-menu').value;
+
 const tbodyDiseaseList = document.querySelector('.js-tbody-disease-list');
 const inputName = document.querySelector('.js-input-name');
 const textareaReason = document.querySelector('.js-textarea-reason');

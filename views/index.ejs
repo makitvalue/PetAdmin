@@ -29,7 +29,7 @@
         <link rel="stylesheet" type="text/css" href="/css/symptom.css" />
     <% } else if (menu == 'product' || menu == 'product_add' || menu == 'product_detail' || menu == 'product_category' || menu == 'product_brand') { %>
         <link rel="stylesheet" type="text/css" href="/css/product.css" />
-    <% } else if (menu == 'breed' || menu == 'breed_add' || menu == 'breed_detail') { %>
+    <% } else if (menu == 'breed' || menu == 'breed_add' || menu == 'breed_detail' || menu == 'breed_weak_disease') { %>
         <link rel="stylesheet" type="text/css" href="/css/breed.css" />
     <% } %>
 </head>
@@ -112,6 +112,8 @@
         <% include ./breed_add %>
     <% } else if (menu == 'breed_detail') { %> 
         <% include ./breed_detail %>
+    <% } else if (menu == 'breed_weak_disease') { %> 
+        <% include ./breed_weak_disease %>
     <% } %>
 
     </article>
@@ -138,7 +140,7 @@
         <script src="/js/symptom.js"></script>
     <% } else if (menu == 'product' || menu == 'product_add' || menu == 'product_detail' || menu == 'product_category' || menu == 'product_brand') { %>
         <script src="/js/product.js"></script>
-    <% } else if (menu == 'breed' || menu == 'breed_add' || menu == 'breed_detail') { %>
+    <% } else if (menu == 'breed' || menu == 'breed_add' || menu == 'breed_detail' || menu == 'breed_weak_disease') { %>
         <script src="/js/breed.js"></script>
     <% } %>
 

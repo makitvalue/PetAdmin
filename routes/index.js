@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+const pool = require('../lib/database');
 
 
 router.get('/', (req, res) => {
@@ -115,11 +116,56 @@ router.get('/product/add', (req, res) => {
 });
 
 
-router.get('/product/detail/:pId', (req, res) => {
+router.get('/product/detail/:pId', async (req, res) => {
+    let query = "SELECT * FROM t_products WHERE p_id = ?";
+    let params = [pId];
+    let [result, fields] = await pool.query(query, params);
+
+    if (result.length == 0) {
+        res.json({ status: 'ERR_NO_DATA' });
+        return;
+    }
+
+    let pcId = result[0].pcId;
+    let fnProt = '';
+    let fnFat = '';
+    let fnFibe = '';
+    let fnAsh = '';
+    let fnCalc = '';
+    let fnPhos = '';
+    let fnMois = '';
+    if (pcId == 1) {
+        query = "SELECT * FROM t_feed_nutrients WHERE fn_p_id = ?";
+        [result, fields] = await pool.query(query, params);
+        
+        if (result.length == 0) {
+            res.json({ status: 'ERR_NO_DATA' });
+            return;
+        }
+
+        let feedNutrient = result[0];
+        fnProt = feedNutrient.fn_prot;
+        fnFat = feedNutrient.fn_fat;
+        fnFibe = feedNutrient.fn_fibe;
+        fnAsh = feedNutrient.fn_ash;
+        fnCalc = feedNutrient.fn_calc;
+        fnPhos = feedNutrient.fn_phos;
+        fnMois = feedNutrient.fn_mois;
+    }
+
     res.render('index', { 
         menu: 'product_detail',
 
-        pId: req.params.pId
+        pId: req.params.pId,
+
+        pcId: pcId,
+        fnProt: fnProt,
+        fnFat: fnFat,
+        fnFibe: fnFibe,
+        fnAsh: fnAsh,
+        fnCalc: fnCalc,
+        fnPhos: fnPhos,
+        fnMois: fnMois
     });
 });
 
@@ -157,6 +203,35 @@ router.get('/breed/detail/:bId', (req, res) => {
         menu: 'breed_detail',
 
         bId: req.params.bId
+    });
+});
+
+
+router.get('/breed/weak/disease/:bagId', async (req, res) => {
+    let bagId = req.params.bagId;
+
+    let query = "SELECT * FROM t_breed_age_groups AS bagTab JOIN t_breeds AS bTab ON bTab.b_id = bagTab.bag_b_id WHERE bagTab.bag_id = ?";
+    let params = [bagId];
+
+    let [result, fields] = await pool.query(query, params);
+
+    if (result.length == 0) {
+        res.json({ status: 'ERR_NO_DATA' });
+        return;
+    }
+    
+    let bName = result[0].b_name;
+    let bagMinAge = result[0].bag_min_age;
+    let bagMaxAge = result[0].bag_max_age;
+
+    res.render('index', { 
+        menu: 'breed_weak_disease',
+
+        bagId: bagId,
+
+        bName: bName,
+        bagMinAge: bagMinAge,
+        bagMaxAge: bagMaxAge
     });
 });
 

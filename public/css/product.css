@@ -1,0 +1,16 @@
+
+.wrapper.product .form-box .feed-nutrient-wrapper {
+    margin-top: 12px;
+    width: 100%;
+}
+.wrapper.product .form-box .feed-nutrient-wrapper thead tr th {
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 400;
+}
+.wrapper.product .form-box .feed-nutrient-wrapper tbody tr td input {
+    width: 100%;
+    font-size: 1rem;
+    padding: 8px;
+    text-align: center;
+}

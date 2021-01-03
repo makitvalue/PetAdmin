@@ -1,4 +1,4 @@
-const menu = document.querySelector('.js-input-hidden-menu').value;
+
 const tbodySymptomList = document.querySelector('.js-tbody-symptom-list');
 const inputName = document.querySelector('.js-input-name');
 const buttonCancel = document.querySelector('.js-button-cancel');
@@ -40,7 +40,6 @@ function getSymptomList() {
 
         tbodySymptomList.querySelectorAll('.js-button-remove').forEach((buttonRemove) => {
             buttonRemove.addEventListener('click', function() {
-                console.log(this);
                 let sId = this.parentElement.parentElement.getAttribute('sId');
                 removeSymptom(sId);
             });

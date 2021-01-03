@@ -1495,11 +1495,11 @@ router.get('/image/resize/test', (req, res) => {
 
             while (reSize > 200000) {
                 console.log(reSize);
-                per += 0;
+                per += 5;
                 rw = parseInt(originWidth * ((100 - per)/100));
                 reImage = await sharp(originalFileName)
-                    .resize(rw)
-                    .toFile(reFileName)
+                    .resize({width: rw})
+                    .toFile(reFileName);
 
                 reSize = fs.statSync(reFileName).size;
                 console.log('rw:', imageSize(reFileName).width);
