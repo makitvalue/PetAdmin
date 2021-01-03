@@ -1211,7 +1211,7 @@ router.post('/breed/save', async (req, res) => {
             }
     
             query = "UPDATE t_breeds SET";
-            query += " b_name = ?";
+            query += " b_name = ?,";
             query += " b_keyword = ?";
             query += " WHERE b_id = ?";
             params.push(bId);
