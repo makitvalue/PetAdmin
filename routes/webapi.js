@@ -1326,7 +1326,7 @@ router.post('/breed/delete', async (req, res) => {
 
 
 //견종 나이대별 그룹에 따른 취약질병 가져오기
-router.get('/breed/disease/get', async (req, res) => {
+router.get('/breed/weak/disease/get', async (req, res) => {
     let bagId = req.query.bagId;
     if (f.isNone(bagId)) {
         res.json({status: 'ERR_WRONG_PARAM'});
@@ -1341,7 +1341,7 @@ router.get('/breed/disease/get', async (req, res) => {
 
 });
 //취약질병 추가
-router.post('/breed/disease/add', async (req, res) => {
+router.post('/breed/weak/disease/add', async (req, res) => {
     let bagId = req.body.bagId;
     let dId = req.body.dId;
     let bcs = req.body.bcs;
@@ -1359,7 +1359,7 @@ router.post('/breed/disease/add', async (req, res) => {
 
 });
 //취약질병 삭제
-router.post('/breed/disease/delete', async (req, res) => {
+router.post('/breed/weak/disease/delete', async (req, res) => {
     let mbagdId = req.body.mbagdId;
     if (f.isNone(bagId)) {
         res.json({status: 'ERR_WRONG_PARAM'});
@@ -1373,6 +1373,7 @@ router.post('/breed/disease/delete', async (req, res) => {
     res.json({status: 'OK'});
 
 });
+
 
 //이미지 저장 
 router.post('/upload/image', async (req, res) => {
