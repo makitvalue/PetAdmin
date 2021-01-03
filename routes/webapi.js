@@ -1139,7 +1139,7 @@ router.post('/product/brand/delete', async (req, res) => {
 
 
 //전체 견종 가져오기
-router.get('/breeds/get/all', async (req, res) => {
+router.get('/breed/get/all', async (req, res) => {
     try {
         let query = "SELECT * FROM t_breeds";
         let [result, fields] = await pool.query(query);
@@ -1151,11 +1151,32 @@ router.get('/breeds/get/all', async (req, res) => {
 
 });
 //특정 견종 가져오기
-router.get('/breeds/get', (req, res) => {
-    
+router.get('/breed/get', async (req, res) => {
+   try {
+        let bId = req.query.bId;
+        if (f.isNone(bId)) {
+            res.json({status: 'ERR_WRONG_PARAM'});
+            return;
+        }
+
+        let query = 'SELECT * FROM t_breed_age_groups WHERE bag_b_id = ?';
+        let params = [bId];
+        let [result, fields] = await pool.query(query, params);
+
+        if (result.length < 0) {
+            res.json({status: 'ERR_NO_DATA'});
+            return;
+        } else {
+            res.json({status: 'OK', result: result});
+        }
+
+   } catch (error) {
+        console.log(error);
+        res.json({status: 'ERROR_SERVER'}); 
+   }
 });
 //견종 저장 (입력, 수정)
-router.post('/breeds/save', async (req, res) => {
+router.post('/breed/save', async (req, res) => {
     try {
         let mode = req.body.mode; // ADD, MODIFY
         let bId;
@@ -1248,7 +1269,7 @@ router.post('/breeds/save', async (req, res) => {
 
 });
 //견종 삭제
-router.post('/breeds/delete', async (req, res) => {
+router.post('/breed/delete', async (req, res) => {
 
     try {
         let bId = req.body.bId;
