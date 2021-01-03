@@ -989,18 +989,18 @@ router.post('/product/category/save', async (req, res) => {
             return;
         }
 
-        let query = 'INSERT INTO t_product_categories(pc_name) VALUES(?) ';
+        let query = '';
         let params = [name];
 
         if (mode === 'ADD') {
-
+            query = 'INSERT INTO t_product_categories(pc_name) VALUES(?) ';
         } else if (mode === 'MODIFY') {
             pcId = req.body.pcId;
             if (f.isNone(pcId)) {
                 res.json({status: 'ERR_WRONG_PARAM'});
                 return;
             }
-            query += "UPDATE t_product_categries SET";
+            query = "UPDATE t_product_categries SET";
             query += " pc_name = ?";
             query += " WHERE pc_id = ?";
             params.push(pcId);
@@ -1076,11 +1076,11 @@ router.post('/product/brand/save', async (req, res) => {
             return;
         }
     
-        let query = 'INSERT INTO t_product_brands(pb_name) VALUES(?) ';
+        let query = '';
         let params = [name];
     
         if (mode === 'ADD') {
-    
+            query = 'INSERT INTO t_product_brands(pb_name) VALUES(?) ';
         } else if (mode === 'MODIFY') {
             pbId = req.body.pbId;
             if (f.isNone(pbId)) {
@@ -1088,7 +1088,7 @@ router.post('/product/brand/save', async (req, res) => {
                 return;
             }
     
-            query += "UPDATE t_product_brands SET";
+            query = "UPDATE t_product_brands SET";
             query += " pb_name = ?";
             query += " WHERE pb_id = ?";
             params.push(pbId);
@@ -1162,11 +1162,11 @@ router.post('/breeds/save', async (req, res) => {
             return;
         }
     
-        let query = 'INSERT INTO t_breeds(b_name) VALUES(?) ';
+        let query = '';
         let params = [name];
     
         if (mode === 'ADD') {
-    
+            query = 'INSERT INTO t_breeds(b_name) VALUES(?) ';
         } else if (mode === 'MODIFY') {
             bId = req.body.bId;
             if (f.isNone(bId)) {
@@ -1174,7 +1174,7 @@ router.post('/breeds/save', async (req, res) => {
                 return;
             }
     
-            query += "UPDATE t_breeds SET";
+            query = "UPDATE t_breeds SET";
             query += " b_name = ?";
             query += " WHERE b_id = ?";
             params.push(bId);
