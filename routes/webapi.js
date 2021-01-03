@@ -1325,6 +1325,55 @@ router.post('/breed/delete', async (req, res) => {
 });
 
 
+//견종 나이대별 그룹에 따른 취약질병 가져오기
+router.get('/breed/disease/get', async (req, res) => {
+    let bagId = req.query.bagId;
+    if (f.isNone(bagId)) {
+        res.json({status: 'ERR_WRONG_PARAM'});
+        return;
+    }
+
+    let query = 'SELECT * FROM t_maps_breed_age_group_disease WHERE mbagd_bag_id = ?';
+    let params = [bagId];
+    let [result, fields] = await pool.query(query, params);
+
+    res.json({status: 'OK', result: result});
+
+});
+//취약질병 추가
+router.post('/breed/disease/add', async (req, res) => {
+    let bagId = req.body.bagId;
+    let dId = req.body.dId;
+    let bcs = req.body.bcs;
+
+    if (f.isNone(bagId) || f.isNone(dId) || f.isNone(bcs)) {
+        res.json({status: 'ERR_WRONG_PARAM'});
+        return;
+    }
+    
+    let query = 'INSERT INTO t_maps_breed_age_group_disease(mbagd_bag_id, mbagd_d_id, mbagd_bcs) VALUES(?, ?, ?)';
+    let params = [bagId, dId, bcs];
+    let [result, fields] = await pool.query(query, params);
+
+    res.json({status: 'OK'});
+
+});
+//취약질병 삭제
+router.post('/breed/disease/delete', async (req, res) => {
+    let mbagdId = req.body.mbagdId;
+    if (f.isNone(bagId)) {
+        res.json({status: 'ERR_WRONG_PARAM'});
+        return;
+    }
+
+    let query = 'DELETE FROM t_maps_breed_age_group_disease WHERE mbagd_id = ?';
+    let params = [mbagdId];
+    let [result, fields] = await pool.query(query, params);
+
+    res.json({status: 'OK'});
+
+});
+
 //이미지 저장 
 router.post('/upload/image', async (req, res) => {
     let form = new formidable.IncomingForm();
@@ -1344,7 +1393,7 @@ router.post('/upload/image', async (req, res) => {
         let dataId = body.dataId; // 데이터 아이디
         
         let imageName = f.generateRandomId() + '.' + files.image.path.split('.')[1];
-        let imageFilePath = 'public/images/' + imageName;
+        let imageFilePath = `public/images/${dataType}/${imageName}`;
         let imagePath = '/images/' + imageName;
 
         fs.rename(files.image.path, imageFilePath, function() {
