@@ -967,6 +967,62 @@ router.get('/product/get/all', async (req, res) => {
         res.json({status: 'ERROR_SERVER'}); 
     }
 });
+//제품 저장 (등록, 수정)
+router.post('/product/save', async (req, res) => {
+
+    try {
+        
+    } catch (error) {
+        console.log(error);
+        res.json({status: 'ERROR_SERVER'}); 
+    }
+
+    let mode = req.body.mode;
+    let pId;
+    let pcId = req.body.pcId;
+    let pbId = req.body.pbId;
+    let name = req.body.name;
+    let keyword = req.body.keyword;
+    let price = req.body.price;
+    let origin = req.body.origin;
+    let manufacturer = req.body.manufacturer;
+    let packingVolume = req.body.packingVolume;
+    let recommend = req.body.recommend;
+    let feedNutrients = req.body.feedNutrients;
+    
+    if (f.isNone(pcId) || f.isNone(pbId) || f.isNone(name) || f.isNone(keyword)) {
+        res.json({status: 'ERR_WRONG_PARAM'});
+        return;
+    }
+
+    let query = '';
+    let params = [pcId, pbId, name, keyword, price, origin, manufacturer, packingVolume, recommend];
+
+    if (mode === 'ADD') {
+
+        query = 'INSERT INTO t_products(p_pc_id, p_pb_id, p_name, p_keyword, p_price, p_origin, p_manufacturer, p_packing_volume, p_recommend)';
+        let [result, fields] = await pool.query(query, params);
+        pId = result.insertId;
+
+        //카테고리가 제품일때
+        if (pcId == 1) {
+            let feedQuery = 'INSERT INTO t_feed_nutrients(fn_prot, fn_fat, fn_fibe, fn_ash, fn_calc, fn_phos, fn_mois, fn_p_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?)';
+            let feedParams = [feedNutrients.prot, feedNutrients.fat, feedNutrients.fibe, feedNutrients.ash, feedNutrients.calc, feedNutrients.phos, feedNutrients.mois, pId];
+            [result, fields] = await pool.query(feedQuery, feedParams);
+        }
+        
+        //0103 여기까지함 여기부터 하셈 !!
+
+        
+
+    } else if (mode === 'MODIFY') {
+
+    }
+
+
+
+
+});
 
 
 //전체 제품 카테고리 가져오기
@@ -1472,49 +1528,5 @@ router.post('/upload/image', async (req, res) => {
 
 });
 
-router.get('/image/resize/test', (req, res) => {
-
-    let originalFileName = "public/images/food/test.jpg";
-    let stats = fs.statSync(originalFileName);
-    let originFileSize = stats.size;
-    let originWidth = imageSize(originalFileName).width;
-
-    let reFileName = originalFileName.split('.')[0] + "_resized." + originalFileName.split('.')[1];
-    let rw = 0;
-
-    console.log(originWidth);
-
-    if (originFileSize < 200000) {
-
-        res.json({status: 'OK'});
-
-    } else {
-        let reSize = originFileSize;
-        let per = 0;
-        fs.readFile(originalFileName, async (error, data) => {
-
-            let imageBuffer = data.toString();
-            let reImage;
-            if (error) {
-                res.json({status: 'ERR_FILE_COPY'});
-            }
-
-            while (reSize > 200000) {
-                console.log(reSize);
-                per += 5;
-                rw = parseInt(originWidth * ((100 - per)/100));
-                reImage = await sharp(originalFileName)
-                    .resize({width: rw})
-                    .toFile(reFileName);
-
-                reSize = fs.statSync(reFileName).size;
-                console.log('rw:', imageSize(reFileName).width);
-            }
-
-            res.json({status: 'OK'});
-        });
-    }
-
-});
 
 module.exports = router;
