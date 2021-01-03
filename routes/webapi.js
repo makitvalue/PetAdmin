@@ -1338,7 +1338,7 @@ router.get('/breed/weak/disease/get', async (req, res) => {
     let query = 'SELECT * FROM t_maps_breed_age_group_disease AS mbagdTab ';
     query += ' JOIN t_diseases AS dTab ON dTab.d_id = mbagdTab.mbagd_d_id ';
     query += ' WHERE mbagd_bag_id = ?';
-    
+
     let params = [bagId];
     let [result, fields] = await pool.query(query, params);
 
@@ -1366,7 +1366,7 @@ router.post('/breed/weak/disease/add', async (req, res) => {
 //취약질병 삭제
 router.post('/breed/weak/disease/delete', async (req, res) => {
     let mbagdId = req.body.mbagdId;
-    if (f.isNone(bagId)) {
+    if (f.isNone(mbagdId)) {
         res.json({status: 'ERR_WRONG_PARAM'});
         return;
     }
