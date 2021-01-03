@@ -1290,7 +1290,7 @@ router.post('/breed/delete', async (req, res) => {
         existCheckQuery +='FROM t_breeds AS bTab ';
             existCheckQuery += 'LEFT JOIN (SELECT pe_b_id, COUNT(*) AS peCnt FROM t_pets GROUP BY pe_b_id) AS peTab ';
                 existCheckQuery += 'ON bTab.b_id = peTab.pe_b_id ';
-            existCheckQuery += 'LEFT JOIN (SELECT bag_b_id, COUNT(*) AS bagCnt FROM t_breeds_age_groups GROUP BY bag_b_id) AS bagTab ';
+            existCheckQuery += 'LEFT JOIN (SELECT bag_b_id, COUNT(*) AS bagCnt FROM t_breed_age_groups GROUP BY bag_b_id) AS bagTab ';
                 existCheckQuery += 'ON bTab.b_id = bagTab.bag_b_id ';
         existCheckQuery += 'WHERE bTab.b_id = ?';
     
@@ -1469,18 +1469,19 @@ router.get('/image/resize/test', (req, res) => {
     let reFilePath = "public/images/food";
     let reFileName = originalFileName.split('.')[0] + "_resized." + originalFileName.split('.')[1];
 
-    // console.log(reFileName)
 
-    // if (stats < 200000) {
-    //     //끝
-    // } else {
-    //     let pct = 0;
-    //     fs.copyFile(originalFileName, reFileName)
+    if (stats < 200000) {
+        //끝
+    } else {
+        let pct = 0;
+        fs.copyFile(originalFileName, reFileName, (error) => {
 
-    //     while (true) {
+        });
 
-    //     }
-    // }
+        while (true) {
+
+        }
+    }
 
 
 
