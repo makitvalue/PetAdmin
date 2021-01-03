@@ -1373,6 +1373,25 @@ router.post('/breed/weak/disease/delete', async (req, res) => {
     res.json({status: 'OK'});
 
 });
+//취약질병 수정
+router.post('/breed/weak/disease/modify', async (req, res) => {
+    let mbagdId = req.body.mbagdId;
+    let bcs = req.body.bcs;
+    let dId = req.body.dId;
+
+    if (f.isNone(mbagdId) || f.isNone(bcs) || f.isNone(dId)) {
+        res.json({status: 'ERR_WRONG_PARAM'});
+        return;
+    }
+
+    let query = 'UPDATE t_maps_breed_age_group_disease SET mbagd_bcs = ?, mbagd_dId = ? WHERE mbagd_id = ?';
+    let params = [bcs, dId, mbagdId];
+    let [result, fields] = await pool.query(query, params);
+
+    res.json({status: 'OK'});
+    
+    // bcs, dId
+});
 
 
 //이미지 저장 
@@ -1394,14 +1413,13 @@ router.post('/upload/image', async (req, res) => {
         let dataId = body.dataId; // 데이터 아이디
         
         let imageName = f.generateRandomId() + '.' + files.image.path.split('.')[1];
-        let imageFilePath = `public/images/${dataType}/${imageName}`;
-        let imagePath = `/images/${dataType}/${imageName}`;
+        let imageFilePath = `public/images/${dataType}/${imageName}_original`;
+        let imagePath = `/images/${dataType}/${imageName}_original`;
 
         fs.rename(files.image.path, imageFilePath, async function() {
 
             if (mode === 'THUMB') {
                 // UPDATE data thumbnail
-
                 let query = '';
                 let params = [imagePath, dataId];
 
@@ -1419,9 +1437,10 @@ router.post('/upload/image', async (req, res) => {
                 let query = "INSERT INTO t_images (i_type, i_path, i_target_id, i_data_type) VALUES (?, ?, ?, ?, ?)";
                 let params = [mode, imagePath, dataId, dataType];
                 let [result, fields] = await pool.query(query, params);
-                
+
                 res.json({ status: 'OK', imagePath: imagePath});
             }
+
         });
     });
 
