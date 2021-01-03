@@ -363,8 +363,8 @@ router.post('/food/save', async (req ,res) => {
         [result, fields] = await pool.query(query, params);
 
         if (mode === 'ADD') {
+            fId = result.insertId;
             if (nutrientList.length > 0) {
-                fId = result.insertId;
                 query = 'INSERT INTO t_maps_food_nutrient(mfn_f_id, mfn_n_id) VALUES';
                 nutrientList.forEach((nutrient, index) => {
                     if (index != 0) {
@@ -376,7 +376,7 @@ router.post('/food/save', async (req ,res) => {
                 [result, fields] = await pool.query(query);
             } 
 
-            res.json({status: 'OK'});
+            res.json({status: 'OK', fId: fId});
             
         } else if (mode === 'MODIFY') {
 
