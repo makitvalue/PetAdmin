@@ -961,7 +961,7 @@ router.get('/product/get/all', async (req, res) => {
         let query = "SELECT * FROM t_products AS pTab";
         query += ' JOIN t_product_categories AS pcTab ON pcTab.pc_id = pTab.p_pc_id';
         query += ' JOIN t_product_brands AS pbTab ON pbTab.pb_id = pTab.p_pb_id';
-        
+
         let [result, fields] = await pool.query(query);
         res.json({status: 'OK', result: result});
     } catch (error) {
@@ -1076,7 +1076,7 @@ router.get('/product/get', async (req, res) => {
         params = [pId];
         [result, fields] = await pool.query(query, params);
 
-        let feedNutrientInfo = result = [0];
+        let feedNutrientInfo = result[0];
 
         query = 'SELECT * FROM t_images WHERE i_data_type = "PRODUCT" AND i_target_id = ?';
         params = [pId];
