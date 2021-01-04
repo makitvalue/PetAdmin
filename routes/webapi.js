@@ -1182,8 +1182,6 @@ router.post('/product/delete', async (req, res) => {
         deleteParams = [pId];
         await pool.query(deleteQuery, deleteParams);
         res.json({status: 'OK'});
-
-        res.json({status: 'OK'});
         
 
     } catch (error) {
@@ -1723,7 +1721,6 @@ router.post('/delete/image', async (req, res) => {
 
     });
     if (imageCnt > 0) {
-        console.log(query);
         let [result, fields] = await pool.query(query);
     }
     res.json({status: 'OK'});
