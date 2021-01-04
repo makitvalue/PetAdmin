@@ -1619,7 +1619,7 @@ router.post('/upload/image', async (req, res) => {
                     }
                     let [result, fields] = await pool.query(query, params);
     
-                } else if (type === 'IMAGE') {
+                } else {
                     // INSERT images
                     let query = "INSERT INTO t_images (i_type, i_path, i_target_id, i_data_type) VALUES (?, ?, ?, ?)";
                     let params = [type, reImagePath, targetId, dataType];
