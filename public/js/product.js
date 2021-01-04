@@ -52,7 +52,7 @@ function getProductList() {
         let html = '';
         for (let i = 0; i < productList.length; i++) {
             let product = productList[i];
-            html += '<tr class="js-tr-disease" pId="' + product.p_id + '">';
+            html += '<tr class="js-tr-product" pId="' + product.p_id + '">';
             html +=     '<td>' + product.p_id + '</td>';
             html +=     '<td>' + product.p_name + '</td>';
             html +=     '<td>' + product.pc_name + '(' + product.p_pc_id + ')</td>';
@@ -185,6 +185,7 @@ function getProduct(pId) {
 
 
 function saveProduct(mode, callback) {
+
     let name = inputName.value.trim();
 
     if (name === '') {
@@ -210,6 +211,13 @@ function saveProduct(mode, callback) {
 
     if (menu == 'product_add' && !inputThumbnail.value) {
         alert('제품 썸네일 이미지를 등록해주세요.');
+        removeSpinner('SAVE_PRODUCT');
+        removeOverlay('SAVE_PRODUCT');
+        return;
+    }
+
+    if (!selectBrand.value) {
+        alert('제품 브랜드를 선택해주세요.');
         removeSpinner('SAVE_PRODUCT');
         removeOverlay('SAVE_PRODUCT');
         return;
