@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <meta http-equiv="cleartype" content="on" />
+    <meta name="description" content="PetAdmin" />
+    <meta name="keywords"  content="" />
+    <meta name="theme-color" content="#333333">
+
+    <title>반려앱 | 관리자</title>
+
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+    <link rel="stylesheet" type="text/css" href="/css/common.css" />
+
+    <% if (menu == 'login') { %>
+        <link rel="stylesheet" type="text/css" href="/css/login.css" />
+
+    <% } else if (menu == 'main') { %>
+        <link rel="stylesheet" type="text/css" href="/css/main.css" />
+    <% } else if (menu == 'nutrient' || menu == 'nutrient_add' || menu == 'nutrient_detail') { %>
+        <link rel="stylesheet" type="text/css" href="/css/nutrient.css" />
+    <% } else if (menu == 'food' || menu == 'food_add' || menu == 'food_detail') { %>
+        <link rel="stylesheet" type="text/css" href="/css/food.css" />
+    <% } else if (menu == 'disease' || menu == 'disease_add' || menu == 'disease_detail') { %>
+        <link rel="stylesheet" type="text/css" href="/css/disease.css" />
+    <% } else if (menu == 'symptom' || menu == 'symptom_add' || menu == 'symptom_detail') { %>
+        <link rel="stylesheet" type="text/css" href="/css/symptom.css" />
+    <% } else if (menu == 'product' || menu == 'product_add' || menu == 'product_detail' || menu == 'product_category' || menu == 'product_brand') { %>
+        <link rel="stylesheet" type="text/css" href="/css/product.css" />
+    <% } else if (menu == 'breed' || menu == 'breed_add' || menu == 'breed_detail' || menu == 'breed_weak_disease') { %>
+        <link rel="stylesheet" type="text/css" href="/css/breed.css" />
+    <% } %>
+</head>
+<body>
+    <input class="js-input-hidden-menu" type="hidden" value="<%=menu%>" />
+
+    <header>
+        <a href="/"><div class="title-wrapper">
+            <p class="title">반려앱 ADMIN</p>
+        </div></a>
+        <div class="js-div-mobile-menu mobile-menu"><i class="far fa-bars"></i></div>
+    </header>
+
+    <nav class="js-nav-side-menu side-menu">
+        <a href="/"><div class="main-menu">홈</div></a>
+        <div class="main-menu">데이터 관리</div>
+        <ul class="sub-menu">
+            <a href="/nutrient"><li>영양소</li></a>
+            <a href="/food"><li>음식</li></a>
+            <a href="/disease"><li>질병</li></a>
+            <a href="/symptom"><li>증상</li></a>
+            <a href="/product/category"><li>제품 카테고리</li></a>
+            <a href="/product/brand"><li>제품 브랜드</li></a>
+            <a href="/product"><li>제품</li></a>
+            <a href="/breed"><li>견종</li></a>
+        </ul>
+        <a href="/user"><div class="main-menu">사용자 관리</div></a>
+    </nav>
+
+    <article>
+
+    <% if (menu == 'login') { %>
+        <% include ./login %>
+
+    <% } else if (menu == 'main') { %> 
+        <% include ./main %>
+
+    <% } else if (menu == 'nutrient') { %> 
+        <% include ./nutrient %>
+    <% } else if (menu == 'nutrient_add') { %> 
+        <% include ./nutrient_add %>
+    <% } else if (menu == 'nutrient_detail') { %> 
+        <% include ./nutrient_detail %>
+
+    <% } else if (menu == 'food') { %> 
+        <% include ./food %>
+    <% } else if (menu == 'food_add') { %> 
+        <% include ./food_add %>
+    <% } else if (menu == 'food_detail') { %> 
+        <% include ./food_detail %>
+
+    <% } else if (menu == 'disease') { %> 
+        <% include ./disease %>
+    <% } else if (menu == 'disease_add') { %> 
+        <% include ./disease_add %>
+    <% } else if (menu == 'disease_detail') { %> 
+        <% include ./disease_detail %>
+
+    <% } else if (menu == 'symptom') { %> 
+        <% include ./symptom %>
+    <% } else if (menu == 'symptom_add') { %> 
+        <% include ./symptom_add %>
+    <% } else if (menu == 'symptom_detail') { %> 
+        <% include ./symptom_detail %>
+
+    <% } else if (menu == 'product') { %> 
+        <% include ./product %>
+    <% } else if (menu == 'product_add') { %> 
+        <% include ./product_add %>
+    <% } else if (menu == 'product_detail') { %> 
+        <% include ./product_detail %>
+    <% } else if (menu == 'product_category') { %> 
+        <% include ./product_category %>
+    <% } else if (menu == 'product_brand') { %> 
+        <% include ./product_brand %>
+
+    <% } else if (menu == 'breed') { %> 
+        <% include ./breed %>
+    <% } else if (menu == 'breed_add') { %> 
+        <% include ./breed_add %>
+    <% } else if (menu == 'breed_detail') { %> 
+        <% include ./breed_detail %>
+    <% } else if (menu == 'breed_weak_disease') { %> 
+        <% include ./breed_weak_disease %>
+    <% } %>
+
+    </article>
+
+    <footer>
+        <div class="wrapper">FOOTER</div>
+    </footer>
+
+    <script src="/js/config.js"></script>
+    <script src="/js/common.js"></script>
+
+    <% if (menu == 'login') { %>
+        <script src="/js/login.js"></script>
+
+    <% } else if (menu == 'main') { %>
+        <script src="/js/main.js"></script>
+    <% } else if (menu == 'nutrient' || menu == 'nutrient_add' || menu == 'nutrient_detail') { %>
+        <script src="/js/nutrient.js"></script>
+    <% } else if (menu == 'food' || menu == 'food_add' || menu == 'food_detail') { %>
+        <script src="/js/food.js"></script>
+    <% } else if (menu == 'disease' || menu == 'disease_add' || menu == 'disease_detail') { %>
+        <script src="/js/disease.js"></script>
+    <% } else if (menu == 'symptom' || menu == 'symptom_add' || menu == 'symptom_detail') { %>
+        <script src="/js/symptom.js"></script>
+    <% } else if (menu == 'product' || menu == 'product_add' || menu == 'product_detail' || menu == 'product_category' || menu == 'product_brand') { %>
+        <script src="/js/product.js"></script>
+    <% } else if (menu == 'breed' || menu == 'breed_add' || menu == 'breed_detail' || menu == 'breed_weak_disease') { %>
+        <script src="/js/breed.js"></script>
+    <% } %>
+
+</body>
+</html>

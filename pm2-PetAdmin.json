@@ -1,5 +1,6 @@
 {
 	"name": "PetAdmin",
+<<<<<<< HEAD
     	"script": "bin/www",
     	"watch": true,
     	"watch_delay": 0,
@@ -9,3 +10,13 @@
     	}
 }
 
+=======
+    "script": "bin/www",
+    "watch": true,
+    "watch_delay": 0,
+    "ignore_watch": ["node_modules", ".git", "public/images", "upload"],
+    "watch_options": {
+            "followSymlinks": false
+    }
+}
+>>>>>>> cd3d1f47742d0856b7b14d4b9053cc8bceb30411
