@@ -34,6 +34,8 @@ const inputHiddenFnAsh = document.querySelector('.js-input-hidden-fn-ash');
 const inputHiddenFnCalc = document.querySelector('.js-input-hidden-fn-calc');
 const inputHiddenFnPhos = document.querySelector('.js-input-hidden-fn-phos');
 const inputHiddenFnMois = document.querySelector('.js-input-hidden-fn-mois');
+const inputHiddenOriginalImageData = document.querySelector('.js-input-hidden-original-image-data');
+const inputHiddenOriginalImageDetailData = document.querySelector('.js-input-hidden-original-image-detail-data');
 
 
 function getProductList() {
@@ -85,14 +87,16 @@ function getProduct(pId) {
         }
 
         let product = response.result.product;
-        let feedNutrients = response.result.feedNutrients;
+        // let feedNutrients = response.result.feedNutrients;
         let imageList = response.result.imageList;
         let foodNutrientList = response.result.nutrientFoodList;
 
         inputName.value = product.p_name;
-        // selectBodyPart.value = disease.d_bp_id;
-        // textareaReason.value = disease.d_reason;
-        // textareaManagement.value = disease.d_management;
+        inputPrice.value = product.p_price;
+        inputOrigin.value = product.p_origin;
+        inputManufacturer.value = product.p_manufacturer;
+        inputPackingVolume.value = product.p_packing_volume;
+        inputRecommend.value = product.p_recommend;
 
         let keywordList = product.p_keyword.split('|');
 
@@ -110,7 +114,7 @@ function getProduct(pId) {
 
         html = '';
         for (let i = 0; i < foodNutrientList.length; i++) {
-            let dataType = foodNutrientList[i].mdnf_type;
+            let dataType = foodNutrientList[i].mpnf_type;
             if (dataType == 'FOOD') {
                 let fId = foodNutrientList[i].f_id;
                 let fName = foodNutrientList[i].f_name;
@@ -130,6 +134,52 @@ function getProduct(pId) {
 
         divThumbnail.style.backgroundImage = 'url(' + ((product.p_thumbnail) ? product.p_thumbnail : '') + ')';
         divThumbnail.setAttribute("original", ((product.p_thumbnail) ? product.p_thumbnail : ''));
+    
+        let imageData = [];
+        let imageDetailData = [];
+        let imageHtml = '';
+        let detailImageHtml = '';
+        for (let i = 0; i < imageList.length; i++) {
+            let image = imageList[i];
+
+            let html = '';
+            html += '<div class="js-div-image-wrapper image-wrapper" iId="' + image.i_id + '">';
+            html +=     '<form method="post" enctype="multipart/form-data"><input class="js-input-image" name="image" type="file" accept="image/jpeg,image/png" /></form>';
+            html +=     '<div class="js-div-remove remove"><i class="fal fa-times"></i></div>';
+            html +=     '<div class="js-div-image image" style="background-image: url(' + image.i_path + ')" original="' + image.i_path + '"></div>';
+            html += '</div>';
+
+            if (image.i_type == 'IMAGE') {
+                imageData.push(image);
+                imageHtml += html;
+            } else { // IMAGE_DETAIL
+                imageDetailData.push(image);
+                detailImageHtml += html;
+            }
+        }
+
+        buttonImageAdd.insertAdjacentHTML('beforebegin', imageHtml);
+        buttonImageDetailAdd.insertAdjacentHTML('beforebegin', detailImageHtml);
+        inputHiddenOriginalImageData.value = JSON.stringify(imageData);
+        inputHiddenOriginalImageDetailData.value = JSON.stringify(imageDetailData);
+
+        document.querySelectorAll('.js-div-image-wrapper').forEach((divImageWrapper) => {
+            divImageWrapper.querySelector('.js-div-remove').addEventListener('click', () => {
+                divImageWrapper.remove();
+            });
+            // divImageWrapper.querySelector('.js-div-image').addEventListener('click', () => {
+            //     divImageWrapper.querySelector('.js-input-image').click();
+            // });
+            // divImageWrapper.querySelector('.js-input-image').addEventListener('change', (event) => {
+            //     changeInputImage(event, (error, result) => {
+            //         if (error) {
+            //             divImageWrapper.querySelector('.js-div-image').style.backgroundImage = 'url()';
+            //             return;
+            //         }
+            //         divImageWrapper.querySelector('.js-div-image').style.backgroundImage = 'url(' + result + ')';
+            //     });
+            // });
+        });
     });
 }
 
@@ -378,6 +428,53 @@ function getNutrientList(callback) {
 }
 
 
+function checkUloadImageAndDelete() {
+    let deleteImageList = [];
+
+    let originalImageData = JSON.parse(inputHiddenOriginalImageData.value);
+    let originalDetailImageData = JSON.parse(inputHiddenOriginalImageDetailData.value);
+
+    for (let i = 0; i < originalImageData.length; i++) {
+        let image = originalImageData[i];
+        let iId = image.i_id;
+        let iPath = image.i_path;
+        let isRemoved = true;
+        divImageBox.querySelectorAll('.js-div-image-wrapper').forEach((divImageWrapper) => {
+            if (iPath == divImageWrapper.querySelector('.js-div-image').getAttribute('original')) {
+                isRemoved = false;
+            }
+        });
+        if (isRemoved) deleteImageList.push({ iId: iId, path: iPath });
+    }
+
+    for (let i = 0; i < originalDetailImageData.length; i++) {
+        let image = originalDetailImageData[i];
+        let iType = image.i_type;
+        let iId = image.i_id;
+        let iPath = image.i_path;
+        let isRemoved = true;
+        divImageDetailBox.querySelectorAll('.js-div-image-wrapper').forEach((divImageWrapper) => {
+            if (iPath == divImageWrapper.querySelector('.js-div-image').getAttribute('original')) {
+                isRemoved = false;
+            }
+        });
+        if (isRemoved) deleteImageList.push({ type: iType, iId: iId, path: iPath });
+    }
+    
+    removeImage(deleteImageList, (response) => {
+        if (response.status != 'OK') {
+            alert("에러가 발생했습니다.");
+            removeSpinner('SAVE_PRODUCT');
+            removeOverlay('SAVE_PRODUCT');
+            return;
+        }
+
+        alert('제품이 수정되었습니다.');
+        location.reload();
+    });
+}
+
+
 function initProduct() {
     if (menu == 'product') {
         getProductList();
@@ -599,8 +696,200 @@ function initProduct() {
 
     if (buttonProductSave) {
         buttonProductSave.addEventListener('click', () => {
+
             saveProduct('MODIFY', (response) => {
-                alert('제품이 수정되었습니다.');
+                let pId = inputHiddenPId.value;
+
+                if (inputThumbnail.value) { // 썸네일 수정 했음.
+                    let form = inputThumbnail.parentElement;
+                    let formData = new FormData(form);
+                    formData.append('type', 'THUMB');
+                    formData.append('dataType', 'product');
+                    formData.append('targetId', pId);
+                    uploadImage(formData, (response) => {
+                        if (response.status != 'OK') {
+                            alert("에러가 발생했습니다.");
+                            removeSpinner('SAVE_FOOD');
+                            removeOverlay('SAVE_FOOD');
+                            return;
+                        }
+    
+                        let formDataList = [];
+                        divImageBox.querySelectorAll('.js-div-image-wrapper').forEach((divImageWrapper) => {
+                            let form = divImageWrapper.querySelector('form');
+                            let input = form.querySelector('input');
+                            if (!input.value) return true;
+    
+                            let formData = new FormData(form);
+                            formData.append('targetId', pId);
+                            formData.append('type', 'IMAGE');
+                            formData.append('dataType', 'product');
+                            formDataList.push(formData);
+                        });
+    
+                        let detailFormDataList = [];
+                        divImageDetailBox.querySelectorAll('.js-div-image-wrapper').forEach((divImageWrapper) => {
+                            let form = divImageWrapper.querySelector('form');
+                            let input = form.querySelector('input');
+                            if (!input.value) return true;
+    
+                            let formData = new FormData(form);
+                            formData.append('targetId', pId);
+                            formData.append('type', 'IMAGE_DETAIL');
+                            formData.append('dataType', 'product');
+                            detailFormDataList.push(formData);
+                        });
+    
+                        let responseCnt = 0;
+                        if (formDataList.length > 0) {
+                            for (let i = 0; i < formDataList.length; i++) {
+                                let formData = formDataList[i];
+                                uploadImage(formData, (response) => {
+                                    if (response.status != 'OK') {
+                                        alert("에러가 발생했습니다.");
+                                        removeSpinner('SAVE_FOOD');
+                                        removeOverlay('SAVE_FOOD');
+                                        return;
+                                    }
+        
+                                    responseCnt++;
+                                    if (responseCnt == formDataList.length) {
+                                        responseCnt = 0;
+                                        if (detailFormDataList.length > 0) {
+                                            for (let j = 0; j < detailFormDataList.length; j++) {
+                                                let formData = detailFormDataList[j];
+                                                uploadImage(formData, (response) => {
+                                                    if (response.status != 'OK') {
+                                                        alert("에러가 발생했습니다.");
+                                                        removeSpinner('SAVE_FOOD');
+                                                        removeOverlay('SAVE_FOOD');
+                                                        return;
+                                                    }
+                        
+                                                    responseCnt++;
+                                                    if (responseCnt == detailFormDataList.length) {
+                                                        checkUloadImageAndDelete();
+                                                    }
+                                                });
+                                            }
+                                        } else {
+                                            checkUloadImageAndDelete();
+                                        }
+                                    }
+                                });
+                            }
+                        } else {
+                            if (detailFormDataList.length > 0) {
+                                for (let j = 0; j < detailFormDataList.length; j++) {
+                                    let formData = detailFormDataList[j];
+                                    uploadImage(formData, (response) => {
+                                        if (response.status != 'OK') {
+                                            alert("에러가 발생했습니다.");
+                                            removeSpinner('SAVE_FOOD');
+                                            removeOverlay('SAVE_FOOD');
+                                            return;
+                                        }
+            
+                                        responseCnt++;
+                                        if (responseCnt == detailFormDataList.length) {
+                                            checkUloadImageAndDelete();
+                                        }
+                                    });
+                                }
+                            } else {
+                                checkUloadImageAndDelete();
+                            }
+                        }
+                    });
+
+                } else { // 썸네일 수정 안했음.
+                    let formDataList = [];
+                    divImageBox.querySelectorAll('.js-div-image-wrapper').forEach((divImageWrapper) => {
+                        let form = divImageWrapper.querySelector('form');
+                        let input = form.querySelector('input');
+                        if (!input.value) return true;
+
+                        let formData = new FormData(form);
+                        formData.append('targetId', pId);
+                        formData.append('type', 'IMAGE');
+                        formData.append('dataType', 'product');
+                        formDataList.push(formData);
+                    });
+
+                    let detailFormDataList = [];
+                    divImageDetailBox.querySelectorAll('.js-div-image-wrapper').forEach((divImageWrapper) => {
+                        let form = divImageWrapper.querySelector('form');
+                        let input = form.querySelector('input');
+                        if (!input.value) return true;
+
+                        let formData = new FormData(form);
+                        formData.append('targetId', pId);
+                        formData.append('type', 'IMAGE_DETAIL');
+                        formData.append('dataType', 'product');
+                        detailFormDataList.push(formData);
+                    });
+
+                    let responseCnt = 0;
+                    if (formDataList.length > 0) {
+                        for (let i = 0; i < formDataList.length; i++) {
+                            let formData = formDataList[i];
+                            uploadImage(formData, (response) => {
+                                if (response.status != 'OK') {
+                                    alert("에러가 발생했습니다.");
+                                    removeSpinner('SAVE_FOOD');
+                                    removeOverlay('SAVE_FOOD');
+                                    return;
+                                }
+    
+                                responseCnt++;
+                                if (responseCnt == formDataList.length) {
+                                    responseCnt = 0;
+                                    if (detailFormDataList.length > 0) {
+                                        for (let j = 0; j < detailFormDataList.length; j++) {
+                                            let formData = detailFormDataList[j];
+                                            uploadImage(formData, (response) => {
+                                                if (response.status != 'OK') {
+                                                    alert("에러가 발생했습니다.");
+                                                    removeSpinner('SAVE_FOOD');
+                                                    removeOverlay('SAVE_FOOD');
+                                                    return;
+                                                }
+                    
+                                                responseCnt++;
+                                                if (responseCnt == detailFormDataList.length) {
+                                                    checkUloadImageAndDelete();
+                                                }
+                                            });
+                                        }
+                                    } else {
+                                        checkUloadImageAndDelete();
+                                    }
+                                }
+                            });
+                        }
+                    } else {
+                        if (detailFormDataList.length > 0) {
+                            for (let j = 0; j < detailFormDataList.length; j++) {
+                                let formData = detailFormDataList[j];
+                                uploadImage(formData, (response) => {
+                                    if (response.status != 'OK') {
+                                        alert("에러가 발생했습니다.");
+                                        removeSpinner('SAVE_FOOD');
+                                        removeOverlay('SAVE_FOOD');
+                                        return;
+                                    }
+        
+                                    responseCnt++;
+                                    if (responseCnt == detailFormDataList.length) {
+                                        checkUloadImageAndDelete();
+                                    }
+                                });
+                            }
+                        } else {
+                            checkUloadImageAndDelete();
+                        }
+                    }
+                }
             });
         });
     }
@@ -729,7 +1018,7 @@ function initProduct() {
 
             // value 세팅 (ADD면 1, DETAIL이면 가져와서 세팅)
             if (menu == 'product_add') selectCategory.value = 1;
-            else if (menu == 'product_detail') selectCategory.value = 1;
+            else if (menu == 'product_detail') selectCategory.value = inputHiddenPcId.value;
             selectCategory.dispatchEvent(new Event('change')); // select event trigger
         });
 
@@ -745,13 +1034,13 @@ function initProduct() {
                 html +=         '</thead>';
                 html +=         '<tbody>';
                 html +=             '<tr>';
-                html +=                 '<td><input class="js-input-prot default" type="text" value="' + ((inputHiddenFnProt.value) ? inputHiddenFnProt.value: '') + '" /></td>';
-                html +=                 '<td><input class="js-input-fat default" type="text" value="' + ((inputHiddenFnFat) ? inputHiddenFnProt.value: '') + '" /></td>';
-                html +=                 '<td><input class="js-input-fibe default" type="text" value="' + ((inputHiddenFnFibe.value) ? inputHiddenFnProt.value: '') + '" /></td>';
-                html +=                 '<td><input class="js-input-ash default" type="text" value="' + ((inputHiddenFnAsh.value) ? inputHiddenFnProt.value: '') + '" /></td>';
-                html +=                 '<td><input class="js-input-calc default" type="text" value="' + ((inputHiddenFnCalc.value) ? inputHiddenFnProt.value: '') + '" /></td>';
-                html +=                 '<td><input class="js-input-phos default" type="text" value="' + ((inputHiddenFnProt.value) ? inputHiddenFnProt.value: '') + '" /></td>';
-                html +=                 '<td><input class="js-input-mois default" type="text" value="' + ((inputHiddenFnProt.value) ? inputHiddenFnProt.value: '') + '" /></td>';
+                html +=                 '<td><input class="js-input-prot default" type="text" value="' + ((inputHiddenFnProt) ? inputHiddenFnProt.value: '') + '" /></td>';
+                html +=                 '<td><input class="js-input-fat default" type="text" value="' + ((inputHiddenFnFat) ? inputHiddenFnFat.value: '') + '" /></td>';
+                html +=                 '<td><input class="js-input-fibe default" type="text" value="' + ((inputHiddenFnFibe) ? inputHiddenFnFibe.value: '') + '" /></td>';
+                html +=                 '<td><input class="js-input-ash default" type="text" value="' + ((inputHiddenFnAsh) ? inputHiddenFnAsh.value: '') + '" /></td>';
+                html +=                 '<td><input class="js-input-calc default" type="text" value="' + ((inputHiddenFnCalc) ? inputHiddenFnCalc.value: '') + '" /></td>';
+                html +=                 '<td><input class="js-input-phos default" type="text" value="' + ((inputHiddenFnPhos) ? inputHiddenFnPhos.value: '') + '" /></td>';
+                html +=                 '<td><input class="js-input-mois default" type="text" value="' + ((inputHiddenFnMois) ? inputHiddenFnMois.value: '') + '" /></td>';
                 html +=             '</tr>';
                 html +=         '</tbody>';
                 html +=     '</table>';
@@ -781,7 +1070,7 @@ function initProduct() {
             let brandList = response.result;
             for (let i = 0; i < brandList.length; i++) {
                 let brand = brandList[i];
-                html += '<option value="' + brand.pb_id + '" ' + ((i == 0) ? 'selected' : '') + '>' + brand.pb_name + '(' + brand.pb_id + ')</option>';
+                html += '<option value="' + brand.pb_id + '" ' + ((menu == 'product_add') ? ((i == 0) ? 'selected' : '') : ((brand.pb_id == inputHiddenPbId.value) ? 'selected' : '')) + '>' + brand.pb_name + '(' + brand.pb_id + ')</option>';
             }
             selectBrand.innerHTML = html;
         });

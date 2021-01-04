@@ -418,7 +418,7 @@ function initSymptom() {
             let html = '';
             html += '<div class="js-div-dialog-search-relationship dialog-search-relationship">';
             html +=     '<div class="header">';
-            html +=         '<h1 class="title">증상 검색</h1>';
+            html +=         '<h1 class="title">질병 검색</h1>';
             html +=         '<i class="js-i-close fal fa-times"></i>';
             html +=     '</div>';
             html +=     '<div class="body">';
