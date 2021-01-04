@@ -1005,11 +1005,9 @@ router.post('/product/save', async (req, res) => {
 
             //카테고리가 제품일때
             if (pcId == 1) {
-                if (feedNutrients.length > 0) {
-                    let feedQuery = 'INSERT INTO t_feed_nutrients(fn_prot, fn_fat, fn_fibe, fn_ash, fn_calc, fn_phos, fn_mois, fn_p_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?)';
-                    let feedParams = [feedNutrients.prot, feedNutrients.fat, feedNutrients.fibe, feedNutrients.ash, feedNutrients.calc, feedNutrients.phos, feedNutrients.mois, pId];
-                    [result, fields] = await pool.query(feedQuery, feedParams);
-                }
+                let feedQuery = 'INSERT INTO t_feed_nutrients(fn_prot, fn_fat, fn_fibe, fn_ash, fn_calc, fn_phos, fn_mois, fn_p_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?)';
+                let feedParams = [feedNutrients.prot, feedNutrients.fat, feedNutrients.fibe, feedNutrients.ash, feedNutrients.calc, feedNutrients.phos, feedNutrients.mois, pId];
+                [result, fields] = await pool.query(feedQuery, feedParams);
             }
             res.json({status: 'OK'});
             
@@ -1034,11 +1032,9 @@ router.post('/product/save', async (req, res) => {
 
             //카테고리가 제품일때
             if (pcId == 1) {
-                if (feedNutrients.length > 0) {
-                    let feedQuery = 'INSERT INTO t_feed_nutrients(fn_prot, fn_fat, fn_fibe, fn_ash, fn_calc, fn_phos, fn_mois, fn_p_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?)';
-                    let feedParams = [feedNutrients.prot, feedNutrients.fat, feedNutrients.fibe, feedNutrients.ash, feedNutrients.calc, feedNutrients.phos, feedNutrients.mois, pId];
-                    [result, fields] = await pool.query(feedQuery, feedParams);
-                }
+                let feedQuery = 'INSERT INTO t_feed_nutrients(fn_prot, fn_fat, fn_fibe, fn_ash, fn_calc, fn_phos, fn_mois, fn_p_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?)';
+                let feedParams = [feedNutrients.prot, feedNutrients.fat, feedNutrients.fibe, feedNutrients.ash, feedNutrients.calc, feedNutrients.phos, feedNutrients.mois, pId];
+                [result, fields] = await pool.query(feedQuery, feedParams);
             }
 
             res.json({status: 'OK'});
