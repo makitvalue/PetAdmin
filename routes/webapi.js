@@ -283,17 +283,16 @@ router.post('/food/delete', async (req, res) => {
         let [result, fields] = await pool.query(existCheckQuery, existCheckParams);
 
         let deleteQuery = "DELETE FROM t_foods WHERE f_id = ?";
-
+        let deleteParams = [fId];
         if (result < 1) {
             res.json({status: 'ERR_NO_DATA'});
             return;
         }
 
         if (result[0].mfnCnt > 0) {
-            deleteQuery = "DELETE fTab, mfnTab ";
-            deleteQuery += "FROM t_foods AS fTab ";
-            deleteQuery += "JOIN t_maps_food_nutrient AS mfnTab ON mfnTab.mfn_f_id = fTab.f_id ";
-            deleteQuery += "WHERE fTab.f_id = ?";
+            let nutrientFoodDeleteQuery = 'DELETE FROM t_maps_food_nutrient WHERE mfn_f_id = ?';
+            let nutrientFoodDeleteParams = [fId];
+            await pool.query(nutrientFoodDeleteQuery, nutrientFoodDeleteParams);
         } 
 
         if (result[0].msnfCnt > 0) {
@@ -310,8 +309,9 @@ router.post('/food/delete', async (req, res) => {
             res.json({status: 'ERR_EXISTS_DISEASE'});
             return;
         } 
-        let deleteParams = [fId];
-        let [deleteResult, deleteFields] = await pool.query(deleteQuery, deleteParams);
+        
+        await pool.query(deleteQuery, deleteParams);
+                
         res.json({status: 'OK'});
 
     } catch (error) {
@@ -1169,16 +1169,20 @@ router.post('/product/delete', async (req, res) => {
             return;
         }
 
-        let deleteQuery = "DELETE pTab, mpnfTab, iTab ";
-        deleteQuery += "FROM t_products AS pTab ";
-        deleteQuery += "JOIN t_maps_product_nutrient_food AS mpnfTab ON mpnfTab.mpnf_p_id = pTab.p_id ";
-        deleteQuery += "JOIN t_images AS iTab ON (iTab.i_target_id = pTab.p_id AND iTab.i_data_type = 'PRODUCT') ";
-        deleteQuery += "WHERE pTab.p_id = ?";
-
+        let deleteQuery = "DELETE FROM t_products WHERE p_id = ?";
         let deleteParams = [pId];
-
         await pool.query(deleteQuery, deleteParams);
 
+        deleteQuery = "DELETE FROM t_maps_product_nutrient_food WHERE mpnf_p_id = ?";
+        deleteParams = [pId];
+        await pool.query(deleteQuery, deleteParams);
+
+        deleteQuery = "DELETE FROM t_images WHERE i_data_type = 'product' AND i_target_id = ?";
+        deleteParams = [pId];
+        await pool.query(deleteQuery, deleteParams);
+
+        res.json({status: 'OK'});
+        
 
     } catch (error) {
         console.log(error);
