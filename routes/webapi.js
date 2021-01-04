@@ -1527,6 +1527,38 @@ router.post('/upload/image', async (req, res) => {
     });
 
 });
+//이미지 삭제
+router.post('/delete/image', async (req, res) => {
+    let deleteList = req.body.deleteList;
+    
+    if (f.isNone(deleteList)) {
+        res.json({status: 'ERR_WRONG_PARAM'});
+        return;
+    }
 
+    let imageCnt = 0;
+    let query = 'DELETE FROM t_images WHERE 1=1 ';
+
+    deleteList.forEach((item, index) => {
+        fs.unlinkSync(`public${item.path}`);
+
+        if (item.type !== 'THUMB') {
+            query += ` OR i_id = ${item.iId}`;
+            imageCnt++;
+        }
+        
+    });
+
+    if (imageCnt > 0) {
+        let [result, fields] = await pool.query(query);
+    }
+
+    res.json({status: 'OK'});
+
+
+
+    
+
+});
 
 module.exports = router;
