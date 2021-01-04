@@ -1028,6 +1028,10 @@ router.post('/product/save', async (req, res) => {
             params.push(pId);
             [result, fields] = await pool.query(query, params);
 
+            query = 'DELETE FROM t_feed_nutrients WHERE fn_p_id = ?';
+            params = [pId];
+            await pool.query(query, params);     
+
             //카테고리가 제품일때
             if (pcId == 1) {
                 if (feedNutrients.length > 0) {
