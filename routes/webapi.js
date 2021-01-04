@@ -1038,7 +1038,16 @@ router.post('/product/save', async (req, res) => {
             //카테고리가 제품일때
             if (pcId == 1) {
                 let feedQuery = 'INSERT INTO t_feed_nutrients(fn_prot, fn_fat, fn_fibe, fn_ash, fn_calc, fn_phos, fn_mois, fn_p_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?)';
-                let feedParams = [feedNutrients.prot, feedNutrients.fat, feedNutrients.fibe, feedNutrients.ash, feedNutrients.calc, feedNutrients.phos, feedNutrients.mois, pId];
+                let feedParams = [
+                    ((feedNutrients.prot) ? feedNutrients.prot : null),
+                    ((feedNutrients.fat) ? feedNutrients.fat : null),
+                    ((feedNutrients.fibe) ? feedNutrients.fibe : null), 
+                    ((feedNutrients.ash) ? feedNutrients.ash : null), 
+                    ((feedNutrients.calc) ? feedNutrients.calc : null), 
+                    ((feedNutrients.phos) ? feedNutrients.phos : null), 
+                    ((feedNutrients.mois) ? feedNutrients.mois : null), 
+                    pId
+                ];
                 [result, fields] = await pool.query(feedQuery, feedParams);
             }
             res.json({status: 'OK', pId: pId});
@@ -1084,7 +1093,15 @@ router.post('/product/save', async (req, res) => {
             //카테고리가 제품일때
             if (pcId == 1) {
                 let feedQuery = 'INSERT INTO t_feed_nutrients(fn_prot, fn_fat, fn_fibe, fn_ash, fn_calc, fn_phos, fn_mois, fn_p_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?)';
-                let feedParams = [feedNutrients.prot, feedNutrients.fat, feedNutrients.fibe, feedNutrients.ash, feedNutrients.calc, feedNutrients.phos, feedNutrients.mois, pId];
+                let feedParams = [
+                    ((feedNutrients.prot) ? feedNutrients.prot : null),
+                    ((feedNutrients.fat) ? feedNutrients.fat : null),
+                    ((feedNutrients.fibe) ? feedNutrients.fibe : null), 
+                    ((feedNutrients.ash) ? feedNutrients.ash : null), 
+                    ((feedNutrients.calc) ? feedNutrients.calc : null), 
+                    ((feedNutrients.phos) ? feedNutrients.phos : null), 
+                    ((feedNutrients.mois) ? feedNutrients.mois : null), 
+                    pId];
                 [result, fields] = await pool.query(feedQuery, feedParams);
             }
 
