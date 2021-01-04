@@ -985,6 +985,7 @@ router.post('/product/save', async (req, res) => {
         let packingVolume = req.body.packingVolume;
         let recommend = req.body.recommend;
         let feedNutrients = req.body.feedNutrients;
+        let nutrientFoodData = req.body.nutrientFoodData;
         
         if (f.isNone(pcId) || f.isNone(pbId) || f.isNone(name) || f.isNone(keyword)) {
             res.json({status: 'ERR_WRONG_PARAM'});
@@ -1001,6 +1002,19 @@ router.post('/product/save', async (req, res) => {
             query += ' VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)';
             let [result, fields] = await pool.query(query, params);
             pId = result.insertId;
+
+            //관련 영양소/음식 테이블 추가
+            if (nutrientFoodData.length > 0) {
+                query = 'INSERT INTO t_maps_product_nutrient_food(mpnf_p_id, mpnf_type, mpnf_target_id) VALUES ';
+                nutrientFoodData.forEach((data, index) => {
+                    if (index != 0) {
+                        query += ', (' + pId + ', "' + data.type + '", ' + data.targetId + ')';                    
+                    } else {
+                        query += ' (' + pId + ', "' + data.type +'", ' + data.targetId + ')';
+                    }
+                });
+                await pool.query(query, params);
+            }
 
             query = 'DELETE FROM t_feed_nutrients WHERE fn_p_id = ?';
             params = [pId];
@@ -1023,11 +1037,30 @@ router.post('/product/save', async (req, res) => {
                 res.json({status: 'ERR_WRONG_PARAM'});
                 return;
             }
+
             query = 'UPDATE t_products';
             query += ' SET p_pc_id = ?, p_pb_id = ?, p_name = ?, p_keyword = ?, p_price = ?, p_origin = ?, p_manufacturer = ?, p_packing_volume = ?, p_recommend = ?';
             query += ' WHERE p_id = ?';
             params.push(pId);
             [result, fields] = await pool.query(query, params);
+
+            //관련 영양소/음식 테이블 삭제
+            query = 'DELETE FROM t_maps_product_nutrient_food WHERE mpnf_p_id = ?';
+            params = [pId];
+            await pool.query(query, params);    
+
+            //관련 영양소/음식 테이블 수정
+            if (nutrientFoodData.length > 0) {
+                query = 'INSERT INTO t_maps_product_nutrient_food(mpnf_p_id, mpnf_type, mpnf_target_id) VALUES ';
+                nutrientFoodData.forEach((data, index) => {
+                    if (index != 0) {
+                        query += ', (' + pId + ', "' + data.type + '", ' + data.targetId + ')';                    
+                    } else {
+                        query += ' (' + pId + ', "' + data.type +'", ' + data.targetId + ')';
+                    }
+                });
+                await pool.query(query, params);
+            }
 
             query = 'DELETE FROM t_feed_nutrients WHERE fn_p_id = ?';
             params = [pId];
@@ -1082,11 +1115,24 @@ router.get('/product/get', async (req, res) => {
         params = [pId];
         [result, fields] = await pool.query(query, params);
 
+        let imageList = result;
+
+        query = 'SELECT * FROM t_maps_product_nutrient_food AS mpnfTab ';
+        query += 'LEFT JOIN t_foods AS fTab ON fTab.f_id = mpnfTab.mpnf_target_id ';
+        query += 'LEFT JOIN t_nutrients AS nTab ON nTab.n_id = mpnfTab.mpnf_target_id ';
+        query += 'WHERE mpnfTab.mpnf_p_id = ?';
+
+        params = [pId];
+        [result, fields] = await pool.query(query, params);
+
+        let nutrientFoodInfo = result;
+
     
         res.json({status: 'OK', result: {
             product: productInfo,
             feedNutrients: feedNutrientInfo,
-            imageList: result
+            imageList: imageList,
+            nutrientFoodList: nutrientFoodInfo
         }});  
 
     } catch (error) {
