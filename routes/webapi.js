@@ -970,55 +970,79 @@ router.get('/product/get/all', async (req, res) => {
 router.post('/product/save', async (req, res) => {
 
     try {
+        let mode = req.body.mode;
+        let pId;
+        let pcId = req.body.pcId;
+        let pbId = req.body.pbId;
+        let name = req.body.name;
+        let keyword = req.body.keyword;
+        let price = req.body.price;
+        let origin = req.body.origin;
+        let manufacturer = req.body.manufacturer;
+        let packingVolume = req.body.packingVolume;
+        let recommend = req.body.recommend;
+        let feedNutrients = req.body.feedNutrients;
         
+        if (f.isNone(pcId) || f.isNone(pbId) || f.isNone(name) || f.isNone(keyword)) {
+            res.json({status: 'ERR_WRONG_PARAM'});
+            return;
+        }
+
+        let query = '';
+        let params = [pcId, pbId, name, keyword, price, origin, manufacturer, packingVolume, recommend];
+
+        if (mode === 'ADD') {
+            //제품 추가일때
+
+            query = 'INSERT INTO t_products(p_pc_id, p_pb_id, p_name, p_keyword, p_price, p_origin, p_manufacturer, p_packing_volume, p_recommend)';
+            let [result, fields] = await pool.query(query, params);
+            pId = result.insertId;
+
+            //카테고리가 제품일때
+            if (pcId == 1) {
+                if (feedNutrients.length > 0) {
+                    let feedQuery = 'INSERT INTO t_feed_nutrients(fn_prot, fn_fat, fn_fibe, fn_ash, fn_calc, fn_phos, fn_mois, fn_p_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?)';
+                    let feedParams = [feedNutrients.prot, feedNutrients.fat, feedNutrients.fibe, feedNutrients.ash, feedNutrients.calc, feedNutrients.phos, feedNutrients.mois, pId];
+                    [result, fields] = await pool.query(feedQuery, feedParams);
+                }
+            }
+            res.json({status: 'OK'});
+            
+        } else if (mode === 'MODIFY') {
+            //제품 수정일때
+
+            pId = req.body.pId; 
+            
+            if (f.isNone(pId)) {
+                res.json({status: 'ERR_WRONG_PARAM'});
+                return;
+            }
+            query = 'UPDATE t_products';
+            query += ' SET p_pc_id = ?, p_pb_id = ?, p_name = ?, p_keyword = ?, p_price = ?, p_origin = ?, p_manufacturer = ?, p_packing_volume = ?, p_recommend = ?';
+            query += ' WHERE p_id = ?';
+            params.push(pId);
+            [result, fields] = await pool.query(query, params);
+
+            //카테고리가 제품일때
+            if (pcId == 1) {
+                if (feedNutrients.length > 0) {
+                    let feedQuery = 'UPDATE t_feed_nutrients(fn_prot, fn_fat, fn_fibe, fn_ash, fn_calc, fn_phos, fn_mois, fn_p_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?)';
+                    feedQuery += ' SET fn_prot = ?, fn_fat = ?, fn_fibe = ?, fb_ash = ?, fn_calc = ?, fn_phos = ?, fn_mois = ?';
+                    feedQuery += ' WHERE fn_p_id = ?';
+                    let feedParams = [feedNutrients.prot, feedNutrients.fat, feedNutrients.fibe, feedNutrients.ash, feedNutrients.calc, feedNutrients.phos, feedNutrients.mois, pId];
+                    [result, fields] = await pool.query(feedQuery, feedParams);
+                }
+            }
+
+            res.json({status: 'OK'});
+
+        }
     } catch (error) {
         console.log(error);
         res.json({status: 'ERROR_SERVER'}); 
     }
 
-    let mode = req.body.mode;
-    let pId;
-    let pcId = req.body.pcId;
-    let pbId = req.body.pbId;
-    let name = req.body.name;
-    let keyword = req.body.keyword;
-    let price = req.body.price;
-    let origin = req.body.origin;
-    let manufacturer = req.body.manufacturer;
-    let packingVolume = req.body.packingVolume;
-    let recommend = req.body.recommend;
-    let feedNutrients = req.body.feedNutrients;
     
-    if (f.isNone(pcId) || f.isNone(pbId) || f.isNone(name) || f.isNone(keyword)) {
-        res.json({status: 'ERR_WRONG_PARAM'});
-        return;
-    }
-
-    let query = '';
-    let params = [pcId, pbId, name, keyword, price, origin, manufacturer, packingVolume, recommend];
-
-    if (mode === 'ADD') {
-
-        query = 'INSERT INTO t_products(p_pc_id, p_pb_id, p_name, p_keyword, p_price, p_origin, p_manufacturer, p_packing_volume, p_recommend)';
-        let [result, fields] = await pool.query(query, params);
-        pId = result.insertId;
-
-        //카테고리가 제품일때
-        if (pcId == 1) {
-            let feedQuery = 'INSERT INTO t_feed_nutrients(fn_prot, fn_fat, fn_fibe, fn_ash, fn_calc, fn_phos, fn_mois, fn_p_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?)';
-            let feedParams = [feedNutrients.prot, feedNutrients.fat, feedNutrients.fibe, feedNutrients.ash, feedNutrients.calc, feedNutrients.phos, feedNutrients.mois, pId];
-            [result, fields] = await pool.query(feedQuery, feedParams);
-        }
-        
-        //0103 여기까지함 여기부터 하셈 !!
-
-        
-
-    } else if (mode === 'MODIFY') {
-
-    }
-
-
 
 
 });
@@ -1549,17 +1573,10 @@ router.post('/delete/image', async (req, res) => {
         }
 
     });
-
     if (imageCnt > 0) {
         let [result, fields] = await pool.query(query);
     }
-
     res.json({status: 'OK'});
-
-
-
-    
-
 });
 
 module.exports = router;
