@@ -1095,28 +1095,29 @@ router.get('/product/get', async (req, res) => {
 router.post('/product/delete', async (req, res) => {
     try {
         let pId = req.body.pId;
+
         if (f.isNone(pId)) {
             res.json({status: 'ERR_WRONG_PARAM'});
         }
 
+        let existCheckQuery = 'SELECT * FROM t_maps_pet_product AS mppTab';
+        existCheckQuery += ' JOIN t_product_reviews AS prTab ON prTab.pr_p_id = mppTab.mpp_p_id';
+        existCheckQuery += ' WHERE mppTab.mpp_p_id = ?';
         
-        let existCheckQuery = "";
-        existCheckQuery += "SELECT * ";
-        existCheckQuery += "FROM t_products AS pTab ";
-            existCheckQuery += "LEFT JOIN (SELECT mdnf_d_id, COUNT(*) AS mdnfCnt FROM t_maps_disease_nutrient_food GROUP BY mdnf_d_id) AS mdnfTab ";
-                existCheckQuery += "ON dTab.d_id = mdnfTab.mdnf_d_id ";
-            existCheckQuery += "LEFT JOIN (SELECT msd_d_id, COUNT(*) AS msdCnt FROM t_maps_symptom_disease GROUP BY msd_d_id) AS msdTab ";
-                existCheckQuery += "ON dTab.d_id = msdTab.msd_d_id ";
-            existCheckQuery += "LEFT JOIN (SELECT mpd_d_id, COUNT(*) AS mpdCnt FROM t_maps_pet_disease GROUP BY mpd_d_id) AS mpdTab ";
-                existCheckQuery += "ON dTab.d_id = mpdTab.mpd_d_id ";
-            existCheckQuery += "LEFT JOIN (SELECT mbagd_d_id, COUNT(*) AS mbagdCnt FROM t_maps_breed_age_group_disease GROUP BY mbagd_d_id) AS mbagdTab ";
-                existCheckQuery += "ON dTab.d_id = mbagdTab.mbagd_d_id ";
-        existCheckQuery += "WHERE dTab.d_id = ?";
+        let existCheckParams = [pId];
+        let [result, fields] = await pool.query(existCheckQuery, existCheckParams);
+        
+        if (result.length > 0) {
+            res.json({status: 'ERR_EXISTS_PET'});
+            return;
+        }
 
-        let query = 'DELETE FROM t_products WHERE p_id = ?';
-        let params = [pId];
-
-
+        let deleteQuery = "DELETE pTab, mpnfTab, iTab ";
+        deleteQuery += "FROM t_products AS pTab ";
+        deleteQuery += "JOIN t_maps_product_nutrient_food AS mpnfTab ON mpnfTab.mpnf_p_id = pTab.p_id ";
+        deleteQuery += "JOIN t_images AS iTab ON (iTab.i_target_id = pTab.p_id AND iTab.i_data_type = 'PRODUCT') ";
+        deleteQuery += "WHERE pTab.p_id = ?";
+        let deleteParams = [pId];
 
 
     } catch (error) {
@@ -1124,6 +1125,7 @@ router.post('/product/delete', async (req, res) => {
         res.json({status: 'ERROR_SERVER'}); 
     }
 });
+
 
 //전체 제품 카테고리 가져오기
 router.get('/product/category/get/all', async (req, res) => {
@@ -1611,12 +1613,15 @@ router.post('/upload/image', async (req, res) => {
                         query = 'UPDATE t_foods SET f_thumbnail = ? WHERE f_id = ? ';
                     } else if (dataType === 'product') {
                         query = 'UPDATE t_products SET p_thumbnail = ? WHERE p_id = ?';                    
+                    } else {
+                        res.json({status: 'ERR_WRONG_DATA_TYPE'});
+                        return;
                     }
                     let [result, fields] = await pool.query(query, params);
     
                 } else if (type === 'IMAGE') {
                     // INSERT images
-                    let query = "INSERT INTO t_images (i_type, i_path, i_target_id, i_data_type) VALUES (?, ?, ?, ?, ?)";
+                    let query = "INSERT INTO t_images (i_type, i_path, i_target_id, i_data_type) VALUES (?, ?, ?, ?)";
                     let params = [type, reImagePath, targetId, dataType];
                     let [result, fields] = await pool.query(query, params);
                 }
