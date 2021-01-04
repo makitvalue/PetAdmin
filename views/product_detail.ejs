@@ -1,5 +1,6 @@
 <input class="js-input-hidden-p-id" type="hidden" value="<%= pId %>" />
 <input class="js-input-hidden-pc-id" type="hidden" value="<%= pcId %>" />
+<input class="js-input-hidden-pb-id" type="hidden" value="<%= pbId %>" />
 <input class="js-input-hidden-fn-prot" type="hidden" value="<%= fnProt %>" />
 <input class="js-input-hidden-fn-fat" type="hidden" value="<%= fnFat %>" />
 <input class="js-input-hidden-fn-fibe" type="hidden" value="<%= fnFibe %>" />
@@ -7,3 +8,92 @@
 <input class="js-input-hidden-fn-calc" type="hidden" value="<%= fnCalc %>" />
 <input class="js-input-hidden-fn-phos" type="hidden" value="<%= fnPhos %>" />
 <input class="js-input-hidden-fn-mois" type="hidden" value="<%= fnMois %>" />
+
+
+<div class="wrapper product detail">
+    <h1 class="title">제품 수정</h1>
+
+    <div class="form-box">
+        <p>*제품 이름</p>
+        <input type="text" class="js-input-name default" />
+    </div>
+
+    <div class="form-box">
+        <p>*제품 키워드 (검색어 노출용)</p>
+        <div class="js-div-keyword-list keyword-list">
+            <div class="js-div-keyword-add keyword-add">
+                <input class="js-input-keyword-add default" type="text" />
+                <button class="js-button-keyword-add default"><i class="fal fa-plus"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-box">
+        <p>*제품 썸네일 이미지 (클릭하여 업로드)</p>
+        <div class="image-box">
+            <form method="post" enctype="multipart/form-data"><input class="js-input-thumbnail" name="image" type="file" accept="image/jpeg,image/png" /></form>
+            <div class="js-div-thumbnail thumbnail"></div>
+        </div>
+    </div>
+
+    <div class="form-box">
+        <p>제품 카테고리</p>
+        <select class="js-select-category default"></select>
+    </div>
+
+    <div class="form-box">
+        <p>제품 브랜드</p>
+        <select class="js-select-brand default"></select>
+    </div>
+
+    <div class="form-box">
+        <p>제품 가격 (원)</p>
+        <input type="text" class="js-input-price default" />
+    </div>
+
+    <div class="form-box">
+        <p>제품 원산지</p>
+        <input type="text" class="js-input-origin default" />
+    </div>
+
+    <div class="form-box">
+        <p>제품 제조사</p>
+        <input type="text" class="js-input-manufacturer default" />
+    </div>
+
+    <div class="form-box">
+        <p>제품 포장단위</p>
+        <input type="text" class="js-input-packing-volume default" />
+    </div>
+
+    <div class="form-box">
+        <p>제품 섭취 권장사항</p>
+        <input type="text" class="js-input-recommend default" />
+    </div>
+
+    <div class="form-box">
+        <p>제품 이미지</p>
+        <div class="js-div-image-box image-box">
+            <button class="js-button-image-add default"><i class="fal fa-plus"></i></button>
+        </div>
+    </div>
+
+    <div class="form-box">
+        <p>제품 상세 이미지</p>
+        <div class="js-div-image-detail-box image-box">
+            <button class="js-button-image-detail-add default"><i class="fal fa-plus"></i></button>
+        </div>
+    </div>
+
+    <div class="form-box">
+        <p>제품과 연관된 "음식" 및 "영양소"</p>
+        <div class="js-div-food-nutrient-list relationship-list">
+            <button class="js-button-food-nutrient-add relationship-add default"><i class="fal fa-plus"></i></button>
+        </div>
+    </div>
+
+    <div class="buttons">
+        <button class="js-button-cancel default">취소</button>
+        <button class="js-button-product-save default">제품 저장</button>
+    </div>
+</div>

@@ -339,7 +339,7 @@ function initDisease() {
                                 html += '<tr class="js-tr-food ' + ((selectedFIdList.indexOf(food.f_id) === -1) ? '': 'selected') + '" fId="' + food.f_id + '" fName="' + food.f_name + '" >';
                                 html +=     '<td>' + food.f_id + '</td>';
                                 html +=     '<td>' + food.f_name + '</td>';
-                                html +=     '<td>' + food.f_thumbnail + '</td>';
+                                html +=     '<td><div class="thumbnail" style="background-image: url(' + food.f_thumbnail + '), url(/img/no_image.png)"></div></td>';
                                 html +=     '<td>' + noneToDash(food.f_desc) + '</td>';
                                 html += '</tr>';
                             }

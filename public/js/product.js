@@ -1,11 +1,17 @@
 
+const tbodyProductList = document.querySelector('.js-tbody-product-list');
 const tbodyProductCategoryList = document.querySelector('.js-tbody-product-category-list');
 const tbodyProductBrandList = document.querySelector('.js-tbody-product-brand-list');
 const divThumbnail = document.querySelector('.js-div-thumbnail');
 const inputThumbnail = document.querySelector('.js-input-thumbnail');
 const selectCategory = document.querySelector('.js-select-category');
 const selectBrand = document.querySelector('.js-select-brand');
+const inputName = document.querySelector('.js-input-name');
 const inputPrice = document.querySelector('.js-input-price');
+const inputOrigin = document.querySelector('.js-input-origin');
+const inputManufacturer = document.querySelector('.js-input-manufacturer');
+const inputPackingVolume = document.querySelector('.js-input-packing-volume');
+const inputRecommend = document.querySelector('.js-input-recommend');
 const buttonImageAdd = document.querySelector('.js-button-image-add');
 const buttonImageDetailAdd = document.querySelector('.js-button-image-detail-add');
 const divImageBox = document.querySelector('.js-div-image-box');
@@ -15,9 +21,12 @@ const buttonProductBrandAdd = document.querySelector('.js-button-product-brand-a
 const buttonCancel = document.querySelector('.js-button-cancel');
 const buttonProductAdd = document.querySelector('.js-button-product-add');
 const buttonProductSave = document.querySelector('.js-button-product-save');
+const divFoodNutrientList = document.querySelector('.js-div-food-nutrient-list');
+const buttonFoodNutrientAdd = document.querySelector('.js-button-food-nutrient-add');
 
 const inputHiddenPId = document.querySelector('.js-input-hidden-p-id');
 const inputHiddenPcId = document.querySelector('.js-input-hidden-pc-id');
+const inputHiddenPbId = document.querySelector('.js-input-hidden-pb-id');
 const inputHiddenFnProt = document.querySelector('.js-input-hidden-fn-prot');
 const inputHiddenFnFat = document.querySelector('.js-input-hidden-fn-fat');
 const inputHiddenFnFibe = document.querySelector('.js-input-hidden-fn-fibe');
@@ -27,11 +36,111 @@ const inputHiddenFnPhos = document.querySelector('.js-input-hidden-fn-phos');
 const inputHiddenFnMois = document.querySelector('.js-input-hidden-fn-mois');
 
 
+function getProductList() {
+    fetch('/webapi/product/get/all')
+    .then((data) => { return data.json(); })
+    .then((response) => {
+
+        if (response.status != 'OK') {
+            alert('에러가 발생했습니다.');
+            return;
+        }
+
+        let productList = response.result;
+        let html = '';
+        for (let i = 0; i < productList.length; i++) {
+            let product = productList[i];
+            html += '<tr class="js-tr-disease" pId="' + product.p_id + '">';
+            html +=     '<td>' + product.p_id + '</td>';
+            html +=     '<td>' + product.p_name + '</td>';
+            html +=     '<td>' + product.pc_name + '(' + product.p_pc_id + ')</td>';
+            html +=     '<td>' + product.pb_name + '(' + product.p_pb_id + ')</td>';
+            html +=     '<td><div class="thumbnail" style="background-image: url(' + product.p_thumbnail + '), url(/img/no_image.png)"></div></td>';
+            html +=     '<td class="buttons">';
+            html +=         '<a href="/product/detail/' + product.p_id + '"><button class="default">자세히</button></a>';
+            html +=         '<button class="js-button-remove default remove">삭제</button>';
+            html +=     '</td>';
+            html += '</tr>';
+        }
+
+        tbodyProductList.innerHTML = html;
+
+        tbodyProductList.querySelectorAll('.js-button-remove').forEach((buttonRemove) => {
+            buttonRemove.addEventListener('click', function() {
+                // let pId = this.parentElement.parentElement.getAttribute('pId');
+                // removeDisease(pId);
+            });
+        });
+    });
+}
+
+
+function getProduct(pId) {
+    fetch('/webapi/product/get?pId=' + pId)
+    .then((data) => { return data.json(); })
+    .then((response) => {
+        if (response.status != 'OK') {
+            alert('에러가 발생했습니다.');
+            return;
+        }
+
+        let product = response.result.product;
+        let feedNutrients = response.result.feedNutrients;
+        let imageList = response.result.imageList;
+        let foodNutrientList = response.result.nutrientFoodList;
+
+        inputName.value = product.p_name;
+        // selectBodyPart.value = disease.d_bp_id;
+        // textareaReason.value = disease.d_reason;
+        // textareaManagement.value = disease.d_management;
+
+        let keywordList = product.p_keyword.split('|');
+
+        let html = '';
+        for (let i = 0; i < keywordList.length; i++) {
+            if (keywordList[i] === '') continue;
+            html += '<button class="js-button-keyword default keyword">' + keywordList[i] + '</button>';
+        }
+        divKeywordAdd.insertAdjacentHTML('beforebegin', html);
+        divKeywordList.querySelectorAll('.js-button-keyword').forEach((buttonKeyword) => {
+            buttonKeyword.addEventListener('click', function() {
+                this.remove();
+            });
+        });
+
+        html = '';
+        for (let i = 0; i < foodNutrientList.length; i++) {
+            let dataType = foodNutrientList[i].mdnf_type;
+            if (dataType == 'FOOD') {
+                let fId = foodNutrientList[i].f_id;
+                let fName = foodNutrientList[i].f_name;
+                html += '<button class="js-button-food-nutrient relationship default" fId="' + fId + '" dataType="FOOD">' + fName + ' <span>(음식)</span></button>';
+            } else {
+                let nId = foodNutrientList[i].n_id;
+                let nName = foodNutrientList[i].n_name;
+                html += '<button class="js-button-food-nutrient relationship default" nId="' + nId + '" dataType="NUTRIENT">' + nName + ' <span>(영양소)</span></button>';
+            }
+        }
+        buttonFoodNutrientAdd.insertAdjacentHTML('beforebegin', html);
+        divFoodNutrientList.querySelectorAll('.js-button-food-nutrient').forEach((buttonFoodNutrient) => {
+            buttonFoodNutrient.addEventListener('click', function() {
+                this.remove();
+            });
+        });
+
+        divThumbnail.style.backgroundImage = 'url(' + ((product.p_thumbnail) ? product.p_thumbnail : '') + ')';
+        divThumbnail.setAttribute("original", ((product.p_thumbnail) ? product.p_thumbnail : ''));
+    });
+}
+
+
 function saveProduct(mode, callback) {
     let name = inputName.value.trim();
 
     if (name === '') {
         alert('제품 이름을 입력해주세요.');
+        removeSpinner('SAVE_PRODUCT');
+        removeOverlay('SAVE_PRODUCT');
         return;
     }
 
@@ -42,10 +151,48 @@ function saveProduct(mode, callback) {
 
     if (keywordList.length == 0) {
         alert('제품 검색어 키워드를 입력해주세요.');
+        removeSpinner('SAVE_PRODUCT');
+        removeOverlay('SAVE_PRODUCT');
         return;
     } 
 
     let keyword = keywordList.join('|');
+
+    if (menu == 'product_add' && !inputThumbnail.value) {
+        alert('제품 썸네일 이미지를 등록해주세요.');
+        removeSpinner('SAVE_PRODUCT');
+        removeOverlay('SAVE_PRODUCT');
+        return;
+    }
+
+    let foodNutrientList = [];
+    divFoodNutrientList.querySelectorAll('.js-button-food-nutrient').forEach((buttonFoodNutrient) => {
+        let dataType = buttonFoodNutrient.getAttribute('dataType');
+        foodNutrientList.push({ type: dataType, targetId: ((dataType == 'FOOD') ? buttonFoodNutrient.getAttribute('fId') : buttonFoodNutrient.getAttribute('nId')) });
+    });
+
+    let pcId = selectCategory.value;
+
+    let feedNutrients = {};
+    if (pcId == 1) {
+        let tableFeedNutrientWrapper = document.querySelector('.js-table-feed-nutrient-wrapper');
+        feedNutrients = {
+            prot: tableFeedNutrientWrapper.querySelector('.js-input-prot').value,
+            fat: tableFeedNutrientWrapper.querySelector('.js-input-fat').value,
+            fibe: tableFeedNutrientWrapper.querySelector('.js-input-fibe').value,
+            ash: tableFeedNutrientWrapper.querySelector('.js-input-ash').value,
+            calc: tableFeedNutrientWrapper.querySelector('.js-input-calc').value,
+            phos: tableFeedNutrientWrapper.querySelector('.js-input-phos').value,
+            mois: tableFeedNutrientWrapper.querySelector('.js-input-mois').value
+        };
+    }
+
+    let pbId = selectBrand.value;
+    let price = inputPrice.value;
+    let origin = inputOrigin.value;
+    let manufacturer = inputManufacturer.value;
+    let packingVolume = inputPackingVolume.value;
+    let recommend = inputRecommend.value;
 
     fetch('/webapi/product/save', {
         method: 'POST',
@@ -54,6 +201,15 @@ function saveProduct(mode, callback) {
             mode: mode,
             name: name,
             keyword: keyword,
+            pcId: pcId,
+            pbId: pbId,
+            price: price,
+            origin: origin,
+            manufacturer: manufacturer,
+            packingVolume: packingVolume,
+            recommend: recommend,
+            feedNutrients: feedNutrients,
+            nutrientFoodData: foodNutrientList,
             pId: (mode === 'MODIFY') ? inputHiddenPId.value : ''
         })
     })
@@ -61,6 +217,8 @@ function saveProduct(mode, callback) {
     .then(function(response) {
         if (response.status != 'OK') {
             alert('에러가 발생했습니다.');
+            removeSpinner('SAVE_PRODUCT');
+            removeOverlay('SAVE_PRODUCT');
             return;
         }
         callback(response);
@@ -194,11 +352,37 @@ function removeProductBrand(pbId) {
 }
 
 
+function getFoodList(callback) {
+    fetch('/webapi/food/get/all')
+    .then((data) => { return data.json(); })
+    .then((response) => {
+        if (response.status != 'OK') {
+            alert('에러가 발생했습니다.');
+            return;
+        }
+        callback(response.result);
+    });
+}
+
+
+function getNutrientList(callback) {
+    fetch('/webapi/nutrient/get/all')
+    .then((data) => { return data.json(); })
+    .then((response) => {
+        if (response.status != 'OK') {
+            alert('에러가 발생했습니다.');
+            return;
+        }
+        callback(response.result);
+    });
+}
+
+
 function initProduct() {
     if (menu == 'product') {
-        // getProductList();
+        getProductList();
     } else if (menu == 'product_detail') {
-        // getProduct(inputHiddenPId.value);
+        getProduct(inputHiddenPId.value);
     } else if (menu == 'product_category') {
         getProductCategoryList((response) => {
             let productCategoryList = response.result;
@@ -300,28 +484,115 @@ function initProduct() {
     
     if (buttonProductAdd) {
         buttonProductAdd.addEventListener('click', () => {
+            createOverlay(999, 'SAVE_PRODUCT');
+            createSpinner(999, 'SAVE_PRODUCT');
             saveProduct('ADD', (response) => {
-
                 let pId = response.pId;
-        
-                // Thumbnail
+
                 let form = inputThumbnail.parentElement;
                 let formData = new FormData(form);
-                formData.append('targetId', pId);
                 formData.append('type', 'THUMB');
                 formData.append('dataType', 'product');
-        
-                // images
-                divImageBox.querySelectorAll('.js-div-image-wrapper').forEach((divImageWrapper) => {
-                    let form = divImageWrapper.querySelector('form');
-                    let formData = new FormData(form);
-                    formData.append('targetId', targetId);
-                    formData.append('type', 'IMAGE');
-                    formData.append('dataType', dataType);
-                });
+                formData.append('targetId', pId);
+                uploadImage(formData, (response) => {
+                    if (response.status != 'OK') {
+                        alert("에러가 발생했습니다.");
+                        removeSpinner('SAVE_FOOD');
+                        removeOverlay('SAVE_FOOD');
+                        return;
+                    }
 
-                alert('제품이 추가되었습니다.');
-                location.href = '/product';
+                    let formDataList = [];
+                    divImageBox.querySelectorAll('.js-div-image-wrapper').forEach((divImageWrapper) => {
+                        let form = divImageWrapper.querySelector('form');
+                        let input = form.querySelector('input');
+                        if (!input.value) return true;
+
+                        let formData = new FormData(form);
+                        formData.append('targetId', pId);
+                        formData.append('type', 'IMAGE');
+                        formData.append('dataType', 'product');
+                        formDataList.push(formData);
+                    });
+
+                    let detailFormDataList = [];
+                    divImageDetailBox.querySelectorAll('.js-div-image-wrapper').forEach((divImageWrapper) => {
+                        let form = divImageWrapper.querySelector('form');
+                        let input = form.querySelector('input');
+                        if (!input.value) return true;
+
+                        let formData = new FormData(form);
+                        formData.append('targetId', pId);
+                        formData.append('type', 'IMAGE_DETAIL');
+                        formData.append('dataType', 'product');
+                        detailFormDataList.push(formData);
+                    });
+
+                    let responseCnt = 0;
+                    if (formDataList.length > 0) {
+                        for (let i = 0; i < formDataList.length; i++) {
+                            let formData = formDataList[i];
+                            uploadImage(formData, (response) => {
+                                if (response.status != 'OK') {
+                                    alert("에러가 발생했습니다.");
+                                    removeSpinner('SAVE_FOOD');
+                                    removeOverlay('SAVE_FOOD');
+                                    return;
+                                }
+    
+                                responseCnt++;
+                                if (responseCnt == formDataList.length) {
+                                    responseCnt = 0;
+                                    if (detailFormDataList.length > 0) {
+                                        for (let j = 0; j < detailFormDataList.length; j++) {
+                                            let formData = detailFormDataList[j];
+                                            uploadImage(formData, (response) => {
+                                                if (response.status != 'OK') {
+                                                    alert("에러가 발생했습니다.");
+                                                    removeSpinner('SAVE_FOOD');
+                                                    removeOverlay('SAVE_FOOD');
+                                                    return;
+                                                }
+                    
+                                                responseCnt++;
+                                                if (responseCnt == detailFormDataList.length) {
+                                                    alert('제품이 추가되었습니다.');
+                                                    location.href = '/product';
+                                                }
+                                            });
+                                        }
+                                    } else {
+                                        alert('제품이 추가되었습니다.');
+                                        location.href = '/product';
+                                    }
+                                }
+                            });
+                        }
+                    } else {
+                        if (detailFormDataList.length > 0) {
+                            for (let j = 0; j < detailFormDataList.length; j++) {
+                                let formData = detailFormDataList[j];
+                                uploadImage(formData, (response) => {
+                                    if (response.status != 'OK') {
+                                        alert("에러가 발생했습니다.");
+                                        removeSpinner('SAVE_FOOD');
+                                        removeOverlay('SAVE_FOOD');
+                                        return;
+                                    }
+        
+                                    responseCnt++;
+                                    if (responseCnt == detailFormDataList.length) {
+                                        alert('제품이 추가되었습니다.');
+                                        location.href = '/product';
+                                    }
+                                });
+                            }
+                        } else {
+                            alert('제품이 추가되었습니다.');
+                            location.href = '/product';
+                        }
+                    }
+                });
             });
         });
     }
@@ -463,7 +734,6 @@ function initProduct() {
         });
 
         selectCategory.addEventListener('change', function() {
-            console.log('changed');
             let pbId = this.value;
             if (pbId == 1) { // 사료일 경우
                 let html = '';
@@ -475,13 +745,13 @@ function initProduct() {
                 html +=         '</thead>';
                 html +=         '<tbody>';
                 html +=             '<tr>';
-                html +=                 '<td><input class="default" type="text" /></td>';
-                html +=                 '<td><input class="default" type="text" /></td>';
-                html +=                 '<td><input class="default" type="text" /></td>';
-                html +=                 '<td><input class="default" type="text" /></td>';
-                html +=                 '<td><input class="default" type="text" /></td>';
-                html +=                 '<td><input class="default" type="text" /></td>';
-                html +=                 '<td><input class="default" type="text" /></td>';
+                html +=                 '<td><input class="js-input-prot default" type="text" value="' + ((inputHiddenFnProt.value) ? inputHiddenFnProt.value: '') + '" /></td>';
+                html +=                 '<td><input class="js-input-fat default" type="text" value="' + ((inputHiddenFnFat) ? inputHiddenFnProt.value: '') + '" /></td>';
+                html +=                 '<td><input class="js-input-fibe default" type="text" value="' + ((inputHiddenFnFibe.value) ? inputHiddenFnProt.value: '') + '" /></td>';
+                html +=                 '<td><input class="js-input-ash default" type="text" value="' + ((inputHiddenFnAsh.value) ? inputHiddenFnProt.value: '') + '" /></td>';
+                html +=                 '<td><input class="js-input-calc default" type="text" value="' + ((inputHiddenFnCalc.value) ? inputHiddenFnProt.value: '') + '" /></td>';
+                html +=                 '<td><input class="js-input-phos default" type="text" value="' + ((inputHiddenFnProt.value) ? inputHiddenFnProt.value: '') + '" /></td>';
+                html +=                 '<td><input class="js-input-mois default" type="text" value="' + ((inputHiddenFnProt.value) ? inputHiddenFnProt.value: '') + '" /></td>';
                 html +=             '</tr>';
                 html +=         '</tbody>';
                 html +=     '</table>';
@@ -519,6 +789,149 @@ function initProduct() {
 
     if (inputPrice) {
         inputPrice.addEventListener('keyup', checkNumber);
+    }
+
+    if (buttonFoodNutrientAdd) {
+        buttonFoodNutrientAdd.addEventListener('click', () => {
+            document.querySelector('body').insertAdjacentHTML('beforeend', '<div class="js-div-overlay overlay" key="DIALOG_SEARCH_RELATIONSHIP" style="z-index: 999;"></div>');
+
+            let html = '';
+            html += '<div class="js-div-dialog-search-relationship dialog-search-relationship">';
+            html +=     '<div class="header">';
+            html +=         '<h1 class="title">음식 및 영양소 검색</h1>';
+            html +=         '<i class="js-i-close fal fa-times"></i>';
+            html +=     '</div>';
+            html +=     '<div class="body">';
+            html +=         '<div class="tab-wrapper">';
+            html +=             '<div class="js-div-tab tab" dataType="FOOD">음식</div>';
+            html +=             '<div class="js-div-tab tab" dataType="NUTRIENT">영양소</div>';
+            html +=         '</div>';
+            html +=         '<table class="data-list">';
+            html +=             '<thead><tr class="js-tr-header"></tr></thead>';
+            html +=             '<tbody class="js-tbody-food-nutrient-list"></tbody>';
+            html +=         '</table>';
+            html +=     '</div>';
+            html += '</div>';
+            document.querySelector('body').insertAdjacentHTML('beforeend', html);
+
+            let iClose = document.querySelector('.js-div-dialog-search-relationship .js-i-close');
+            iClose.addEventListener('click', () => {
+                document.querySelector('.js-div-overlay[key="DIALOG_SEARCH_RELATIONSHIP"]').remove();
+                document.querySelector('.js-div-dialog-search-relationship').remove();
+            });
+
+            document.querySelectorAll('.js-div-dialog-search-relationship .js-div-tab').forEach((divTab) => {
+                divTab.addEventListener('click', function() {
+                    if (this.classList.contains('selected')) return;
+
+                    if (document.querySelector('.js-div-dialog-search-relationship .js-div-tab.selected')) {
+                        document.querySelector('.js-div-dialog-search-relationship .js-div-tab.selected').classList.remove('selected');
+                    }
+                    this.classList.add('selected');
+
+                    let dataType = divTab.getAttribute('dataType');
+                    let trHeader = document.querySelector('.js-div-dialog-search-relationship .js-tr-header');
+                    let tBodyFoodNutrientList = document.querySelector('.js-div-dialog-search-relationship .js-tbody-food-nutrient-list');
+                    tBodyFoodNutrientList.innerHTML = '';
+
+                    if (dataType == 'FOOD') {
+                        let selectedFIdList = [];
+                        divFoodNutrientList.querySelectorAll('.js-button-food-nutrient[dataType="FOOD"]').forEach((buttonFood) => {
+                            selectedFIdList.push(parseInt(buttonFood.getAttribute('fId')));
+                        });
+
+                        trHeader.innerHTML = '<th>ID</th><th>이름</th><th>썸네일</th><th>설명</th>';
+                        getFoodList((foodList) => {
+                            let html = '';
+                            for (let i = 0; i < foodList.length; i++) {
+                                let food = foodList[i];
+                                html += '<tr class="js-tr-food ' + ((selectedFIdList.indexOf(food.f_id) === -1) ? '': 'selected') + '" fId="' + food.f_id + '" fName="' + food.f_name + '" >';
+                                html +=     '<td>' + food.f_id + '</td>';
+                                html +=     '<td>' + food.f_name + '</td>';
+                                html +=     '<td><div class="thumbnail" style="background-image: url(' + food.f_thumbnail + '), url(/img/no_image.png)"></div></td>';
+                                html +=     '<td>' + noneToDash(food.f_desc) + '</td>';
+                                html += '</tr>';
+                            }
+                            tBodyFoodNutrientList.innerHTML = html;
+
+                            tBodyFoodNutrientList.querySelectorAll('.js-tr-food').forEach((trFood) => {
+                                trFood.addEventListener('click', function() {
+                                    let fId = this.getAttribute('fId');
+            
+                                    if (this.classList.contains('selected')) {
+                                        this.classList.remove('selected');
+                                        divFoodNutrientList.querySelector('.js-button-food-nutrient[dataType="FOOD"][fId="' + fId + '"]').remove();
+                                        
+                                    } else {
+                                        this.classList.add('selected');
+                                        let fName = this.getAttribute('fName');
+            
+                                        let html = '<button class="js-button-food-nutrient relationship default" fId="' + fId + '" dataType="FOOD">' + fName + ' <span>(음식)</span></button>';
+                                        buttonFoodNutrientAdd.insertAdjacentHTML('beforebegin', html);
+                
+                                        let buttonFoodNutrientList = divFoodNutrientList.querySelectorAll('.js-button-food-nutrient');
+                                        let buttonFoodNutrient = buttonFoodNutrientList[buttonFoodNutrientList.length - 1];
+                
+                                        buttonFoodNutrient.addEventListener('click', function() {
+                                            this.remove();
+                                        });
+                                    }
+                                });
+                            });
+                        });
+
+                    } else {
+                        let selectedNIdList = [];
+                        divFoodNutrientList.querySelectorAll('.js-button-food-nutrient[dataType="NUTRIENT"]').forEach((buttonNutrient) => {
+                            selectedNIdList.push(parseInt(buttonNutrient.getAttribute('nId')));
+                        });
+
+                        trHeader.innerHTML = '<th>ID</th><th>이름</th><th>효과</th><th>설명</th><th>과다섭취시</th>';
+                        getNutrientList((nutrientList) => {
+                            let html = '';
+                            for (let i = 0; i < nutrientList.length; i++) {
+                                let nutrient = nutrientList[i];
+                                html += '<tr class="js-tr-nutrient ' + ((selectedNIdList.indexOf(nutrient.n_id) === -1) ? '': 'selected') + '" nId="' + nutrient.n_id + '" nName="' + nutrient.n_name + '" >';
+                                html +=     '<td>' + nutrient.n_id + '</td>';
+                                html +=     '<td>' + nutrient.n_name + '</td>';
+                                html +=     '<td>' + effectToString(nutrient.n_effect) + '</td>';
+                                html +=     '<td>' + noneToDash(nutrient.n_desc) + '</td>';
+                                html +=     '<td>' + noneToDash(nutrient.n_desc_over) + '</td>';
+                                html += '</tr>';
+                            }
+                            tBodyFoodNutrientList.innerHTML = html;
+
+                            tBodyFoodNutrientList.querySelectorAll('.js-tr-nutrient').forEach((trNutrient) => {
+                                trNutrient.addEventListener('click', function() {
+                                    let nId = this.getAttribute('nId');
+            
+                                    if (this.classList.contains('selected')) {
+                                        this.classList.remove('selected');
+                                        divFoodNutrientList.querySelector('.js-button-food-nutrient[dataType="NUTRIENT"][nId="' + nId + '"]').remove();
+                                        
+                                    } else {
+                                        this.classList.add('selected');
+                                        let nName = this.getAttribute('nName');
+            
+                                        let html = '<button class="js-button-food-nutrient relationship default" nId="' + nId + '" dataType="NUTRIENT">' + nName + ' <span>(영양소)</span></button>';
+                                        buttonFoodNutrientAdd.insertAdjacentHTML('beforebegin', html);
+                
+                                        let buttonFoodNutrientList = divFoodNutrientList.querySelectorAll('.js-button-food-nutrient');
+                                        let buttonFoodNutrient = buttonFoodNutrientList[buttonFoodNutrientList.length - 1];
+                
+                                        buttonFoodNutrient.addEventListener('click', function() {
+                                            this.remove();
+                                        });
+                                    }
+                                });
+                            });
+                        });
+                    }
+                });
+            });
+
+            document.querySelector('.js-div-dialog-search-relationship .js-div-tab[dataType="FOOD"]').click();
+        });
     }
 }
 initProduct();

@@ -117,6 +117,8 @@ router.get('/product/add', (req, res) => {
 
 
 router.get('/product/detail/:pId', async (req, res) => {
+    let pId = req.params.pId;
+
     let query = "SELECT * FROM t_products WHERE p_id = ?";
     let params = [pId];
     let [result, fields] = await pool.query(query, params);
@@ -126,7 +128,10 @@ router.get('/product/detail/:pId', async (req, res) => {
         return;
     }
 
-    let pcId = result[0].pcId;
+    let product = result[0];
+
+    let pcId = product.p_pc_id;
+    let pbId = product.p_pb_id;
     let fnProt = '';
     let fnFat = '';
     let fnFibe = '';
@@ -159,6 +164,7 @@ router.get('/product/detail/:pId', async (req, res) => {
         pId: req.params.pId,
 
         pcId: pcId,
+        pbId: pbId,
         fnProt: fnProt,
         fnFat: fnFat,
         fnFibe: fnFibe,

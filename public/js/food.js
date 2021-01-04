@@ -80,8 +80,8 @@ function getFood(fId) {
             });
         });
 
-        divThumbnail.style.backgroundImage = 'url(' + food.f_thumbnail + '), url(/img/no_image.png)';
-        divThumbnail.setAttribute("original", (food.f_thumbnail) ? food.f_thumbnail : '');
+        divThumbnail.style.backgroundImage = 'url(' + ((food.f_thumbnail) ? food.f_thumbnail : '') + ')';
+        divThumbnail.setAttribute("original", ((food.f_thumbnail) ? food.f_thumbnail : ''));
 
         html = '';
         for (let i = 0; i < nutrientList.length; i++) {
@@ -226,6 +226,13 @@ function foodInit() {
                     formData.append('targetId', fId);
     
                     uploadImage(formData, (response) => {
+                        if (response.status != 'OK') {
+                            alert("에러가 발생했습니다.");
+                            removeSpinner('SAVE_FOOD');
+                            removeOverlay('SAVE_FOOD');
+                            return;
+                        }
+
                         alert('음식이 추가되었습니다.');
                         location.href = '/food';
                     });
@@ -250,6 +257,13 @@ function foodInit() {
                     formData.append('targetId', inputHiddenFId.value);
     
                     uploadImage(formData, (response) => {
+                        if (response.status != 'OK') {
+                            alert("에러가 발생했습니다.");
+                            removeSpinner('SAVE_FOOD');
+                            removeOverlay('SAVE_FOOD');
+                            return;
+                        }
+
                         let originalUrl = divThumbnail.getAttribute('original');
                         if (originalUrl) {
                             // 수정되었기때문에 기존 이미지 지워줄거임
@@ -258,7 +272,8 @@ function foodInit() {
                             removeImage(deleteImageList, (response) => {
                                 if (response.status != 'OK') {
                                     alert("에러가 발생했습니다.");
-                                    
+                                    removeSpinner('SAVE_FOOD');
+                                    removeOverlay('SAVE_FOOD');
                                     return;
                                 }
 
@@ -368,7 +383,7 @@ function foodInit() {
         inputThumbnail.addEventListener('change', (event) => {
             changeInputImage(event, (error, result) => {
                 if (error) {
-                    divThumbnail.style.backgroundImage = 'url()';
+                    divThumbnail.style.backgroundImage = 'url(' + divThumbnail.getAttribute('original') + ')';
                     return;
                 }
                 divThumbnail.style.backgroundImage = 'url(' + result + ')';

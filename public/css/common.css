@@ -519,6 +519,14 @@ footer .wrapper {
 .dialog-search-relationship .body .data-list tbody tr.selected {
     background: #555555;
 }
+.dialog-search-relationship .body .data-list tbody td .thumbnail {
+    width: 32px;
+    height: 32px;
+    margin: 0 auto;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
 
 
 .spinner {

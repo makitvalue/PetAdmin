@@ -72,10 +72,6 @@ function uploadImage(formData, callback) {
     })
     .then(data => data.json())
     .then((response) => {
-        if (response.status != 'OK') {
-            alert("에러가 발생했습니다.");
-            return;
-        }
         callback(response);
     });
 }
