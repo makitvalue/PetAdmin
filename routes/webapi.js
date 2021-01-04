@@ -1540,13 +1540,15 @@ router.post('/delete/image', async (req, res) => {
     let query = 'DELETE FROM t_images WHERE 1=1 ';
 
     deleteList.forEach((item, index) => {
+        let originImagePath = `${item.path.split('.')[0]}_original.${item.path.split('.')[1]}`; 
         fs.unlinkSync(`public${item.path}`);
-
+        fs.unlinkSync(`public${originImagePath}`);
+        
         if (item.type !== 'THUMB') {
             query += ` OR i_id = ${item.iId}`;
             imageCnt++;
         }
-        
+
     });
 
     if (imageCnt > 0) {
