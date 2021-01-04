@@ -7,7 +7,6 @@ var imageSize = require('image-size');
 
 // const getConnection = require('../lib/database');
 const pool = require('../lib/database');
-const { pid } = require('process');
 // router.get('/test', async (req, res) => {
 //     try {
 //         let query = "SELECT * FROM t_crawlers WHERE c_id = ?";
