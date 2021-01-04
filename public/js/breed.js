@@ -97,7 +97,10 @@ function getBreed(bId) {
                 if (!confirm('취약질병과 연관된 데이터가 삭제됩니다. 계속하시겠습니까?')) return;
                 divBreedAgeGroup.remove();
             });
-        }); 
+            divBreedAgeGroup.querySelectorAll('input').forEach((input) => {
+                input.addEventListener('keyup', checkNumber);
+            }); 
+        });
     });
 }
 
@@ -350,6 +353,9 @@ function initBreed() {
             divBreedAgeGroup.querySelector('.js-div-remove').addEventListener('click', function() {
                 divBreedAgeGroup.remove();
             });
+            divBreedAgeGroup.querySelectorAll('input').forEach((input) => {
+                input.addEventListener('keyup', checkNumber);
+            }); 
         });
     }
 

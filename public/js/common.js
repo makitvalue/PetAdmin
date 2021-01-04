@@ -81,18 +81,15 @@ function uploadImage(formData, callback) {
 }
 
 
-// [{ "type": "THUMB/IMAGE/IMAGE_DETAIL..." "path": "/images/~", "dataType": "food...", "targetId": 1,2... }]
 function removeImage(deleteImageList, callback) {
+    console.log(deleteImageList);
     fetch('/webapi/delete/image', {
         method: 'POST',
-        deleteImageList: deleteImageList
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ deleteList: deleteImageList })
     })
     .then(data => data.json())
     .then((response) => {
-        if (response.status != 'OK') {
-            alert("에러가 발생했습니다.");
-            return;
-        }
         callback(response);
     });
 }
@@ -107,6 +104,26 @@ function toggleSideMenu() {
         document.querySelector('body').insertAdjacentHTML('beforeend', html);
         navSideMenu.classList.add('mobile');
     }
+}
+
+function createOverlay(zIndex, key) {
+    let html = '<div class="js-div-overlay overlay" key="' + key + '" style="z-index: ' + zIndex + '"></div>';
+    document.querySelector('body').insertAdjacentHTML('beforeend', html);
+}
+function removeOverlay(key) {
+    document.querySelector('.js-div-overlay[key="' + key + '"]').remove();
+}
+function createSpinner(zIndex, key) {
+    let html = '<div class="js-div-spinner spinner" style="z-index: ' + zIndex + '" key="' + key + '"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>';
+    document.querySelector('body').insertAdjacentHTML('beforeend', html);
+}
+function removeSpinner(key) {
+    document.querySelector('.js-div-spinner[key="' + key + '"]').remove();
+}
+
+
+function checkNumber(event) {
+    this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');
 }
 
 

@@ -395,7 +395,6 @@ router.post('/food/save', async (req ,res) => {
                 });
 
                 [result, fields] = await pool.query(query);
-                res.json({status: 'OK'});
             } 
             res.json({status: 'OK'});
         } else {

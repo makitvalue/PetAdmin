@@ -135,6 +135,8 @@ function saveFood(mode, callback) {
 
     if (name === '') {
         alert('음식 이름을 입력해주세요.');
+        removeSpinner('SAVE_FOOD');
+        removeOverlay('SAVE_FOOD');
         return;
     }
 
@@ -145,6 +147,8 @@ function saveFood(mode, callback) {
 
     if (keywordList.length == 0) {
         alert('음식 검색어 키워드를 입력해주세요.');
+        removeSpinner('SAVE_FOOD');
+        removeOverlay('SAVE_FOOD');
         return;
     } 
 
@@ -171,6 +175,8 @@ function saveFood(mode, callback) {
     .then(function(response) {
         if (response.status != 'OK') {
             alert('에러가 발생했습니다.');
+            removeSpinner('SAVE_FOOD');
+            removeOverlay('SAVE_FOOD');
             return;
         }
         
@@ -207,6 +213,8 @@ function foodInit() {
     
     if (buttonFoodAdd) {
         buttonFoodAdd.addEventListener('click', () => {
+            createOverlay(999, 'SAVE_FOOD');
+            createSpinner(999, 'SAVE_FOOD');
             saveFood('ADD', (response) => {
                 let fId = response.fId;
 
@@ -231,6 +239,8 @@ function foodInit() {
 
     if (buttonFoodSave) {
         buttonFoodSave.addEventListener('click', () => {
+            createOverlay(999, 'SAVE_FOOD');
+            createSpinner(999, 'SAVE_FOOD');
             saveFood('MODIFY', (response) => {
                 if (inputThumbnail.value) { // 이미지가 업로드 되었다면 (수정되었다면)
                     let form = inputThumbnail.parentElement;
@@ -240,9 +250,18 @@ function foodInit() {
                     formData.append('targetId', inputHiddenFId.value);
     
                     uploadImage(formData, (response) => {
-                        if (divThumbnail.getAttribute('original')) {
+                        let originalUrl = divThumbnail.getAttribute('original');
+                        if (originalUrl) {
                             // 수정되었기때문에 기존 이미지 지워줄거임
+                            let deleteImageList = [];
+                            deleteImageList.push({ type: "THUMB", path: originalUrl });
                             removeImage(deleteImageList, (response) => {
+                                if (response.status != 'OK') {
+                                    alert("에러가 발생했습니다.");
+                                    
+                                    return;
+                                }
+
                                 alert('음식이 수정되었습니다.');
                                 location.reload();
                             });

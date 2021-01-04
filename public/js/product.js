@@ -5,6 +5,7 @@ const divThumbnail = document.querySelector('.js-div-thumbnail');
 const inputThumbnail = document.querySelector('.js-input-thumbnail');
 const selectCategory = document.querySelector('.js-select-category');
 const selectBrand = document.querySelector('.js-select-brand');
+const inputPrice = document.querySelector('.js-input-price');
 const buttonImageAdd = document.querySelector('.js-button-image-add');
 const buttonImageDetailAdd = document.querySelector('.js-button-image-detail-add');
 const divImageBox = document.querySelector('.js-div-image-box');
@@ -62,25 +63,6 @@ function saveProduct(mode, callback) {
             alert('에러가 발생했습니다.');
             return;
         }
-
-        let pId = (mode === 'MODIFY') ? inputHiddenPId.value : response.result.pId;
-
-        // Thumbnail
-        let form = inputThumbnail.parentElement;
-        let formData = new FormData(form);
-        formData.append('targetId', pId);
-        formData.append('type', 'THUMB');
-        formData.append('dataType', 'product');
-
-        // images
-        divImageBox.querySelectorAll('.js-div-image-wrapper').forEach((divImageWrapper) => {
-            let form = divImageWrapper.querySelector('form');
-            let formData = new FormData(form);
-            formData.append('targetId', targetId);
-            formData.append('type', 'IMAGE');
-            formData.append('dataType', dataType);
-        });
-        
         callback(response);
     });
 }
@@ -319,6 +301,25 @@ function initProduct() {
     if (buttonProductAdd) {
         buttonProductAdd.addEventListener('click', () => {
             saveProduct('ADD', (response) => {
+
+                let pId = response.pId;
+        
+                // Thumbnail
+                let form = inputThumbnail.parentElement;
+                let formData = new FormData(form);
+                formData.append('targetId', pId);
+                formData.append('type', 'THUMB');
+                formData.append('dataType', 'product');
+        
+                // images
+                divImageBox.querySelectorAll('.js-div-image-wrapper').forEach((divImageWrapper) => {
+                    let form = divImageWrapper.querySelector('form');
+                    let formData = new FormData(form);
+                    formData.append('targetId', targetId);
+                    formData.append('type', 'IMAGE');
+                    formData.append('dataType', dataType);
+                });
+
                 alert('제품이 추가되었습니다.');
                 location.href = '/product';
             });
@@ -488,6 +489,11 @@ function initProduct() {
                 
                 selectCategory.parentElement.insertAdjacentHTML('afterend', html);
 
+                let tableFeedNutrientWrapper = document.querySelector('.js-table-feed-nutrient-wrapper');
+                tableFeedNutrientWrapper.querySelectorAll('input').forEach((input) => {
+                    input.addEventListener('keyup', checkNumber);
+                }); 
+
                 // 원래 사료였다면 값 가져와서 넣어줘야됨
                 if (menu == 'product_detail') {
 
@@ -509,6 +515,10 @@ function initProduct() {
             }
             selectBrand.innerHTML = html;
         });
+    }
+
+    if (inputPrice) {
+        inputPrice.addEventListener('keyup', checkNumber);
     }
 }
 initProduct();
