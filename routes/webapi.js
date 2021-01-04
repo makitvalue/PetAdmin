@@ -1009,7 +1009,7 @@ router.post('/product/save', async (req, res) => {
                 let feedParams = [feedNutrients.prot, feedNutrients.fat, feedNutrients.fibe, feedNutrients.ash, feedNutrients.calc, feedNutrients.phos, feedNutrients.mois, pId];
                 [result, fields] = await pool.query(feedQuery, feedParams);
             }
-            res.json({status: 'OK'});
+            res.json({status: 'OK', pId: pId});
             
         } else if (mode === 'MODIFY') {
             //제품 수정일때
