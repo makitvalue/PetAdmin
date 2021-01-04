@@ -282,6 +282,12 @@ router.post('/food/delete', async (req, res) => {
         let existCheckParams = [fId];
         let [result, fields] = await pool.query(existCheckQuery, existCheckParams);
 
+        let thumbnailPath = result[0].f_thumbnail;
+        let originThumbnailPath = '';
+        if (!f.isNone(thumbnailPath)) {
+            originThumbnailPath = `${thumbnailPath.split('.')[0]}_original.${thumbnailPath.split('.')[1]}`;
+        }
+
         let deleteQuery = "DELETE FROM t_foods WHERE f_id = ?";
         let deleteParams = [fId];
         if (result < 1) {
@@ -311,7 +317,12 @@ router.post('/food/delete', async (req, res) => {
         } 
         
         await pool.query(deleteQuery, deleteParams);
-                
+
+        if (!f.isNone(thumbnailPath)) {
+            fs.unlinkSync(`public${thumbnailPath}`);
+            fs.unlinkSync(`public${originThumbnailPath}`);
+        }
+
         res.json({status: 'OK'});
 
     } catch (error) {
@@ -992,6 +1003,10 @@ router.post('/product/save', async (req, res) => {
             return;
         }
 
+        if (f.isNone(price)) {
+            price = null;
+        }
+
         let query = '';
         let params = [pcId, pbId, name, keyword, price, origin, manufacturer, packingVolume, recommend];
 
@@ -1159,6 +1174,9 @@ router.post('/product/delete', async (req, res) => {
            
         let existCheckParams = [pId];
         let [result, fields] = await pool.query(existCheckQuery, existCheckParams);
+
+        let thumbnailPath = result[0].p_thumbnail;
+        let originThumbnailPath = `${thumbnailPath.split('.')[0]}_original.${thumbnailPath.split('.')[1]}`;
         
         if (result[0].mppCnt > 0) {
             res.json({status: 'ERR_EXISTS_PET'});
@@ -1178,12 +1196,28 @@ router.post('/product/delete', async (req, res) => {
         deleteParams = [pId];
         await pool.query(deleteQuery, deleteParams);
 
+        let imageSelectQuery = 'SELECT * FROM t_images WHERE i_data_type = "product" AND i_target_id = ?';
+        let imageSelectParams = [pId];
+        let [imageResult, imageFields] = await pool.query(imageSelectQuery, imageSelectParams);
+        
+        if (imageResult.length > 0) {
+            let originImagePath = '';
+            imageResult.forEach((item, index) => {
+                originImagePath = `${item.i_path.split('.')[0]}_original.${item.i_path.split('.')[1]}`; 
+                fs.unlinkSync(`public${item.i_path}`);
+                fs.unlinkSync(`public${originImagePath}`);
+            });
+        }
+
+        fs.unlinkSync(`public${thumbnailPath}`);
+        fs.unlinkSync(`public${originThumbnailPath}`);
+        
         deleteQuery = "DELETE FROM t_images WHERE i_data_type = 'product' AND i_target_id = ?";
         deleteParams = [pId];
         await pool.query(deleteQuery, deleteParams);
+
         res.json({status: 'OK'});
         
-
     } catch (error) {
         console.log(error);
         res.json({status: 'ERROR_SERVER'}); 
