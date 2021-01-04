@@ -958,7 +958,10 @@ router.post('/symptom/save', async (req, res) => {
 //전체제품 가져오기 
 router.get('/product/get/all', async (req, res) => {
     try {
-        let query = "SELECT * FROM t_products";
+        let query = "SELECT * FROM t_products AS pTab";
+        query += ' JOIN t_product_categories AS pcTab ON pcTab.pc_id = pTab.p_pc_id';
+        query += ' JOIN t_product_brands AS pbTab ON pbTab.pb_id = pTab.p_pb_id';
+        
         let [result, fields] = await pool.query(query);
         res.json({status: 'OK', result: result});
     } catch (error) {
