@@ -995,8 +995,13 @@ router.post('/product/save', async (req, res) => {
             //제품 추가일때
 
             query = 'INSERT INTO t_products(p_pc_id, p_pb_id, p_name, p_keyword, p_price, p_origin, p_manufacturer, p_packing_volume, p_recommend)';
+            query += ' VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)';
             let [result, fields] = await pool.query(query, params);
             pId = result.insertId;
+
+            query = 'DELETE FROM t_feed_nutrients WHERE fn_p_id = ?';
+            params = [pId];
+            await pool.query(query, params);        
 
             //카테고리가 제품일때
             if (pcId == 1) {
@@ -1026,9 +1031,7 @@ router.post('/product/save', async (req, res) => {
             //카테고리가 제품일때
             if (pcId == 1) {
                 if (feedNutrients.length > 0) {
-                    let feedQuery = 'UPDATE t_feed_nutrients(fn_prot, fn_fat, fn_fibe, fn_ash, fn_calc, fn_phos, fn_mois, fn_p_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?)';
-                    feedQuery += ' SET fn_prot = ?, fn_fat = ?, fn_fibe = ?, fb_ash = ?, fn_calc = ?, fn_phos = ?, fn_mois = ?';
-                    feedQuery += ' WHERE fn_p_id = ?';
+                    let feedQuery = 'INSERT INTO t_feed_nutrients(fn_prot, fn_fat, fn_fibe, fn_ash, fn_calc, fn_phos, fn_mois, fn_p_id) VALUES(?, ?, ?, ?, ?, ?, ?, ?)';
                     let feedParams = [feedNutrients.prot, feedNutrients.fat, feedNutrients.fibe, feedNutrients.ash, feedNutrients.calc, feedNutrients.phos, feedNutrients.mois, pId];
                     [result, fields] = await pool.query(feedQuery, feedParams);
                 }
@@ -1099,7 +1102,7 @@ router.post('/product/delete', async (req, res) => {
         
         let existCheckQuery = "";
         existCheckQuery += "SELECT * ";
-        existCheckQuery += "FROM t_diseases AS dTab ";
+        existCheckQuery += "FROM t_products AS pTab ";
             existCheckQuery += "LEFT JOIN (SELECT mdnf_d_id, COUNT(*) AS mdnfCnt FROM t_maps_disease_nutrient_food GROUP BY mdnf_d_id) AS mdnfTab ";
                 existCheckQuery += "ON dTab.d_id = mdnfTab.mdnf_d_id ";
             existCheckQuery += "LEFT JOIN (SELECT msd_d_id, COUNT(*) AS msdCnt FROM t_maps_symptom_disease GROUP BY msd_d_id) AS msdTab ";
