@@ -69,8 +69,8 @@ function getProductList() {
 
         tbodyProductList.querySelectorAll('.js-button-remove').forEach((buttonRemove) => {
             buttonRemove.addEventListener('click', function() {
-                // let pId = this.parentElement.parentElement.getAttribute('pId');
-                // removeDisease(pId);
+                let pId = this.parentElement.parentElement.getAttribute('pId');
+                removeProduct(pId);
             });
         });
     });
@@ -276,6 +276,33 @@ function saveProduct(mode, callback) {
 }
 
 
+function removeProduct(pId) {
+    if (!confirm('정말 삭제하시겠습니까?')) return;
+
+    fetch('/webapi/product/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pId: pId })
+    })
+    .then((data) => { return data.json(); })
+    .then((response) => {
+        if (response.status != 'OK') {
+            if (response.status == 'ERR_EXISTS_PET') {
+                alert('연관된 펫 데이터가 존재합니다.');
+            } else if (response.status == 'ERR_EXISTS_REVIEW') {
+                alert('연관된 리뷰 데이터가 존재합니다.');
+            } else {
+                alert('에러가 발생했습니다.');
+            }
+            return;
+        }
+
+        alert('제품이 삭제되었습니다.');
+        tbodyProductList.querySelector('.js-tr-product[pId="' + pId + '"]').remove();
+    });
+}
+
+
 function getProductCategoryList(callback) {
     fetch('/webapi/product/category/get/all')
     .then((data) => { return data.json(); })
@@ -428,8 +455,12 @@ function getNutrientList(callback) {
 }
 
 
-function checkUloadImageAndDelete() {
+function checkUploadImageAndDelete() {
     let deleteImageList = [];
+
+    if (inputThumbnail.value) {
+        deleteImageList.push({ type: "THUMB", path: divThumbnail.getAttribute('original') });
+    }
 
     let originalImageData = JSON.parse(inputHiddenOriginalImageData.value);
     let originalDetailImageData = JSON.parse(inputHiddenOriginalImageDetailData.value);
@@ -460,18 +491,25 @@ function checkUloadImageAndDelete() {
         });
         if (isRemoved) deleteImageList.push({ type: iType, iId: iId, path: iPath });
     }
-    
-    removeImage(deleteImageList, (response) => {
-        if (response.status != 'OK') {
-            alert("에러가 발생했습니다.");
-            removeSpinner('SAVE_PRODUCT');
-            removeOverlay('SAVE_PRODUCT');
-            return;
-        }
 
+    if (deleteImageList.length > 0) {
+        removeImage(deleteImageList, (response) => {
+            if (response.status != 'OK') {
+                alert("에러가 발생했습니다.");
+                removeSpinner('SAVE_PRODUCT');
+                removeOverlay('SAVE_PRODUCT');
+                return;
+            }
+    
+            alert('제품이 수정되었습니다.');
+            location.reload();
+        });
+    } else {
         alert('제품이 수정되었습니다.');
         location.reload();
-    });
+    }
+    
+    
 }
 
 
@@ -696,7 +734,8 @@ function initProduct() {
 
     if (buttonProductSave) {
         buttonProductSave.addEventListener('click', () => {
-
+            createOverlay(999, 'SAVE_PRODUCT');
+            createSpinner(999, 'SAVE_PRODUCT');
             saveProduct('MODIFY', (response) => {
                 let pId = inputHiddenPId.value;
 
@@ -768,12 +807,12 @@ function initProduct() {
                         
                                                     responseCnt++;
                                                     if (responseCnt == detailFormDataList.length) {
-                                                        checkUloadImageAndDelete();
+                                                        checkUploadImageAndDelete();
                                                     }
                                                 });
                                             }
                                         } else {
-                                            checkUloadImageAndDelete();
+                                            checkUploadImageAndDelete();
                                         }
                                     }
                                 });
@@ -792,12 +831,12 @@ function initProduct() {
             
                                         responseCnt++;
                                         if (responseCnt == detailFormDataList.length) {
-                                            checkUloadImageAndDelete();
+                                            checkUploadImageAndDelete();
                                         }
                                     });
                                 }
                             } else {
-                                checkUloadImageAndDelete();
+                                checkUploadImageAndDelete();
                             }
                         }
                     });
@@ -857,12 +896,12 @@ function initProduct() {
                     
                                                 responseCnt++;
                                                 if (responseCnt == detailFormDataList.length) {
-                                                    checkUloadImageAndDelete();
+                                                    checkUploadImageAndDelete();
                                                 }
                                             });
                                         }
                                     } else {
-                                        checkUloadImageAndDelete();
+                                        checkUploadImageAndDelete();
                                     }
                                 }
                             });
@@ -881,12 +920,12 @@ function initProduct() {
         
                                     responseCnt++;
                                     if (responseCnt == detailFormDataList.length) {
-                                        checkUloadImageAndDelete();
+                                        checkUploadImageAndDelete();
                                     }
                                 });
                             }
                         } else {
-                            checkUloadImageAndDelete();
+                            checkUploadImageAndDelete();
                         }
                     }
                 }

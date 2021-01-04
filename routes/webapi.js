@@ -7,6 +7,7 @@ var imageSize = require('image-size');
 
 // const getConnection = require('../lib/database');
 const pool = require('../lib/database');
+const { pid } = require('process');
 // router.get('/test', async (req, res) => {
 //     try {
 //         let query = "SELECT * FROM t_crawlers WHERE c_id = ?";
@@ -1147,6 +1148,7 @@ router.post('/product/delete', async (req, res) => {
 
         if (f.isNone(pId)) {
             res.json({status: 'ERR_WRONG_PARAM'});
+            return;
         }
 
         let existCheckQuery = 'SELECT * FROM t_products AS pTab';
@@ -1178,6 +1180,7 @@ router.post('/product/delete', async (req, res) => {
         let deleteParams = [pId];
 
         await pool.query(deleteQuery, deleteParams);
+        res.json({status: 'OK'});
 
 
     } catch (error) {
@@ -1702,7 +1705,7 @@ router.post('/delete/image', async (req, res) => {
     }
 
     let imageCnt = 0;
-    let query = 'DELETE FROM t_images WHERE 1=1 ';
+    let query = 'DELETE FROM t_images WHERE';
 
     deleteList.forEach((item, index) => {
         let originImagePath = `${item.path.split('.')[0]}_original.${item.path.split('.')[1]}`; 
@@ -1710,12 +1713,14 @@ router.post('/delete/image', async (req, res) => {
         fs.unlinkSync(`public${originImagePath}`);
         
         if (item.type !== 'THUMB') {
-            query += ` OR i_id = ${item.iId}`;
+            if (index == deleteList.length - 1) query += ` i_id = ${item.iId}`;
+            else query += ` i_id = ${item.iId} OR`;
             imageCnt++;
         }
 
     });
     if (imageCnt > 0) {
+        console.log(query);
         let [result, fields] = await pool.query(query);
     }
     res.json({status: 'OK'});
