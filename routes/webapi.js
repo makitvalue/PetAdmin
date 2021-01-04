@@ -1149,15 +1149,23 @@ router.post('/product/delete', async (req, res) => {
             res.json({status: 'ERR_WRONG_PARAM'});
         }
 
-        let existCheckQuery = 'SELECT * FROM t_maps_pet_product AS mppTab';
-        existCheckQuery += ' JOIN t_product_reviews AS prTab ON prTab.pr_p_id = mppTab.mpp_p_id';
-        existCheckQuery += ' WHERE mppTab.mpp_p_id = ?';
-        
+        let existCheckQuery = 'SELECT * FROM t_products AS pTab';
+        existCheckQuery += ' LEFT JOIN (SELECT mpp_p_id, COUNT(*) AS mppCnt FROM t_maps_pet_product GROUP BY mpp_p_id) AS mppTab ';
+            existCheckQuery += ' ON mppTab.mpp_p_id = pTab.p_id';
+        existCheckQuery += ' LEFT JOIN (SELECT pr_p_id, COUNT(*) AS prCnt FROM t_product_reviews GROUP BY pr_p_id) AS prTab '
+            existCheckQuery += ' ON pTab.p_id = prTab.pr_p_id';
+        existCheckQuery += ' WHERE pTab.p_id = ?';
+           
         let existCheckParams = [pId];
         let [result, fields] = await pool.query(existCheckQuery, existCheckParams);
         
-        if (result.length > 0) {
+        if (result[0].mppCnt > 0) {
             res.json({status: 'ERR_EXISTS_PET'});
+            return;
+        }
+        
+        if (result[0].prCnt > 0) {
+            res.json({status: 'ERR_EXISTS_REVIEW'});
             return;
         }
 
@@ -1166,7 +1174,10 @@ router.post('/product/delete', async (req, res) => {
         deleteQuery += "JOIN t_maps_product_nutrient_food AS mpnfTab ON mpnfTab.mpnf_p_id = pTab.p_id ";
         deleteQuery += "JOIN t_images AS iTab ON (iTab.i_target_id = pTab.p_id AND iTab.i_data_type = 'PRODUCT') ";
         deleteQuery += "WHERE pTab.p_id = ?";
+
         let deleteParams = [pId];
+
+        await pool.query(deleteQuery, deleteParams);
 
 
     } catch (error) {
