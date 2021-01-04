@@ -448,6 +448,14 @@ footer .wrapper {
     margin: 4px;
     font-size: 0.8rem;
 }
+.data-list tbody tr td .thumbnail {
+    margin: 0 auto;
+    width: 64px;
+    height: 64px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
 
 
 .dialog-search-relationship {

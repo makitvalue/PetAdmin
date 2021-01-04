@@ -1432,7 +1432,7 @@ router.post('/upload/image', async (req, res) => {
             fs.copyFile(imageFilePath, reImageFilePath, async () => {
 
                 if (originFileSize < 200000) {
-            
+        
                 } else {
                     let reSize = originFileSize;
                     let per = 0;

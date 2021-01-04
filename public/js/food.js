@@ -29,7 +29,7 @@ function getFoodList() {
             html += '<tr class="js-tr-food" fId="' + food.f_id + '">';
             html +=     '<td>' + food.f_id + '</td>';
             html +=     '<td>' + food.f_name + '</td>';
-            html +=     '<td>' + food.f_thumbnail + '</td>';
+            html +=     '<td><div class="thumbnail" style="background-image: url(' + food.f_thumbnail + '), url(/img/no_image.png)"></div></td>';
             html +=     '<td>' + noneToDash(food.f_desc) + '</td>';
             html +=     '<td class="buttons">';
             html +=         '<a href="/food/detail/' + food.f_id + '"><button class="default">자세히</button></a>';
@@ -79,6 +79,9 @@ function getFood(fId) {
                 this.remove();
             });
         });
+
+        divThumbnail.style.backgroundImage = 'url(' + food.f_thumbnail + '), url(/img/no_image.png)';
+        divThumbnail.setAttribute("original", food.f_thumbnail);
 
         html = '';
         for (let i = 0; i < nutrientList.length; i++) {
@@ -207,16 +210,21 @@ function foodInit() {
             saveFood('ADD', (response) => {
                 let fId = response.fId;
 
-                let form = inputThumbnail.parentElement;
-                let formData = new FormData(form);
-                formData.append('mode', 'THUMB');
-                formData.append('dataType', 'food');
-                formData.append('dataId', fId);
-
-                uploadImage(formData, (response) => {
+                if (inputThumbnail.value) { // 이미지가 업로드 되었다면
+                    let form = inputThumbnail.parentElement;
+                    let formData = new FormData(form);
+                    formData.append('mode', 'THUMB');
+                    formData.append('dataType', 'food');
+                    formData.append('dataId', fId);
+    
+                    uploadImage(formData, (response) => {
+                        alert('음식이 추가되었습니다.');
+                        location.reload();
+                    });
+                } else {
                     alert('음식이 추가되었습니다.');
                     location.reload();
-                });
+                }
             });
         });
     }

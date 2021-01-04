@@ -11,6 +11,9 @@ const divImageBox = document.querySelector('.js-div-image-box');
 const divImageDetailBox = document.querySelector('.js-div-image-detail-box');
 const buttonProductCategoryAdd = document.querySelector('.js-button-product-category-add');
 const buttonProductBrandAdd = document.querySelector('.js-button-product-brand-add');
+const buttonCancel = document.querySelector('.js-button-cancel');
+const buttonProductAdd = document.querySelector('.js-button-product-add');
+const buttonProductSave = document.querySelector('.js-button-product-save');
 
 const inputHiddenPId = document.querySelector('.js-input-hidden-p-id');
 const inputHiddenPcId = document.querySelector('.js-input-hidden-pc-id');
@@ -21,6 +24,66 @@ const inputHiddenFnAsh = document.querySelector('.js-input-hidden-fn-ash');
 const inputHiddenFnCalc = document.querySelector('.js-input-hidden-fn-calc');
 const inputHiddenFnPhos = document.querySelector('.js-input-hidden-fn-phos');
 const inputHiddenFnMois = document.querySelector('.js-input-hidden-fn-mois');
+
+
+function saveProduct(mode, callback) {
+    let name = inputName.value.trim();
+
+    if (name === '') {
+        alert('제품 이름을 입력해주세요.');
+        return;
+    }
+
+    let keywordList = [];
+    divKeywordList.querySelectorAll('.js-button-keyword').forEach((buttonKeyword) => {
+        keywordList.push(buttonKeyword.innerText);
+    });
+
+    if (keywordList.length == 0) {
+        alert('제품 검색어 키워드를 입력해주세요.');
+        return;
+    } 
+
+    let keyword = keywordList.join('|');
+
+    fetch('/webapi/product/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            mode: mode,
+            name: name,
+            keyword: keyword,
+            pId: (mode === 'MODIFY') ? inputHiddenPId.value : ''
+        })
+    })
+    .then(function(data) { return data.json(); })
+    .then(function(response) {
+        if (response.status != 'OK') {
+            alert('에러가 발생했습니다.');
+            return;
+        }
+
+        let pId = (mode === 'MODIFY') ? inputHiddenPId.value : response.result.pId;
+
+        // Thumbnail
+        let form = inputThumbnail.parentElement;
+        let formData = new FormData(form);
+        formData.append('dataId', pId);
+        formData.append('mode', 'THUMB');
+        formData.append('dataType', 'product');
+
+        // images
+        divImageBox.querySelectorAll('.js-div-image-wrapper').forEach((divImageWrapper) => {
+            let form = divImageWrapper.querySelector('form');
+            let formData = new FormData(form);
+            formData.append('dataId', dataId);
+            formData.append('mode', 'IMAGE');
+            formData.append('dataType', dataType);
+        });
+        
+        callback(response);
+    });
+}
 
 
 function getProductCategoryList(callback) {
@@ -246,6 +309,29 @@ function initProduct() {
             });
         });
     }
+
+    if (buttonCancel) {
+        buttonCancel.addEventListener('click', () => {
+            location.href = '/product';
+        });
+    }
+    
+    if (buttonProductAdd) {
+        buttonProductAdd.addEventListener('click', () => {
+            saveProduct('ADD', (response) => {
+                alert('제품이 추가되었습니다.');
+                location.href = '/product';
+            });
+        });
+    }
+
+    if (buttonProductSave) {
+        buttonProductSave.addEventListener('click', () => {
+            saveProduct('MODIFY', (response) => {
+                alert('제품이 수정되었습니다.');
+            });
+        });
+    }
     
     if (divThumbnail) {
         divThumbnail.addEventListener('click', () => {
@@ -381,7 +467,7 @@ function initProduct() {
             if (pbId == 1) { // 사료일 경우
                 let html = '';
                 html += '<div class="form-box">';
-                html +=     '<p>등록 성분</p>';
+                html +=     '<p>등록 성분 (%)</p>';
                 html +=     '<table class="js-table-feed-nutrient-wrapper feed-nutrient-wrapper">';
                 html +=         '<thead>';
                 html +=             '<tr><th>조단백</th><th>조지방</th><th>조섬유</th><th>조회분</th><th>칼슘</th><th>인</th><th>수분</th></tr>';

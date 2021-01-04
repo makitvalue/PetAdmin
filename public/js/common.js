@@ -81,6 +81,23 @@ function uploadImage(formData, callback) {
 }
 
 
+// [{ "type": "THUMB/IMAGE/IMAGE_DETAIL..." "path": "/images/~", "dataType": "food...", "targetId": 1,2... }]
+function removeImage(deleteImageList, callback) {
+    fetch('/webapi/delete/image', {
+        method: 'POST',
+        deleteImageList: deleteImageList
+    })
+    .then(data => data.json())
+    .then((response) => {
+        if (response.status != 'OK') {
+            alert("에러가 발생했습니다.");
+            return;
+        }
+        callback(response);
+    });
+}
+
+
 function toggleSideMenu() {
     if (navSideMenu.classList.contains('mobile')) {
         document.querySelector('.js-div-overlay[key="SIDE_MENU"]').remove();
