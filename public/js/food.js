@@ -81,7 +81,7 @@ function getFood(fId) {
         });
 
         divThumbnail.style.backgroundImage = 'url(' + food.f_thumbnail + '), url(/img/no_image.png)';
-        divThumbnail.setAttribute("original", food.f_thumbnail);
+        divThumbnail.setAttribute("original", (food.f_thumbnail) ? food.f_thumbnail : '');
 
         html = '';
         for (let i = 0; i < nutrientList.length; i++) {
@@ -213,17 +213,17 @@ function foodInit() {
                 if (inputThumbnail.value) { // 이미지가 업로드 되었다면
                     let form = inputThumbnail.parentElement;
                     let formData = new FormData(form);
-                    formData.append('mode', 'THUMB');
+                    formData.append('type', 'THUMB');
                     formData.append('dataType', 'food');
-                    formData.append('dataId', fId);
+                    formData.append('targetId', fId);
     
                     uploadImage(formData, (response) => {
                         alert('음식이 추가되었습니다.');
-                        location.reload();
+                        location.href = '/food';
                     });
                 } else {
                     alert('음식이 추가되었습니다.');
-                    location.reload();
+                    location.href = '/food';
                 }
             });
         });
@@ -232,7 +232,29 @@ function foodInit() {
     if (buttonFoodSave) {
         buttonFoodSave.addEventListener('click', () => {
             saveFood('MODIFY', (response) => {
-                alert('음식이 수정되었습니다.');
+                if (inputThumbnail.value) { // 이미지가 업로드 되었다면 (수정되었다면)
+                    let form = inputThumbnail.parentElement;
+                    let formData = new FormData(form);
+                    formData.append('type', 'THUMB');
+                    formData.append('dataType', 'food');
+                    formData.append('targetId', inputHiddenFId.value);
+    
+                    uploadImage(formData, (response) => {
+                        if (divThumbnail.getAttribute('original')) {
+                            // 수정되었기때문에 기존 이미지 지워줄거임
+                            removeImage(deleteImageList, (response) => {
+                                alert('음식이 수정되었습니다.');
+                                location.reload();
+                            });
+                        } else {
+                            alert('음식이 수정되었습니다.');
+                            location.reload();
+                        }
+                    });
+                } else {
+                    alert('음식이 수정되었습니다.');
+                    location.reload();
+                }
             });
         });
     }

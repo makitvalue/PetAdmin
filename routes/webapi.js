@@ -1468,8 +1468,8 @@ router.post('/upload/image', async (req, res) => {
         }
 
         let dataType = body.dataType;
-        let mode = body.mode; // THUMB, DATA_IMAGE, DATA_IMAGE_DETAIL
-        let dataId = body.dataId; // 데이터 아이디
+        let type = body.type; // THUMB, IMAGE, IMAGE_DETAIL
+        let targetId = body.targetId; // 데이터 아이디
         
         let imageName = f.generateRandomId();
         let imageFilePath = `public/images/${dataType}/${imageName}_original.jpg`;
@@ -1502,10 +1502,10 @@ router.post('/upload/image', async (req, res) => {
                     }
                 }
     
-                if (mode === 'THUMB') {
+                if (type === 'THUMB') {
                     // UPDATE data thumbnail
                     let query = '';
-                    let params = [reImagePath, dataId];
+                    let params = [reImagePath, targetId];
     
                     if (dataType === 'food') {
                         query = 'UPDATE t_foods SET f_thumbnail = ? WHERE f_id = ? ';
@@ -1514,10 +1514,10 @@ router.post('/upload/image', async (req, res) => {
                     }
                     let [result, fields] = await pool.query(query, params);
     
-                } else if (mode === 'IMAGE') {
+                } else if (type === 'IMAGE') {
                     // INSERT images
                     let query = "INSERT INTO t_images (i_type, i_path, i_target_id, i_data_type) VALUES (?, ?, ?, ?, ?)";
-                    let params = [mode, reImagePath, dataId, dataType];
+                    let params = [type, reImagePath, targetId, dataType];
                     let [result, fields] = await pool.query(query, params);
                 }
                 res.json({ status: 'OK', reImagePath: reImagePath });

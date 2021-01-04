@@ -68,16 +68,16 @@ function saveProduct(mode, callback) {
         // Thumbnail
         let form = inputThumbnail.parentElement;
         let formData = new FormData(form);
-        formData.append('dataId', pId);
-        formData.append('mode', 'THUMB');
+        formData.append('targetId', pId);
+        formData.append('type', 'THUMB');
         formData.append('dataType', 'product');
 
         // images
         divImageBox.querySelectorAll('.js-div-image-wrapper').forEach((divImageWrapper) => {
             let form = divImageWrapper.querySelector('form');
             let formData = new FormData(form);
-            formData.append('dataId', dataId);
-            formData.append('mode', 'IMAGE');
+            formData.append('targetId', targetId);
+            formData.append('type', 'IMAGE');
             formData.append('dataType', dataType);
         });
         
