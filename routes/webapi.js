@@ -1191,7 +1191,7 @@ router.post('/product/delete', async (req, res) => {
            
         let existCheckParams = [pId];
         let [result, fields] = await pool.query(existCheckQuery, existCheckParams);
-
+        
         let thumbnailPath = result[0].p_thumbnail;
         let originThumbnailPath = `${thumbnailPath.split('.')[0]}_original.${thumbnailPath.split('.')[1]}`;
         
