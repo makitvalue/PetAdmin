@@ -310,8 +310,6 @@ function foodInit() {
             html +=                     '<th>ID</th>';
             html +=                     '<th>이름</th>';
             html +=                     '<th>효과</th>';
-            html +=                     '<th>설명</th>';
-            html +=                     '<th>과다섭취시</th>';
             html +=                 '</tr>';
             html +=             '</thead>';
             html +=             '<tbody class="js-tbody-nutrient-list"></tbody>';
@@ -341,8 +339,6 @@ function foodInit() {
                     html +=     '<td>' + nutrient.n_id + '</td>';
                     html +=     '<td>' + nutrient.n_name + '</td>';
                     html +=     '<td>' + effectToString(nutrient.n_effect) + '</td>';
-                    html +=     '<td>' + noneToDash(nutrient.n_desc) + '</td>';
-                    html +=     '<td>' + noneToDash(nutrient.n_desc_over) + '</td>';
                     html += '</tr>';
                 }
                 tbodyNutrientList.innerHTML = html;

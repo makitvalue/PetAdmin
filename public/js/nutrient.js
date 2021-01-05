@@ -28,8 +28,6 @@ function getNutrientList() {
             html +=     '<td>' + nutrient.n_id + '</td>';
             html +=     '<td>' + nutrient.n_name + '</td>';
             html +=     '<td>' + effectToString(nutrient.n_effect) + '</td>';
-            html +=     '<td>' + noneToDash(nutrient.n_desc) + '</td>';
-            html +=     '<td>' + noneToDash(nutrient.n_desc_over) + '</td>';
             html +=     '<td class="buttons">';
             html +=         '<a href="/nutrient/detail/' + nutrient.n_id + '"><button class="default">자세히</button></a>';
             html +=         '<button class="js-button-remove default remove">삭제</button>';

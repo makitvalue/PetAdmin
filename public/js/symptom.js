@@ -363,7 +363,7 @@ function initSymptom() {
                             selectedNIdList.push(parseInt(buttonNutrient.getAttribute('nId')));
                         });
 
-                        trHeader.innerHTML = '<th>ID</th><th>이름</th><th>효과</th><th>설명</th><th>과다섭취시</th>';
+                        trHeader.innerHTML = '<th>ID</th><th>이름</th><th>효과</th>';
                         getNutrientList((nutrientList) => {
                             let html = '';
                             for (let i = 0; i < nutrientList.length; i++) {
@@ -372,8 +372,6 @@ function initSymptom() {
                                 html +=     '<td>' + nutrient.n_id + '</td>';
                                 html +=     '<td>' + nutrient.n_name + '</td>';
                                 html +=     '<td>' + effectToString(nutrient.n_effect) + '</td>';
-                                html +=     '<td>' + noneToDash(nutrient.n_desc) + '</td>';
-                                html +=     '<td>' + noneToDash(nutrient.n_desc_over) + '</td>';
                                 html += '</tr>';
                             }
                             tBodyFoodNutrientList.innerHTML = html;
