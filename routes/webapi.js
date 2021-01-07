@@ -1690,7 +1690,6 @@ router.post('/inoculation/save', async (req, res) => {
         let inId;
         let mode = req.body.mode;
         let name = req.body.name;
-        let keyword = req.body.keyword ? req.body.keyword : '' ;
 
         if (f.isNone(mode) || f.isNone(name)) {
             res.json({status: 'ERR_WRONG_PARAM'});
@@ -1698,11 +1697,10 @@ router.post('/inoculation/save', async (req, res) => {
         }
 
         if (mode === 'ADD') {
-            let query = 'INSERT INTO t_inoculations(in_name, in_keyword) VALUES(?, ?)';
-            let params = [name, keyword];
+            let query = 'INSERT INTO t_inoculations(in_name) VALUES(?)';
+            let params = [name];
             await pool.query(query, params);
             res.json({status: 'OK'});
-
 
         } else if (mode === 'MODIFY') {
             inId = req.body.inId;
@@ -1711,8 +1709,8 @@ router.post('/inoculation/save', async (req, res) => {
                 return;
             }
 
-            let query = 'UPDATE t_inoculations SET in_name = ?, in_keyword = ? WHERE in_id = ?';
-            let params = [name, keyword, inId];
+            let query = 'UPDATE t_inoculations SET in_name = ? WHERE in_id = ?';
+            let params = [name, inId];
             await pool.query(query, params);
             res.json({status: 'OK'});
 
