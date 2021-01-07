@@ -1755,7 +1755,96 @@ router.post('/inoculation/delete', async (req, res) => {
 });
 
 
-//
+//전체 음식&영양소 카테고리 가져오기
+router.get('/food/nutrient/category/get/all', async (req, res) => {
+    try {
+        let query = "SELECT * FROM t_food_nutrient_categories";
+        let [result, fields] = await pool.query(query);
+        res.json({status: 'OK', result: result});
+    } catch (error) {
+        console.log(error);
+        res.json({status: 'ERROR_SERVER'}); 
+    }
+});
+//음식&영양소 카테고리 저장 (추가, 수정)
+router.post('/food/nutrient/category/save', async (req, res) => {
+    try {
+        let fncId;
+        let mode = req.body.mode;
+        let name = req.body.name;
+
+        if (f.isNone(mode) || f.isNone(name)) {
+            res.json({status: 'ERR_WRONG_PARAM'});
+            return;
+        }
+
+        if (mode === 'ADD') {
+            let query = 'INSERT INTO t_food_nutrient_categories(fnc_name) VALUES(?)';
+            let params = [name];
+            await pool.query(query, params);
+            res.json({status: 'OK'});
+
+        } else if (mode === 'MODIFY') {
+            fncId = req.body.fncId;
+            if (f.isNone(fncId)) {
+                res.json({status: 'ERR_WRONG_PARAM'});
+                return;
+            }
+
+            let query = 'UPDATE t_food_nutrient_categories SET fnc_name = ? WHERE fnc_id = ?';
+            let params = [name, fncId];
+            await pool.query(query, params);
+            res.json({status: 'OK'});
+
+        } else {
+            res.json({status: 'ERR_WRONG_MODE'});
+            return;
+        }
+        
+
+    } catch (error) {
+        console.log(error);
+        res.json({status: 'ERROR_SERVER'});  
+    }
+});
+//음식&영양소 카테고리 삭제
+router.post('/food/nutrient/category/delete', async (req, res) => {
+    let fncId = req.body.fncId;
+
+    if (f.isNone(fncId)) {
+        res.json({stauts: 'ERR_WRONG_PARAM'});
+        return;
+    }
+
+    let existCheckQuery = 'SELECT * FROM t_food_nutrient_categories AS fncTab';
+    existCheckQuery += ' LEFT JOIN (SELECT n_id, COUNT(*) AS nCnt FROM t_nutrients GROUP BY n_id) AS nTab';
+        existCheckQuery += ' ON nTab.n_id = fncTab.fnc_id';
+    existCheckQuery += ' LEFT JOIN (SELECT f_id, COUNT(*) AS fCnt FROM t_foods GROUP BY f_id) AS fTab';
+        existCheckQuery += ' ON fTab.f_id = fncTab.fnc_id';
+    existCheckQuery += ' WHERE fncTab.fnc_id = ?';
+
+    let existCheckParams = [fncId];
+
+    let [result, fields] = await pool.query(existCheckQuery, existCheckParams);
+    
+    if (reuslt[0].nCnt > 0) {
+        res.json({status: 'ERR_EXISTS_NUTRIENT'});
+        return;
+    }
+
+    if (result[0].fCnt > 0) {
+        res.json({status: 'ERR_EXISTS_FOOD'});
+        return; 
+    }
+
+    let query = 'DELETE FROM t_food_nutrient_categories WHERE fnc_id = ?';
+    let params = [fncId];
+    await pool.query(query, params);
+
+    res.json({status: 'OK'});
+
+
+});
 
 
 //이미지 저장 
