@@ -344,7 +344,7 @@ router.post('/food/save', async (req ,res) => {
         let keyword = req.body.keyword;
         let desc = req.body.desc;
         let nutrientList = req.body.nutrients;
-        let fncId = req.bodu.fncId;
+        let fncId = req.body.fncId;
 
         if (f.isNone(mode) || f.isNone(name) || f.isNone(keyword)) {
             res.json({status: 'ERR_WRONG_PARAM'});
@@ -1912,7 +1912,8 @@ router.post('/upload/image', async (req, res) => {
                     }
                     let [result, fields] = await pool.query(query, params);
     
-                } else {
+                } 
+                 else {
                     // INSERT images
                     let query = "INSERT INTO t_images (i_type, i_path, i_target_id, i_data_type) VALUES (?, ?, ?, ?)";
                     let params = [type, reImagePath, targetId, dataType];
