@@ -7,6 +7,7 @@ var imageSize = require('image-size');
 
 // const getConnection = require('../lib/database');
 const pool = require('../lib/database');
+const { getConnection } = require('../lib/database');
 // router.get('/test', async (req, res) => {
 //     try {
 //         let query = "SELECT * FROM t_crawlers WHERE c_id = ?";
@@ -1669,6 +1670,82 @@ router.post('/breed/weak/disease/modify', async (req, res) => {
     res.json({status: 'OK'});
     
     // bcs, dId
+});
+
+
+//전체 접종테이블 조회
+router.get('/inoculation/get/all', async (req, res) => {
+    try {
+        let query = "SELECT * FROM t_inoculations";
+        let [result, fields] = await pool.query(query);
+        res.json({status: 'OK', result: result});
+    } catch (error) {
+        console.log(error);
+        res.json({status: 'ERROR_SERVER'}); 
+    }
+});
+//접종테이블 저장 (추가, 수정)
+router.post('/inoculation/save', async (req, res) => {
+    try {
+        let inId;
+        let mode = req.body.mode;
+        let name = req.body.name;
+        let keyword = req.body.keyword;
+
+        if (f.isNone(mode) || f.isNone(name) || f.isNone(keyword)) {
+            res.json({status: 'ERR_WRONG_PARAM'});
+            return;
+        }
+
+        if (mode === 'ADD') {
+            let query = 'INSERT INTO t_inoculations(in_name, in_keyword) VALUES(?, ?)';
+            let params = [name, keyword];
+            await pool.query(query, params);
+            res.json({status: 'OK'});
+
+
+        } else if (mode === 'MODIFY') {
+            inId = req.body.inId;
+            if (f.isNone(inId)) {
+                res.json({status: 'ERR_WRONG_PARAM'});
+                return;
+            }
+
+            let query = 'UPDATE t_inoculations SET in_name = ?, in_keyword = ? WHERE in_id = ?';
+            let params = [name, keyword, inId];
+            await pool.query(query, params);
+            res.json({status: 'OK'});
+
+        } else {
+            res.json({status: 'ERR_WRONG_MODE'});
+            return;
+        }
+        
+
+    } catch (error) {
+        console.log(error);
+        res.json({status: 'ERROR_SERVER'});  
+    }
+});
+//접종테이블 삭제
+router.post('/inoculation/delete', async (req, res) => {
+    try {
+        let inId = req.body.inId;
+
+        if (f.isNone(inId)) {
+            res.json({status: 'ERR_WRONG_PARAM'});
+            return;
+        }
+
+        let query = 'DELETE FROM t_inoculations WHERE inId = ?';
+        let params = [inId];
+        await pool.query(query, params); 
+
+    } catch (error) {
+        console.log(error);
+        res.json({status: 'ERROR_SERVER'}); 
+    }
+
 });
 
 
