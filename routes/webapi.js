@@ -1827,7 +1827,7 @@ router.post('/food/nutrient/category/delete', async (req, res) => {
 
     let [result, fields] = await pool.query(existCheckQuery, existCheckParams);
     
-    if (reuslt[0].nCnt > 0) {
+    if (result[0].nCnt > 0) {
         res.json({status: 'ERR_EXISTS_NUTRIENT'});
         return;
     }
