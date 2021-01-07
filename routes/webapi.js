@@ -1690,9 +1690,9 @@ router.post('/inoculation/save', async (req, res) => {
         let inId;
         let mode = req.body.mode;
         let name = req.body.name;
-        let keyword = req.body.keyword;
+        let keyword = req.body.keyword ? req.body.keyword : '' ;
 
-        if (f.isNone(mode) || f.isNone(name) || f.isNone(keyword)) {
+        if (f.isNone(mode) || f.isNone(name)) {
             res.json({status: 'ERR_WRONG_PARAM'});
             return;
         }
