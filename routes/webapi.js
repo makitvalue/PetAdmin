@@ -552,20 +552,21 @@ router.post('/disease/save', async (req, res) => {
         let management = req.body.management;
         let nutrientFoodData = req.body.nutrientFoodData;
         let symptomData = req.body.symptomData;
+        let operation = req.body.operation;
         
-        if (f.isNone(mode) || f.isNone(name) || f.isNone(keyword) || f.isNone(bpId)) {
+        if (f.isNone(mode) || f.isNone(name) || f.isNone(keyword) || f.isNone(bpId) || f.isNone(operation)) {
             res.json({status: 'ERR_WRONG_PARAM'});
             return;
         }
 
         let query = '';
-        let params = [name, keyword, bpId, reason, management];
+        let params = [name, keyword, bpId, reason, management, operation];
         let result;
         let fields;
 
         //저장인지 수정인지 확인
         if (mode === 'ADD') { //추가일떄
-            query += "INSERT INTO t_diseases(d_name, d_keyword, d_bp_id, d_reason, d_management) VALUES(?, ?, ?, ?, ?)";
+            query += "INSERT INTO t_diseases(d_name, d_keyword, d_bp_id, d_reason, d_management, d_operation) VALUES(?, ?, ?, ?, ?, ?)";
         } else if (mode === 'MODIFY') { //수정일때
             dId = req.body.dId;
             if (f.isNone(dId)) {
@@ -573,7 +574,7 @@ router.post('/disease/save', async (req, res) => {
                 return;
             }
             query += "UPDATE t_diseases SET";
-            query += " d_name = ?, d_keyword = ?, d_bp_id = ?, d_reason = ?, d_management = ?";
+            query += " d_name = ?, d_keyword = ?, d_bp_id = ?, d_reason = ?, d_management = ?, d_operation = ?";
             query += " WHERE d_id = ?";
             params.push(dId);
         } else {
@@ -698,9 +699,6 @@ router.post('/disease/save', async (req, res) => {
         console.log(error);
         res.json({status: 'ERROR_SERVER'}); 
     }
-
-    
-
 
 });
 
@@ -1732,6 +1730,15 @@ router.post('/inoculation/delete', async (req, res) => {
 
         if (f.isNone(inId)) {
             res.json({status: 'ERR_WRONG_PARAM'});
+            return;
+        }
+
+        let existCheckQuery = 'SELECT * FROM t_maps_pet_inoculation WHERE mpin_in_id = ?';
+        let existCheckParams = [inId];
+        [result, fields] = await pool.query(existCheckQuery, existCheckParams);
+
+        if (result.length > 0) {
+            res.json({status: 'ERR_EXISTS_PET'});
             return;
         }
 
