@@ -1464,21 +1464,22 @@ router.post('/breed/save', async (req, res) => {
     try {
         let mode = req.body.mode; // ADD, MODIFY
         let bId;
+        let bType = req.body.bType; 
         let name = req.body.name;
         let keyword = req.body.keyword;
         let breedAgeGroups = req.body.breedAgeGroups;
         let deleteBreedAgeGroups = req.body.deleteBreedAgeGroups;
     
-        if (f.isNone(name) || f.isNone(keyword)) {
+        if (f.isNone(name) || f.isNone(keyword) || f.isNone(bType)) {
             res.json({status: 'ERR_WRONG_PARAM'});
             return;
         }
     
         let query = '';
-        let params = [name, keyword];
+        let params = [name, keyword, bType];
     
         if (mode === 'ADD') {
-            query = 'INSERT INTO t_breeds(b_name, b_keyword) VALUES(?, ?) ';
+            query = 'INSERT INTO t_breeds(b_name, b_keyword, b_type) VALUES(?, ?, ?) ';
         } else if (mode === 'MODIFY') {
             bId = req.body.bId;
             if (f.isNone(bId)) {
@@ -1488,7 +1489,8 @@ router.post('/breed/save', async (req, res) => {
     
             query = "UPDATE t_breeds SET";
             query += " b_name = ?,";
-            query += " b_keyword = ?";
+            query += " b_keyword = ?,";
+            query += " b_type = ?";
             query += " WHERE b_id = ?";
             params.push(bId);
         } else {
