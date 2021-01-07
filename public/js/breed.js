@@ -1,6 +1,7 @@
 
 const tbodyBreedList = document.querySelector('.js-tbody-breed-list');
 const inputName = document.querySelector('.js-input-name');
+const selectType = document.querySelector('.js-select-type');
 const buttonCancel = document.querySelector('.js-button-cancel');
 const buttonBreedAdd = document.querySelector('.js-button-breed-add');
 const buttonBreedSave = document.querySelector('.js-button-breed-save');
@@ -63,6 +64,7 @@ function getBreed(bId) {
         let breedAgeGroupList = response.result.breedAgeGroupList;
 
         inputName.value = breed.b_name;
+        selectType.value = breed.b_type;
 
         let keywordList = breed.b_keyword.split('|');
 
@@ -136,7 +138,7 @@ function saveBreed(mode, callback) {
     let name = inputName.value.trim();
 
     if (name === '') {
-        alert('질병 이름을 입력해주세요.');
+        alert('견종 이름을 입력해주세요.');
         return;
     }
 
@@ -146,7 +148,7 @@ function saveBreed(mode, callback) {
     });
 
     if (keywordList.length == 0) {
-        alert('질병 검색어 키워드를 입력해주세요.');
+        alert('견종 검색어 키워드를 입력해주세요.');
         return;
     } 
 
@@ -197,6 +199,7 @@ function saveBreed(mode, callback) {
             keyword: keyword,
             breedAgeGroups: breedAgeGroupList,
             deleteBreedAgeGroups: deleteBreedAgeGroupList,
+            bType: selectType.value,
             bId: (mode === 'MODIFY') ? inputHiddenBId.value : ''
         })
     })
@@ -411,7 +414,7 @@ function initBreed() {
             });
 
             html = '';
-            for (let i = 1; i < 10; i++) {
+            for (let i = 1; i < 5; i++) {
                 html += '<option value="' + i + '" ' + ((i == 1) ? 'selected' : '') + '>' + i + '</option>';
             }
             selectBcs.innerHTML = html;

@@ -17,6 +17,15 @@
     </div>
 
     <div class="form-box">
+        <p>카테고리</p>
+        <select class="js-select-category default">
+            <% for (let i = 0; i < foodNutrientCategoryList.length; i++) { %>
+                <option value="<%= foodNutrientCategoryList[i].fnc_id %>" <% if (i == 0) { %>selected<% } %>><%= foodNutrientCategoryList[i].fnc_name %></option>
+            <% } %>
+        </select>
+    </div>
+
+    <div class="form-box">
         <p>음식 썸네일 이미지 (클릭하여 업로드)</p>
         <div class="image-box">
             <form method="post" enctype="multipart/form-data"><input class="js-input-thumbnail" name="image" type="file" accept="image/jpeg,image/png" /></form>
@@ -25,7 +34,7 @@
     </div>
 
     <div class="form-box">
-        <p>음식 설명</p>
+        <p>급여방법 및 주의사항</p>
         <textarea class="js-textarea-desc default"></textarea>
     </div>
 

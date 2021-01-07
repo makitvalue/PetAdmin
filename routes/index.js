@@ -17,18 +17,28 @@ router.get('/nutrient', (req, res) => {
 });
 
 
-router.get('/nutrient/add', (req, res) => {
+router.get('/nutrient/add', async (req, res) => {
+    let query = "SELECT * FROM t_food_nutrient_categories";
+    let [result, fields] = await pool.query(query);
+
     res.render('index', { 
-        menu: 'nutrient_add'
+        menu: 'nutrient_add',
+
+        foodNutrientCategoryList: result
     });
 });
 
 
-router.get('/nutrient/detail/:nId', (req, res) => {
+router.get('/nutrient/detail/:nId', async (req, res) => {
+    let query = "SELECT * FROM t_food_nutrient_categories";
+    let [result, fields] = await pool.query(query);
+
     res.render('index', { 
         menu: 'nutrient_detail',
 
-        nId: req.params.nId
+        nId: req.params.nId,
+
+        foodNutrientCategoryList: result
     });
 });
 
@@ -40,18 +50,28 @@ router.get('/food', (req, res) => {
 });
 
 
-router.get('/food/add', (req, res) => {
+router.get('/food/add', async (req, res) => {
+    let query = "SELECT * FROM t_food_nutrient_categories";
+    let [result, fields] = await pool.query(query);
+
     res.render('index', { 
-        menu: 'food_add'
+        menu: 'food_add',
+
+        foodNutrientCategoryList: result
     });
 });
 
 
-router.get('/food/detail/:fId', (req, res) => {
+router.get('/food/detail/:fId', async (req, res) => {
+    let query = "SELECT * FROM t_food_nutrient_categories";
+    let [result, fields] = await pool.query(query);
+
     res.render('index', { 
         menu: 'food_detail',
 
-        fId: req.params.fId
+        fId: req.params.fId,
+
+        foodNutrientCategoryList: result
     });
 });
 
@@ -238,6 +258,20 @@ router.get('/breed/weak/disease/:bagId', async (req, res) => {
         bName: bName,
         bagMinAge: bagMinAge,
         bagMaxAge: bagMaxAge
+    });
+});
+
+
+router.get('/inoculation', (req, res) => {
+    res.render('index', { 
+        menu: 'inoculation'
+    });
+});
+
+
+router.get('/food_nutrient/category', (req, res) => {
+    res.render('index', { 
+        menu: 'food_nutrient_category'
     });
 });
 

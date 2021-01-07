@@ -10,6 +10,7 @@ const buttonFoodSave = document.querySelector('.js-button-food-save');
 const inputHiddenFId = document.querySelector('.js-input-hidden-f-id');
 const divNutrientList = document.querySelector('.js-div-nutrient-list');
 const buttonNutrientAdd = document.querySelector('.js-button-nutrient-add');
+const selectCategory = document.querySelector('.js-select-category');
 
 
 function getFoodList() {
@@ -64,6 +65,7 @@ function getFood(fId) {
 
         inputName.value = food.f_name;
         textareaDesc.value = food.f_desc;
+        selectCategory.value = food.f_fnc_id;
 
         let keywordList = food.f_keyword.split('|');
 
@@ -168,6 +170,7 @@ function saveFood(mode, callback) {
             desc: desc,
             keyword: keyword,
             nutrients: nutrientList,
+            fncId: selectCategory.value,
             fId: (mode === 'MODIFY') ? inputHiddenFId.value : ''
         })
     })

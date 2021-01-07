@@ -6,6 +6,7 @@ const textareaManagement = document.querySelector('.js-textarea-management');
 const buttonCancel = document.querySelector('.js-button-cancel');
 const buttonDiseaseAdd = document.querySelector('.js-button-disease-add');
 const buttonDiseaseSave = document.querySelector('.js-button-disease-save');
+const selectOperation = document.querySelector('.js-select-operation');
 const inputHiddenDId = document.querySelector('.js-input-hidden-d-id');
 const divFoodNutrientList = document.querySelector('.js-div-food-nutrient-list');
 const buttonFoodNutrientAdd = document.querySelector('.js-button-food-nutrient-add');
@@ -69,6 +70,7 @@ function getDisease(dId) {
         selectBodyPart.value = disease.d_bp_id;
         textareaReason.value = disease.d_reason;
         textareaManagement.value = disease.d_management;
+        selectOperation.value = disease.d_operation;
 
         let keywordList = disease.d_keyword.split('|');
 
@@ -198,6 +200,7 @@ function saveDisease(mode, callback) {
             management: management,
             nutrientFoodData: foodNutrientList,
             symptomData: symptomList,
+            operation: selectOperation.value,
             dId: (mode === 'MODIFY') ? inputHiddenDId.value : ''
         })
     })
