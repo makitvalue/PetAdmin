@@ -1745,6 +1745,7 @@ router.post('/inoculation/delete', async (req, res) => {
         let query = 'DELETE FROM t_inoculations WHERE in_id = ?';
         let params = [inId];
         await pool.query(query, params); 
+        res.json({status: 'OK'});
 
     } catch (error) {
         console.log(error);
@@ -1752,6 +1753,9 @@ router.post('/inoculation/delete', async (req, res) => {
     }
 
 });
+
+
+//
 
 
 //이미지 저장 
