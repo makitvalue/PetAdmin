@@ -1742,7 +1742,7 @@ router.post('/inoculation/delete', async (req, res) => {
             return;
         }
 
-        let query = 'DELETE FROM t_inoculations WHERE inId = ?';
+        let query = 'DELETE FROM t_inoculations WHERE in_id = ?';
         let params = [inId];
         await pool.query(query, params); 
 
