@@ -7,6 +7,7 @@ var imageSize = require('image-size');
 
 // const getConnection = require('../lib/database');
 const pool = require('../lib/database');
+const { getConnection } = require('../lib/database');
 // router.get('/test', async (req, res) => {
 //     try {
 //         let query = "SELECT * FROM t_crawlers WHERE c_id = ?";
@@ -104,6 +105,7 @@ router.post('/nutrient/save', async (req, res) => {
         let effect = req.body.effect;
         let desc = req.body.desc;
         let descOver = req.body.descOver; 
+        let fncId = req.body.fncId;
     
         if (f.isNone(mode) || f.isNone(name) || f.isNone(keyword) || f.isNone(effect)) {
             res.json({status: 'ERR_WRONG_PARAM'});
@@ -111,10 +113,10 @@ router.post('/nutrient/save', async (req, res) => {
         }
 
         let query = "";
-        let params = [name, keyword, effect, desc, descOver];
+        let params = [name, keyword, effect, desc, descOver, fncId];
     
         if (mode === 'ADD') {
-            query += "INSERT INTO t_nutrients(n_name, n_keyword, n_effect, n_desc, n_desc_over) VALUES(?, ?, ?, ?, ?)";
+            query += "INSERT INTO t_nutrients(n_name, n_keyword, n_effect, n_desc, n_desc_over, n_fnc_id) VALUES(?, ?, ?, ?, ?, ?)";
         } else if (mode === 'MODIFY') {
             nId = req.body.nId;
             if (f.isNone(nId)) {
@@ -122,8 +124,7 @@ router.post('/nutrient/save', async (req, res) => {
                 return;
             }
             query += "UPDATE t_nutrients SET";
-            query += " n_name = ?, n_keyword = ?, n_effect = ?, n_desc = ?,";
-            query += " n_desc_over = ?";
+            query += " n_name = ?, n_keyword = ?, n_effect = ?, n_desc = ?, n_desc_over = ?, n_fnc_id = ?";
             query += " WHERE n_id = ?";
             params.push(nId);
         } else {
@@ -343,6 +344,7 @@ router.post('/food/save', async (req ,res) => {
         let keyword = req.body.keyword;
         let desc = req.body.desc;
         let nutrientList = req.body.nutrients;
+        let fncId = req.body.fncId;
 
         if (f.isNone(mode) || f.isNone(name) || f.isNone(keyword)) {
             res.json({status: 'ERR_WRONG_PARAM'});
@@ -350,12 +352,12 @@ router.post('/food/save', async (req ,res) => {
         }
 
         let query = "";
-        let params = [name, keyword, desc];
+        let params = [name, keyword, desc, fncId];
         let result;
         let fields;
 
         if (mode === 'ADD') {
-            query += "INSERT INTO t_foods(f_name, f_keyword, f_desc) VALUES(?, ?, ?)";
+            query += "INSERT INTO t_foods(f_name, f_keyword, f_desc, f_fnc_id) VALUES(?, ?, ?, ?)";
         } else if (mode === 'MODIFY') {
             fId = req.body.fId;
             if (f.isNone(fId)) {
@@ -363,7 +365,7 @@ router.post('/food/save', async (req ,res) => {
                 return;
             }
             query += "UPDATE t_foods SET";
-            query += " f_name = ?, f_keyword = ?, f_desc = ?";
+            query += " f_name = ?, f_keyword = ?, f_desc = ?, f_fnc_id = ? ";
             query += " WHERE f_id = ?";
             params.push(fId);
         } else {
@@ -551,20 +553,21 @@ router.post('/disease/save', async (req, res) => {
         let management = req.body.management;
         let nutrientFoodData = req.body.nutrientFoodData;
         let symptomData = req.body.symptomData;
+        let operation = req.body.operation;
         
-        if (f.isNone(mode) || f.isNone(name) || f.isNone(keyword) || f.isNone(bpId)) {
+        if (f.isNone(mode) || f.isNone(name) || f.isNone(keyword) || f.isNone(bpId) || f.isNone(operation)) {
             res.json({status: 'ERR_WRONG_PARAM'});
             return;
         }
 
         let query = '';
-        let params = [name, keyword, bpId, reason, management];
+        let params = [name, keyword, bpId, reason, management, operation];
         let result;
         let fields;
 
         //저장인지 수정인지 확인
         if (mode === 'ADD') { //추가일떄
-            query += "INSERT INTO t_diseases(d_name, d_keyword, d_bp_id, d_reason, d_management) VALUES(?, ?, ?, ?, ?)";
+            query += "INSERT INTO t_diseases(d_name, d_keyword, d_bp_id, d_reason, d_management, d_operation) VALUES(?, ?, ?, ?, ?, ?)";
         } else if (mode === 'MODIFY') { //수정일때
             dId = req.body.dId;
             if (f.isNone(dId)) {
@@ -572,7 +575,7 @@ router.post('/disease/save', async (req, res) => {
                 return;
             }
             query += "UPDATE t_diseases SET";
-            query += " d_name = ?, d_keyword = ?, d_bp_id = ?, d_reason = ?, d_management = ?";
+            query += " d_name = ?, d_keyword = ?, d_bp_id = ?, d_reason = ?, d_management = ?, d_operation = ?";
             query += " WHERE d_id = ?";
             params.push(dId);
         } else {
@@ -697,9 +700,6 @@ router.post('/disease/save', async (req, res) => {
         console.log(error);
         res.json({status: 'ERROR_SERVER'}); 
     }
-
-    
-
 
 });
 
@@ -1191,7 +1191,7 @@ router.post('/product/delete', async (req, res) => {
            
         let existCheckParams = [pId];
         let [result, fields] = await pool.query(existCheckQuery, existCheckParams);
-
+        
         let thumbnailPath = result[0].p_thumbnail;
         let originThumbnailPath = `${thumbnailPath.split('.')[0]}_original.${thumbnailPath.split('.')[1]}`;
         
@@ -1464,21 +1464,22 @@ router.post('/breed/save', async (req, res) => {
     try {
         let mode = req.body.mode; // ADD, MODIFY
         let bId;
+        let bType = req.body.bType; 
         let name = req.body.name;
         let keyword = req.body.keyword;
         let breedAgeGroups = req.body.breedAgeGroups;
         let deleteBreedAgeGroups = req.body.deleteBreedAgeGroups;
     
-        if (f.isNone(name) || f.isNone(keyword)) {
+        if (f.isNone(name) || f.isNone(keyword) || f.isNone(bType)) {
             res.json({status: 'ERR_WRONG_PARAM'});
             return;
         }
     
         let query = '';
-        let params = [name, keyword];
+        let params = [name, keyword, bType];
     
         if (mode === 'ADD') {
-            query = 'INSERT INTO t_breeds(b_name, b_keyword) VALUES(?, ?) ';
+            query = 'INSERT INTO t_breeds(b_name, b_keyword, b_type) VALUES(?, ?, ?) ';
         } else if (mode === 'MODIFY') {
             bId = req.body.bId;
             if (f.isNone(bId)) {
@@ -1488,7 +1489,8 @@ router.post('/breed/save', async (req, res) => {
     
             query = "UPDATE t_breeds SET";
             query += " b_name = ?,";
-            query += " b_keyword = ?";
+            query += " b_keyword = ?,";
+            query += " b_type = ?";
             query += " WHERE b_id = ?";
             params.push(bId);
         } else {
@@ -1670,6 +1672,182 @@ router.post('/breed/weak/disease/modify', async (req, res) => {
 });
 
 
+//전체 접종테이블 조회
+router.get('/inoculation/get/all', async (req, res) => {
+    try {
+        let query = "SELECT * FROM t_inoculations";
+        let [result, fields] = await pool.query(query);
+        res.json({status: 'OK', result: result});
+    } catch (error) {
+        console.log(error);
+        res.json({status: 'ERROR_SERVER'}); 
+    }
+});
+//접종테이블 저장 (추가, 수정)
+router.post('/inoculation/save', async (req, res) => {
+    try {
+        let inId;
+        let mode = req.body.mode;
+        let name = req.body.name;
+
+        if (f.isNone(mode) || f.isNone(name)) {
+            res.json({status: 'ERR_WRONG_PARAM'});
+            return;
+        }
+
+        if (mode === 'ADD') {
+            let query = 'INSERT INTO t_inoculations(in_name) VALUES(?)';
+            let params = [name];
+            await pool.query(query, params);
+            res.json({status: 'OK'});
+
+        } else if (mode === 'MODIFY') {
+            inId = req.body.inId;
+            if (f.isNone(inId)) {
+                res.json({status: 'ERR_WRONG_PARAM'});
+                return;
+            }
+
+            let query = 'UPDATE t_inoculations SET in_name = ? WHERE in_id = ?';
+            let params = [name, inId];
+            await pool.query(query, params);
+            res.json({status: 'OK'});
+
+        } else {
+            res.json({status: 'ERR_WRONG_MODE'});
+            return;
+        }
+        
+
+    } catch (error) {
+        console.log(error);
+        res.json({status: 'ERROR_SERVER'});  
+    }
+});
+//접종테이블 삭제
+router.post('/inoculation/delete', async (req, res) => {
+    try {
+        let inId = req.body.inId;
+
+        if (f.isNone(inId)) {
+            res.json({status: 'ERR_WRONG_PARAM'});
+            return;
+        }
+
+        let existCheckQuery = 'SELECT * FROM t_maps_pet_inoculation WHERE mpin_in_id = ?';
+        let existCheckParams = [inId];
+        [result, fields] = await pool.query(existCheckQuery, existCheckParams);
+
+        if (result.length > 0) {
+            res.json({status: 'ERR_EXISTS_PET'});
+            return;
+        }
+
+        let query = 'DELETE FROM t_inoculations WHERE in_id = ?';
+        let params = [inId];
+        await pool.query(query, params); 
+        res.json({status: 'OK'});
+
+    } catch (error) {
+        console.log(error);
+        res.json({status: 'ERROR_SERVER'}); 
+    }
+
+});
+
+
+//전체 음식&영양소 카테고리 가져오기
+router.get('/food/nutrient/category/get/all', async (req, res) => {
+    try {
+        let query = "SELECT * FROM t_food_nutrient_categories";
+        let [result, fields] = await pool.query(query);
+        res.json({status: 'OK', result: result});
+    } catch (error) {
+        console.log(error);
+        res.json({status: 'ERROR_SERVER'}); 
+    }
+});
+//음식&영양소 카테고리 저장 (추가, 수정)
+router.post('/food/nutrient/category/save', async (req, res) => {
+    try {
+        let fncId;
+        let mode = req.body.mode;
+        let name = req.body.name;
+
+        if (f.isNone(mode) || f.isNone(name)) {
+            res.json({status: 'ERR_WRONG_PARAM'});
+            return;
+        }
+
+        if (mode === 'ADD') {
+            let query = 'INSERT INTO t_food_nutrient_categories(fnc_name) VALUES(?)';
+            let params = [name];
+            await pool.query(query, params);
+            res.json({status: 'OK'});
+
+        } else if (mode === 'MODIFY') {
+            fncId = req.body.fncId;
+            if (f.isNone(fncId)) {
+                res.json({status: 'ERR_WRONG_PARAM'});
+                return;
+            }
+
+            let query = 'UPDATE t_food_nutrient_categories SET fnc_name = ? WHERE fnc_id = ?';
+            let params = [name, fncId];
+            await pool.query(query, params);
+            res.json({status: 'OK'});
+
+        } else {
+            res.json({status: 'ERR_WRONG_MODE'});
+            return;
+        }
+        
+
+    } catch (error) {
+        console.log(error);
+        res.json({status: 'ERROR_SERVER'});  
+    }
+});
+//음식&영양소 카테고리 삭제
+router.post('/food/nutrient/category/delete', async (req, res) => {
+    let fncId = req.body.fncId;
+
+    if (f.isNone(fncId)) {
+        res.json({stauts: 'ERR_WRONG_PARAM'});
+        return;
+    }
+
+    let existCheckQuery = 'SELECT * FROM t_food_nutrient_categories AS fncTab';
+    existCheckQuery += ' LEFT JOIN (SELECT n_id, COUNT(*) AS nCnt FROM t_nutrients GROUP BY n_id) AS nTab';
+        existCheckQuery += ' ON nTab.n_id = fncTab.fnc_id';
+    existCheckQuery += ' LEFT JOIN (SELECT f_id, COUNT(*) AS fCnt FROM t_foods GROUP BY f_id) AS fTab';
+        existCheckQuery += ' ON fTab.f_id = fncTab.fnc_id';
+    existCheckQuery += ' WHERE fncTab.fnc_id = ?';
+
+    let existCheckParams = [fncId];
+
+    let [result, fields] = await pool.query(existCheckQuery, existCheckParams);
+    
+    if (result[0].nCnt > 0) {
+        res.json({status: 'ERR_EXISTS_NUTRIENT'});
+        return;
+    }
+
+    if (result[0].fCnt > 0) {
+        res.json({status: 'ERR_EXISTS_FOOD'});
+        return; 
+    }
+
+    let query = 'DELETE FROM t_food_nutrient_categories WHERE fnc_id = ?';
+    let params = [fncId];
+    await pool.query(query, params);
+
+    res.json({status: 'OK'});
+
+
+});
+
+
 //이미지 저장 
 router.post('/upload/image', async (req, res) => {
     let form = new formidable.IncomingForm();
@@ -1734,7 +1912,8 @@ router.post('/upload/image', async (req, res) => {
                     }
                     let [result, fields] = await pool.query(query, params);
     
-                } else {
+                } 
+                 else {
                     // INSERT images
                     let query = "INSERT INTO t_images (i_type, i_path, i_target_id, i_data_type) VALUES (?, ?, ?, ?)";
                     let params = [type, reImagePath, targetId, dataType];

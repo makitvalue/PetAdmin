@@ -31,6 +31,10 @@
         <link rel="stylesheet" type="text/css" href="/css/product.css" />
     <% } else if (menu == 'breed' || menu == 'breed_add' || menu == 'breed_detail' || menu == 'breed_weak_disease') { %>
         <link rel="stylesheet" type="text/css" href="/css/breed.css" />
+    <% } else if (menu == 'inoculation') { %>
+        <link rel="stylesheet" type="text/css" href="/css/inoculation.css" />
+    <% } else if (menu == 'food_nutrient_category') { %>
+        <link rel="stylesheet" type="text/css" href="/css/food_nutrient_category.css" />
     <% } %>
 </head>
 <body>
@@ -47,6 +51,7 @@
         <a href="/"><div class="main-menu">홈</div></a>
         <div class="main-menu">데이터 관리</div>
         <ul class="sub-menu">
+            <a href="/food_nutrient/category"><li>음식/영양소 카테고리</li></a>
             <a href="/nutrient"><li>영양소</li></a>
             <a href="/food"><li>음식</li></a>
             <a href="/disease"><li>질병</li></a>
@@ -55,6 +60,7 @@
             <a href="/product/brand"><li>제품 브랜드</li></a>
             <a href="/product"><li>제품</li></a>
             <a href="/breed"><li>견종</li></a>
+            <a href="/inoculation"><li>접종</li></a>
         </ul>
         <a href="/user"><div class="main-menu">사용자 관리</div></a>
     </nav>
@@ -114,6 +120,12 @@
         <% include ./breed_detail %>
     <% } else if (menu == 'breed_weak_disease') { %> 
         <% include ./breed_weak_disease %>
+
+    <% } else if (menu == 'inoculation') { %> 
+        <% include ./inoculation %>
+
+    <% } else if (menu == 'food_nutrient_category') { %> 
+        <% include ./food_nutrient_category %>
     <% } %>
 
     </article>
@@ -142,6 +154,10 @@
         <script src="/js/product.js"></script>
     <% } else if (menu == 'breed' || menu == 'breed_add' || menu == 'breed_detail' || menu == 'breed_weak_disease') { %>
         <script src="/js/breed.js"></script>
+    <% } else if (menu == 'inoculation') { %>
+        <script src="/js/inoculation.js"></script>
+    <% } else if (menu == 'food_nutrient_category') { %>
+        <script src="/js/food_nutrient_category.js"></script>
     <% } %>
 
 </body>

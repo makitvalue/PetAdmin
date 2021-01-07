@@ -8,6 +8,7 @@ const buttonCancel = document.querySelector('.js-button-cancel');
 const buttonNutrientAdd = document.querySelector('.js-button-nutrient-add');
 const buttonNutrientSave = document.querySelector('.js-button-nutrient-save');
 const inputHiddenNId = document.querySelector('.js-input-hidden-n-id');
+const selectCategory = document.querySelector('.js-select-category');
 
 
 function getNutrientList() {
@@ -93,6 +94,7 @@ function getNutrient(nId) {
         selectEffect.value = nutrient.n_effect;
         textareaDesc.value = nutrient.n_desc;
         textareaDescOver.value = nutrient.n_desc_over;
+        selectCategory.value = nutrient.n_fnc_id;
 
         let keywordList = nutrient.n_keyword.split('|');
 
@@ -145,6 +147,7 @@ function saveNutrient(mode, callback) {
             desc: desc,
             descOver: descOver,
             keyword: keyword,
+            fncId: selectCategory.value,
             nId: (mode === 'MODIFY') ? inputHiddenNId.value : ''
         })
     })
