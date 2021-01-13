@@ -345,6 +345,7 @@ router.post('/food/save', async (req ,res) => {
         let desc = req.body.desc;
         let nutrientList = req.body.nutrients;
         let fncId = req.body.fncId;
+        let edible = req.body.edible;
 
         if (f.isNone(mode) || f.isNone(name) || f.isNone(keyword)) {
             res.json({status: 'ERR_WRONG_PARAM'});
@@ -352,12 +353,12 @@ router.post('/food/save', async (req ,res) => {
         }
 
         let query = "";
-        let params = [name, keyword, desc, fncId];
+        let params = [name, keyword, desc, fncId, edible];
         let result;
         let fields;
 
         if (mode === 'ADD') {
-            query += "INSERT INTO t_foods(f_name, f_keyword, f_desc, f_fnc_id) VALUES(?, ?, ?, ?)";
+            query += "INSERT INTO t_foods(f_name, f_keyword, f_desc, f_fnc_id, f_edible) VALUES(?, ?, ?, ?, ?)";
         } else if (mode === 'MODIFY') {
             fId = req.body.fId;
             if (f.isNone(fId)) {
@@ -365,7 +366,7 @@ router.post('/food/save', async (req ,res) => {
                 return;
             }
             query += "UPDATE t_foods SET";
-            query += " f_name = ?, f_keyword = ?, f_desc = ?, f_fnc_id = ? ";
+            query += " f_name = ?, f_keyword = ?, f_desc = ?, f_fnc_id = ?, f_edible = ? ";
             query += " WHERE f_id = ?";
             params.push(fId);
         } else {
