@@ -102,20 +102,20 @@ router.post('/nutrient/save', async (req, res) => {
         let nId;
         let name = req.body.name;
         let keyword = req.body.keyword;
-        let effect = req.body.effect;
         let desc = req.body.desc;
         let descOver = req.body.descOver; 
+        let descShort = req.body.descShort;
     
-        if (f.isNone(mode) || f.isNone(name) || f.isNone(keyword) || f.isNone(effect)) {
+        if (f.isNone(mode) || f.isNone(name) || f.isNone(keyword)) {
             res.json({status: 'ERR_WRONG_PARAM'});
             return;
         }
 
         let query = "";
-        let params = [name, keyword, effect, desc, descOver];
+        let params = [name, keyword, desc, descOver, descShort];
     
         if (mode === 'ADD') {
-            query += "INSERT INTO t_nutrients(n_name, n_keyword, n_effect, n_desc, n_desc_over) VALUES(?, ?, ?, ?, ?)";
+            query += "INSERT INTO t_nutrients(n_name, n_keyword, n_desc, n_desc_over, n_desc_short) VALUES(?, ?, ?, ?, ?)";
         } else if (mode === 'MODIFY') {
             nId = req.body.nId;
             if (f.isNone(nId)) {
@@ -123,7 +123,7 @@ router.post('/nutrient/save', async (req, res) => {
                 return;
             }
             query += "UPDATE t_nutrients SET";
-            query += " n_name = ?, n_keyword = ?, n_effect = ?, n_desc = ?, n_desc_over = ?";
+            query += " n_name = ?, n_keyword = ?, n_desc = ?, n_desc_over = ?, n_desc_short = ?";
             query += " WHERE n_id = ?";
             params.push(nId);
         } else {
@@ -140,8 +140,6 @@ router.post('/nutrient/save', async (req, res) => {
         console.log(error);
         res.json({status: 'ERROR_SERVER'}); 
     }
-
-    
 
 });
 //영양소 삭제 
@@ -1599,7 +1597,6 @@ router.post('/breed/delete', async (req, res) => {
         console.log(error);
         res.json({status: 'ERROR_SERVER'}); 
     }
-
 
 });
 
