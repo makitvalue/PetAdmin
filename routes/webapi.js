@@ -1822,9 +1822,9 @@ router.post('/food/category1/delete', async (req, res) => {
     }
 
     let existCheckQuery = 'SELECT * FROM t_food_categories1 AS fc1Tab';
-    existCheckQuery += ' LEFT JOIN (SELECT fc2_id, COUNT(*) AS fc2Cnt FROM t_food_categories2 GROUP BY fc2_id) AS fc2Tab';
+    existCheckQuery += ' LEFT JOIN (SELECT *, COUNT(*) AS fc2Cnt FROM t_food_categories2 GROUP BY fc2_id) AS fc2Tab';
         existCheckQuery += ' ON fc2Tab.fc2_fc1_id = fc1Tab.fc1_id';
-    existCheckQuery += ' LEFT JOIN (SELECT f_id, COUNT(*) AS fCnt FROM t_foods GROUP BY f_id) AS fTab';
+    existCheckQuery += ' LEFT JOIN (SELECT *, COUNT(*) AS fCnt FROM t_foods GROUP BY f_id) AS fTab';
         existCheckQuery += ' ON fTab.f_fc1_id = fc1Tab.fc1_id';
     existCheckQuery += ' WHERE fc1Tab.fc1_id = ?';
 
@@ -1901,7 +1901,7 @@ router.post('/food/category2/delete', async (req, res) => {
     }
 
     let existCheckQuery = 'SELECT * FROM t_food_categories2 AS fc2Tab';
-    existCheckQuery += ' LEFT JOIN (SELECT f_id, COUNT(*) AS fCnt FROM t_foods GROUP BY f_id) AS fTab';
+    existCheckQuery += ' LEFT JOIN (SELECT *, COUNT(*) AS fCnt FROM t_foods GROUP BY f_id) AS fTab';
         existCheckQuery += ' ON fTab.f_fc2_id = fc2Tab.fc2_id';
     existCheckQuery += ' WHERE fc2Tab.fc2_id = ?';
 
