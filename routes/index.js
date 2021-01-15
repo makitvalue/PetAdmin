@@ -17,28 +17,28 @@ router.get('/nutrient', (req, res) => {
 });
 
 
-router.get('/nutrient/add', async (req, res) => {
-    let query = "SELECT * FROM t_food_nutrient_categories";
-    let [result, fields] = await pool.query(query);
+router.get('/nutrient/add', (req, res) => {
+    // let query = "SELECT * FROM t_food_nutrient_categories";
+    // let [result, fields] = await pool.query(query);
 
     res.render('index', { 
-        menu: 'nutrient_add',
+        menu: 'nutrient_add'
 
-        foodNutrientCategoryList: result
+        // foodNutrientCategoryList: result
     });
 });
 
 
-router.get('/nutrient/detail/:nId', async (req, res) => {
-    let query = "SELECT * FROM t_food_nutrient_categories";
-    let [result, fields] = await pool.query(query);
+router.get('/nutrient/detail/:nId', (req, res) => {
+    // let query = "SELECT * FROM t_food_nutrient_categories";
+    // let [result, fields] = await pool.query(query);
 
     res.render('index', { 
         menu: 'nutrient_detail',
 
-        nId: req.params.nId,
+        nId: req.params.nId
 
-        foodNutrientCategoryList: result
+        // foodNutrientCategoryList: result
     });
 });
 
@@ -51,27 +51,67 @@ router.get('/food', (req, res) => {
 
 
 router.get('/food/add', async (req, res) => {
-    let query = "SELECT * FROM t_food_nutrient_categories";
+    let query = "SELECT * FROM t_food_categories1 AS fc1Tab";
+    query += " LEFT JOIN (SELECT fc2_fc1_id, GROUP_CONCAT(CONCAT_WS(':', fc2_id, fc2_name) SEPARATOR '|') AS fc2_info FROM t_food_categories2 GROUP BY fc2_fc1_id) AS fc2Tab";
+    query += " ON fc1Tab.fc1_id = fc2Tab.fc2_fc1_id;";
+    
     let [result, fields] = await pool.query(query);
 
-    res.render('index', { 
+    let foodCategory2List = [];
+    for (let i = 0; i < result.length; i++) {
+        let fc1 = result[i];
+        let fc2Info = fc1.fc2_info;
+        let data = { fc1Id: fc1.fc1_id, fc2List: [] };
+        if (fc2Info) {
+            for (let j = 0; j < fc2Info.split('|').length; j++) {
+                let fc2Str = fc2Info.split('|')[j];
+                let fc2Id = fc2Str.split(':')[0];
+                let fc2Name = fc2Str.split(':')[1];
+                data.fc2List.push({ fc2Id: fc2Id, fc2Name: fc2Name });
+            }
+        }
+        foodCategory2List.push(data);
+    }
+
+    res.render('index', {
         menu: 'food_add',
 
-        foodNutrientCategoryList: result
+        foodCategory1List: result,
+        foodCategory2List: JSON.stringify(foodCategory2List)
     });
 });
 
 
 router.get('/food/detail/:fId', async (req, res) => {
-    let query = "SELECT * FROM t_food_nutrient_categories";
+    let query = "SELECT * FROM t_food_categories1 AS fc1Tab";
+    query += " LEFT JOIN (SELECT fc2_fc1_id, GROUP_CONCAT(CONCAT_WS(':', fc2_id, fc2_name) SEPARATOR '|') AS fc2_info FROM t_food_categories2 GROUP BY fc2_fc1_id) AS fc2Tab";
+    query += " ON fc1Tab.fc1_id = fc2Tab.fc2_fc1_id;";
+    
     let [result, fields] = await pool.query(query);
+
+    let foodCategory2List = [];
+    for (let i = 0; i < result.length; i++) {
+        let fc1 = result[i];
+        let fc2Info = fc1.fc2_info;
+        let data = { fc1Id: fc1.fc1_id, fc2List: [] };
+        if (fc2Info) {
+            for (let j = 0; j < fc2Info.split('|').length; j++) {
+                let fc2Str = fc2Info.split('|')[j];
+                let fc2Id = fc2Str.split(':')[0];
+                let fc2Name = fc2Str.split(':')[1];
+                data.fc2List.push({ fc2Id: fc2Id, fc2Name: fc2Name });
+            }
+        }
+        foodCategory2List.push(data);
+    }
 
     res.render('index', { 
         menu: 'food_detail',
 
         fId: req.params.fId,
 
-        foodNutrientCategoryList: result
+        foodCategory1List: result,
+        foodCategory2List: JSON.stringify(foodCategory2List)
     });
 });
 
@@ -274,6 +314,27 @@ router.get('/food_nutrient/category', (req, res) => {
         menu: 'food_nutrient_category'
     });
 });
+
+
+router.get('/food/category', (req, res) => {
+    res.render('index', { 
+        menu: 'food_category'
+    });
+});
+
+
+// router.get('/food/category/1', (req, res) => {
+//     res.render('index', { 
+//         menu: 'food_category1'
+//     });
+// });
+
+
+// router.get('/food/category/2', (req, res) => {
+//     res.render('index', { 
+//         menu: 'food_category2'
+//     });
+// });
 
 
 module.exports = router;

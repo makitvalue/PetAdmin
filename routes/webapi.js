@@ -102,21 +102,20 @@ router.post('/nutrient/save', async (req, res) => {
         let nId;
         let name = req.body.name;
         let keyword = req.body.keyword;
-        let effect = req.body.effect;
         let desc = req.body.desc;
         let descOver = req.body.descOver; 
-        let fncId = req.body.fncId;
+        let descShort = req.body.descShort;
     
-        if (f.isNone(mode) || f.isNone(name) || f.isNone(keyword) || f.isNone(effect) || f.isNone(fncId)) {
+        if (f.isNone(mode) || f.isNone(name) || f.isNone(keyword)) {
             res.json({status: 'ERR_WRONG_PARAM'});
             return;
         }
 
         let query = "";
-        let params = [name, keyword, effect, desc, descOver, fncId];
+        let params = [name, keyword, desc, descOver, descShort];
     
         if (mode === 'ADD') {
-            query += "INSERT INTO t_nutrients(n_name, n_keyword, n_effect, n_desc, n_desc_over, n_fnc_id) VALUES(?, ?, ?, ?, ?, ?)";
+            query += "INSERT INTO t_nutrients(n_name, n_keyword, n_desc, n_desc_over, n_desc_short) VALUES(?, ?, ?, ?, ?)";
         } else if (mode === 'MODIFY') {
             nId = req.body.nId;
             if (f.isNone(nId)) {
@@ -124,7 +123,7 @@ router.post('/nutrient/save', async (req, res) => {
                 return;
             }
             query += "UPDATE t_nutrients SET";
-            query += " n_name = ?, n_keyword = ?, n_effect = ?, n_desc = ?, n_desc_over = ?, n_fnc_id = ?";
+            query += " n_name = ?, n_keyword = ?, n_desc = ?, n_desc_over = ?, n_desc_short = ?";
             query += " WHERE n_id = ?";
             params.push(nId);
         } else {
@@ -141,8 +140,6 @@ router.post('/nutrient/save', async (req, res) => {
         console.log(error);
         res.json({status: 'ERROR_SERVER'}); 
     }
-
-    
 
 });
 //영양소 삭제 
@@ -344,21 +341,24 @@ router.post('/food/save', async (req ,res) => {
         let keyword = req.body.keyword;
         let desc = req.body.desc;
         let nutrientList = req.body.nutrients;
-        let fncId = req.body.fncId;
+
+        let fc1Id = req.body.fc1Id;
+        let fc2Id = req.body.fc2Id;
         let edible = req.body.edible;
 
-        if (f.isNone(mode) || f.isNone(name) || f.isNone(keyword)) {
+        if (f.isNone(mode) || f.isNone(name) || f.isNone(keyword) || f.isNone(fc1Id) || f.isNone(fc2Id)) {
             res.json({status: 'ERR_WRONG_PARAM'});
             return;
         }
 
         let query = "";
-        let params = [name, keyword, desc, fncId, edible];
+        let params = [name, keyword, desc, fc1Id, fc2Id, edible];
+
         let result;
         let fields;
 
         if (mode === 'ADD') {
-            query += "INSERT INTO t_foods(f_name, f_keyword, f_desc, f_fnc_id, f_edible) VALUES(?, ?, ?, ?, ?)";
+            query += "INSERT INTO t_foods(f_name, f_keyword, f_desc, f_fc1_id, f_fc2_id, f_edible) VALUES(?, ?, ?, ?, ?, ?)";
         } else if (mode === 'MODIFY') {
             fId = req.body.fId;
             if (f.isNone(fId)) {
@@ -366,9 +366,10 @@ router.post('/food/save', async (req ,res) => {
                 return;
             }
             query += "UPDATE t_foods SET";
-            query += " f_name = ?, f_keyword = ?, f_desc = ?, f_fnc_id = ?, f_edible = ? ";
+            query += " f_name = ?, f_keyword = ?, f_desc = ?, f_fc1_id = ?, f_fc2_id = ?, f_edible = ? ";
             query += " WHERE f_id = ?";
             params.push(fId);
+
         } else {
             res.json({status: 'ERR_WRONG_MODE'});
             return;
@@ -1597,7 +1598,6 @@ router.post('/breed/delete', async (req, res) => {
         res.json({status: 'ERROR_SERVER'}); 
     }
 
-
 });
 
 
@@ -1757,10 +1757,13 @@ router.post('/inoculation/delete', async (req, res) => {
 });
 
 
-//전체 음식&영양소 카테고리 가져오기
-router.get('/food/nutrient/category/get/all', async (req, res) => {
+//전체 음식 카테고리1 가져오기
+router.get('/food/category1/get/all', async (req, res) => {
     try {
-        let query = "SELECT * FROM t_food_nutrient_categories";
+        let query = "SELECT * FROM t_food_categories1 AS fc1Tab";
+        query += " LEFT JOIN (SELECT fc2_fc1_id, GROUP_CONCAT(CONCAT_WS(':', fc2_id, fc2_name) SEPARATOR '|') AS fc2_info FROM t_food_categories2 GROUP BY fc2_fc1_id) AS fc2Tab";
+        query += " ON fc1Tab.fc1_id = fc2Tab.fc2_fc1_id;";
+        
         let [result, fields] = await pool.query(query);
         res.json({status: 'OK', result: result});
     } catch (error) {
@@ -1768,10 +1771,10 @@ router.get('/food/nutrient/category/get/all', async (req, res) => {
         res.json({status: 'ERROR_SERVER'}); 
     }
 });
-//음식&영양소 카테고리 저장 (추가, 수정)
-router.post('/food/nutrient/category/save', async (req, res) => {
+//음식 카테고리1 저장 (입력, 수정)
+router.post('/food/category1/save', async (req, res) => {
     try {
-        let fncId;
+        let fc1Id;
         let mode = req.body.mode;
         let name = req.body.name;
 
@@ -1781,20 +1784,20 @@ router.post('/food/nutrient/category/save', async (req, res) => {
         }
 
         if (mode === 'ADD') {
-            let query = 'INSERT INTO t_food_nutrient_categories(fnc_name) VALUES(?)';
+            let query = 'INSERT INTO t_food_categories1(fc1_name) VALUES(?)';
             let params = [name];
             await pool.query(query, params);
             res.json({status: 'OK'});
 
         } else if (mode === 'MODIFY') {
-            fncId = req.body.fncId;
-            if (f.isNone(fncId)) {
+            fc1Id = req.body.fc1Id;
+            if (f.isNone(fc1Id)) {
                 res.json({status: 'ERR_WRONG_PARAM'});
                 return;
             }
 
-            let query = 'UPDATE t_food_nutrient_categories SET fnc_name = ? WHERE fnc_id = ?';
-            let params = [name, fncId];
+            let query = 'UPDATE t_food_categories1 SET fc1_name = ? WHERE fc1_id = ?';
+            let params = [name, fc1Id];
             await pool.query(query, params);
             res.json({status: 'OK'});
 
@@ -1809,28 +1812,28 @@ router.post('/food/nutrient/category/save', async (req, res) => {
         res.json({status: 'ERROR_SERVER'});  
     }
 });
-//음식&영양소 카테고리 삭제
-router.post('/food/nutrient/category/delete', async (req, res) => {
-    let fncId = req.body.fncId;
+//음식 카테고리1 삭제
+router.post('/food/category1/delete', async (req, res) => {
+    let fc1Id = req.body.fc1Id;
 
-    if (f.isNone(fncId)) {
+    if (f.isNone(fc1Id)) {
         res.json({stauts: 'ERR_WRONG_PARAM'});
         return;
     }
 
-    let existCheckQuery = 'SELECT * FROM t_food_nutrient_categories AS fncTab';
-    existCheckQuery += ' LEFT JOIN (SELECT n_id, COUNT(*) AS nCnt FROM t_nutrients GROUP BY n_id) AS nTab';
-        existCheckQuery += ' ON nTab.n_id = fncTab.fnc_id';
-    existCheckQuery += ' LEFT JOIN (SELECT f_id, COUNT(*) AS fCnt FROM t_foods GROUP BY f_id) AS fTab';
-        existCheckQuery += ' ON fTab.f_id = fncTab.fnc_id';
-    existCheckQuery += ' WHERE fncTab.fnc_id = ?';
+    let existCheckQuery = 'SELECT * FROM t_food_categories1 AS fc1Tab';
+    existCheckQuery += ' LEFT JOIN (SELECT *, COUNT(*) AS fc2Cnt FROM t_food_categories2 GROUP BY fc2_id) AS fc2Tab';
+        existCheckQuery += ' ON fc2Tab.fc2_fc1_id = fc1Tab.fc1_id';
+    existCheckQuery += ' LEFT JOIN (SELECT *, COUNT(*) AS fCnt FROM t_foods GROUP BY f_id) AS fTab';
+        existCheckQuery += ' ON fTab.f_fc1_id = fc1Tab.fc1_id';
+    existCheckQuery += ' WHERE fc1Tab.fc1_id = ?';
 
-    let existCheckParams = [fncId];
+    let existCheckParams = [fc1Id];
 
     let [result, fields] = await pool.query(existCheckQuery, existCheckParams);
     
-    if (result[0].nCnt > 0) {
-        res.json({status: 'ERR_EXISTS_NUTRIENT'});
+    if (result[0].fc2Cnt > 0) {
+        res.json({status: 'ERR_EXISTS_CATEGORY2'});
         return;
     }
 
@@ -1839,13 +1842,87 @@ router.post('/food/nutrient/category/delete', async (req, res) => {
         return; 
     }
 
-    let query = 'DELETE FROM t_food_nutrient_categories WHERE fnc_id = ?';
-    let params = [fncId];
+    let query = 'DELETE FROM t_food_categories1 WHERE fc1_id = ?';
+    let params = [fc1Id];
     await pool.query(query, params);
 
     res.json({status: 'OK'});
+});
 
 
+//음식 카테고리2 저장 (입력, 수정)
+router.post('/food/category2/save', async (req, res) => {
+    try {
+        let fc1Id = req.body.fc1Id;
+        let fc2Id;
+        let mode = req.body.mode;
+        let name = req.body.name;
+
+        if (f.isNone(mode) || f.isNone(name)) {
+            res.json({status: 'ERR_WRONG_PARAM'});
+            return;
+        }
+        if (mode === 'ADD') {
+            if (f.isNone(fc1Id)) {
+                res.json({status: 'ERR_WRONG_PARAM'});
+                return;
+            }
+            let query = 'INSERT INTO t_food_categories2(fc2_name, fc2_fc1_id) VALUES(?, ?)';
+            let params = [name, fc1Id];
+            await pool.query(query, params);
+            res.json({status: 'OK'});
+
+        } else if (mode === 'MODIFY') {
+            fc2Id = req.body.fc2Id;
+            if (f.isNone(fc2Id)) {
+                res.json({status: 'ERR_WRONG_PARAM'});
+                return;
+            }
+
+            let query = 'UPDATE t_food_categories2 SET fc2_name = ? WHERE fc2_id = ?';
+            let params = [name, fc2Id];
+            await pool.query(query, params);
+            res.json({status: 'OK'});
+
+        } else {
+            res.json({status: 'ERR_WRONG_MODE'});
+            return;
+        }
+        
+
+    } catch (error) {
+        console.log(error);
+        res.json({status: 'ERROR_SERVER'});  
+    }
+});
+//음식 카테고리2 삭제
+router.post('/food/category2/delete', async (req, res) => {
+    let fc2Id = req.body.fc2Id;
+
+    if (f.isNone(fc2Id)) {
+        res.json({stauts: 'ERR_WRONG_PARAM'});
+        return;
+    }
+
+    let existCheckQuery = 'SELECT * FROM t_food_categories2 AS fc2Tab';
+    existCheckQuery += ' LEFT JOIN (SELECT *, COUNT(*) AS fCnt FROM t_foods GROUP BY f_id) AS fTab';
+        existCheckQuery += ' ON fTab.f_fc2_id = fc2Tab.fc2_id';
+    existCheckQuery += ' WHERE fc2Tab.fc2_id = ?';
+
+    let existCheckParams = [fc2Id];
+
+    let [result, fields] = await pool.query(existCheckQuery, existCheckParams);
+    
+    if (result[0].fCnt > 0) {
+        res.json({status: 'ERR_EXISTS_FOOD'});
+        return; 
+    }
+
+    let query = 'DELETE FROM t_food_categories2 WHERE fc2_id = ?';
+    let params = [fc2Id];
+    await pool.query(query, params);
+
+    res.json({status: 'OK'});
 });
 
 

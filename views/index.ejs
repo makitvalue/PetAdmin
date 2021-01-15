@@ -21,7 +21,7 @@
         <link rel="stylesheet" type="text/css" href="/css/main.css" />
     <% } else if (menu == 'nutrient' || menu == 'nutrient_add' || menu == 'nutrient_detail') { %>
         <link rel="stylesheet" type="text/css" href="/css/nutrient.css" />
-    <% } else if (menu == 'food' || menu == 'food_add' || menu == 'food_detail') { %>
+    <% } else if (menu == 'food' || menu == 'food_add' || menu == 'food_detail' || menu == 'food_category') { %>
         <link rel="stylesheet" type="text/css" href="/css/food.css" />
     <% } else if (menu == 'disease' || menu == 'disease_add' || menu == 'disease_detail') { %>
         <link rel="stylesheet" type="text/css" href="/css/disease.css" />
@@ -51,8 +51,9 @@
         <a href="/"><div class="main-menu">홈</div></a>
         <div class="main-menu">데이터 관리</div>
         <ul class="sub-menu">
-            <a href="/food_nutrient/category"><li>음식/영양소 카테고리</li></a>
+            <!-- <a href="/food_nutrient/category"><li>음식/영양소 카테고리</li></a> -->
             <a href="/nutrient"><li>영양소</li></a>
+            <a href="/food/category"><li>음식 카테고리</li></a>
             <a href="/food"><li>음식</li></a>
             <a href="/disease"><li>질병</li></a>
             <a href="/symptom"><li>증상</li></a>
@@ -86,6 +87,8 @@
         <% include ./food_add %>
     <% } else if (menu == 'food_detail') { %> 
         <% include ./food_detail %>
+    <% } else if (menu == 'food_category') { %> 
+        <% include ./food_category %>
 
     <% } else if (menu == 'disease') { %> 
         <% include ./disease %>
@@ -144,7 +147,7 @@
         <script src="/js/main.js"></script>
     <% } else if (menu == 'nutrient' || menu == 'nutrient_add' || menu == 'nutrient_detail') { %>
         <script src="/js/nutrient.js"></script>
-    <% } else if (menu == 'food' || menu == 'food_add' || menu == 'food_detail') { %>
+    <% } else if (menu == 'food' || menu == 'food_add' || menu == 'food_detail' || menu == 'food_category') { %>
         <script src="/js/food.js"></script>
     <% } else if (menu == 'disease' || menu == 'disease_add' || menu == 'disease_detail') { %>
         <script src="/js/disease.js"></script>

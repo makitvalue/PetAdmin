@@ -1,4 +1,6 @@
 <input class="js-input-hidden-f-id" type="hidden" value="<%= fId %>" />
+<input type="hidden" class="js-input-hidden-food-category-data" value="<%= foodCategory2List %>" />
+
 
 <div class="wrapper food detail">
     <h1 class="title">음식 상세</h1>
@@ -25,13 +27,20 @@
             <option value="N">불가능</option>
         </select>
     </div>
+    
+    <div class="form-box">
+        <p>상위 카테고리</p>
+        <select class="js-select-category1 default">
+            <% for (let i = 0; i < foodCategory1List.length; i++) { %>
+                <option value="<%= foodCategory1List[i].fc1_id %>"><%= foodCategory1List[i].fc1_name %></option>
+            <% } %>
+        </select>
+    </div>
 
     <div class="form-box">
-        <p>카테고리</p>
-        <select class="js-select-category default">
-            <% for (let i = 0; i < foodNutrientCategoryList.length; i++) { %>
-                <option value="<%= foodNutrientCategoryList[i].fnc_id %>"><%= foodNutrientCategoryList[i].fnc_name %></option>
-            <% } %>
+        <p>하위 카테고리</p>
+        <select class="js-select-category2 default">
+            
         </select>
     </div>
 
