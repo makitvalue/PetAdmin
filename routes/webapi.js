@@ -1858,11 +1858,15 @@ router.post('/food/category2/save', async (req, res) => {
         let mode = req.body.mode;
         let name = req.body.name;
 
-        if (f.isNone(mode) || f.isNone(name) || f.isNone(fc1Id)) {
+        if (f.isNone(mode) || f.isNone(name)) {
             res.json({status: 'ERR_WRONG_PARAM'});
             return;
         }
         if (mode === 'ADD') {
+            if (f.isNone(fc1Id)) {
+                res.json({status: 'ERR_WRONG_PARAM'});
+                return;
+            }
             let query = 'INSERT INTO t_food_categories2(fc2_name, fc2_fc1_id) VALUES(?, ?)';
             let params = [name, fc1Id];
             await pool.query(query, params);
@@ -1875,8 +1879,8 @@ router.post('/food/category2/save', async (req, res) => {
                 return;
             }
 
-            let query = 'UPDATE t_food_categories2 SET fc2_name = ?, fc2_fc1_id = ? WHERE fc2_id = ?';
-            let params = [name, fc1Id, fc2Id];
+            let query = 'UPDATE t_food_categories2 SET fc2_name = ? WHERE fc2_id = ?';
+            let params = [name, fc2Id];
             await pool.query(query, params);
             res.json({status: 'OK'});
 
