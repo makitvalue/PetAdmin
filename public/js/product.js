@@ -200,12 +200,20 @@ function saveProduct(mode, callback) {
         keywordList.push(buttonKeyword.innerText);
     });
 
-    if (keywordList.length == 0) {
-        alert('제품 검색어 키워드를 입력해주세요.');
-        removeSpinner('SAVE_PRODUCT');
-        removeOverlay('SAVE_PRODUCT');
-        return;
-    } 
+    let reName = removeSpace(name, '');
+    if (!keywordList.includes(name)) {
+        keywordList.push(name);
+    }
+    if (!keywordList.includes(reName)) {
+        keywordList.push(reName);
+    }
+
+    // if (keywordList.length == 0) {
+    //     alert('제품 검색어 키워드를 입력해주세요.');
+    //     removeSpinner('SAVE_PRODUCT');
+    //     removeOverlay('SAVE_PRODUCT');
+    //     return;
+    // }
 
     let keyword = keywordList.join('|');
 
@@ -1222,7 +1230,7 @@ function initProduct() {
                             selectedNIdList.push(parseInt(buttonNutrient.getAttribute('nId')));
                         });
 
-                        trHeader.innerHTML = '<th>ID</th><th>이름</th><th>효과</th>';
+                        trHeader.innerHTML = '<th>ID</th><th>이름</th>';
                         getNutrientList((nutrientList) => {
                             let html = '';
                             for (let i = 0; i < nutrientList.length; i++) {
@@ -1230,7 +1238,7 @@ function initProduct() {
                                 html += '<tr class="js-tr-nutrient ' + ((selectedNIdList.indexOf(nutrient.n_id) === -1) ? '': 'selected') + '" nId="' + nutrient.n_id + '" nName="' + nutrient.n_name + '" >';
                                 html +=     '<td>' + nutrient.n_id + '</td>';
                                 html +=     '<td>' + nutrient.n_name + '</td>';
-                                html +=     '<td>' + effectToString(nutrient.n_effect) + '</td>';
+                                // html +=     '<td>' + effectToString(nutrient.n_effect) + '</td>';
                                 html += '</tr>';
                             }
                             tBodyFoodNutrientList.innerHTML = html;

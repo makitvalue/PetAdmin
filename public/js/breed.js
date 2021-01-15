@@ -147,10 +147,18 @@ function saveBreed(mode, callback) {
         keywordList.push(buttonKeyword.innerText);
     });
 
-    if (keywordList.length == 0) {
-        alert('견종 검색어 키워드를 입력해주세요.');
-        return;
-    } 
+    let reName = removeSpace(name, '');
+    if (!keywordList.includes(name)) {
+        keywordList.push(name);
+    }
+    if (!keywordList.includes(reName)) {
+        keywordList.push(reName);
+    }
+
+    // if (keywordList.length == 0) {
+    //     alert('견종 검색어 키워드를 입력해주세요.');
+    //     return;
+    // }
 
     let keyword = keywordList.join('|');
 

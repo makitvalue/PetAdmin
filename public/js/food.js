@@ -1,17 +1,23 @@
 
 const tbodyFoodList = document.querySelector('.js-tbody-food-list');
+const tbodyFoodCategoryList = document.querySelector('.js-tbody-food-category-list');
 const divThumbnail = document.querySelector('.js-div-thumbnail');
 const inputThumbnail = document.querySelector('.js-input-thumbnail');
 const inputName = document.querySelector('.js-input-name');
 const textareaDesc = document.querySelector('.js-textarea-desc');
 const buttonCancel = document.querySelector('.js-button-cancel');
 const buttonFoodAdd = document.querySelector('.js-button-food-add');
+const buttonFoodCategoryAdd = document.querySelector('.js-button-food-category-add');
 const buttonFoodSave = document.querySelector('.js-button-food-save');
 const inputHiddenFId = document.querySelector('.js-input-hidden-f-id');
 const divNutrientList = document.querySelector('.js-div-nutrient-list');
 const buttonNutrientAdd = document.querySelector('.js-button-nutrient-add');
-const selectCategory = document.querySelector('.js-select-category');
+// const selectCategory = document.querySelector('.js-select-category');
 const selectEdible = document.querySelector('.js-select-edible');
+const selectCategory1 = document.querySelector('.js-select-category1');
+const selectCategory2 = document.querySelector('.js-select-category2');
+const inputHiddenFoodCategoryData = document.querySelector('.js-input-hidden-food-category-data');
+let category2List = [];
 
 
 function getFoodList() {
@@ -66,8 +72,10 @@ function getFood(fId) {
 
         inputName.value = food.f_name;
         textareaDesc.value = food.f_desc;
-        selectCategory.value = food.f_fnc_id;
+        // selectCategory.value = food.f_fnc_id;
         selectEdible.value = food.f_edible;
+        selectCategory1.value = food.f_fc1_id;
+        selectCategory2.value = food.f_fc2_id;
 
         let keywordList = food.f_keyword.split('|');
 
@@ -100,6 +108,8 @@ function getFood(fId) {
                 this.remove();
             });
         });
+
+        setFoodCategory2(food.f_fc1_id, food.f_fc2_id);
     });
 }
 
@@ -149,14 +159,25 @@ function saveFood(mode, callback) {
         keywordList.push(buttonKeyword.innerText);
     });
 
-    if (keywordList.length == 0) {
-        alert('음식 검색어 키워드를 입력해주세요.');
-        removeSpinner('SAVE_FOOD');
-        removeOverlay('SAVE_FOOD');
-        return;
-    } 
+    let reName = removeSpace(name, '');
+    if (!keywordList.includes(name)) {
+        keywordList.push(name);
+    }
+    if (!keywordList.includes(reName)) {
+        keywordList.push(reName);
+    }
+
+    // if (keywordList.length == 0) {
+    //     alert('음식 검색어 키워드를 입력해주세요.');
+    //     removeSpinner('SAVE_FOOD');
+    //     removeOverlay('SAVE_FOOD');
+    //     return;
+    // } 
 
     let keyword = keywordList.join('|');
+
+    let fc1Id = selectCategory1.value;
+    let fc2Id = selectCategory2.value;
 
     let nutrientList = [];
     divNutrientList.querySelectorAll('.js-button-nutrient').forEach((buttonNutrient) => {
@@ -172,7 +193,9 @@ function saveFood(mode, callback) {
             desc: desc,
             keyword: keyword,
             nutrients: nutrientList,
-            fncId: selectCategory.value,
+            // fncId: selectCategory.value,
+            fc1Id: fc1Id,
+            fc2Id: fc2Id,
             edible: selectEdible.value,
             fId: (mode === 'MODIFY') ? inputHiddenFId.value : ''
         })
@@ -204,11 +227,253 @@ function getNutrientList(callback) {
 }
 
 
+function getFoodCategory1List(callback) {
+    fetch('/webapi/food/category1/get/all')
+    .then((data) => { return data.json(); })
+    .then((response) => {
+        if (response.status != 'OK') {
+            alert('에러가 발생했습니다.');
+            return;
+        }
+        callback(response);
+    });
+}
+
+
+function saveFoodCategory1(mode, fc1Id, name, callback) {
+    fetch('/webapi/food/category1/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            mode: mode,
+            name: name,
+            fc1Id: fc1Id
+        })
+    })
+    .then(function(data) { return data.json(); })
+    .then(function(response) {
+        if (response.status != 'OK') {
+            alert('에러가 발생했습니다.');
+            return;
+        }
+        callback(response);
+    });
+}
+
+
+function saveFoodCategory2(mode, fc1Id, fc2Id, name, callback) {
+    fetch('/webapi/food/category2/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            mode: mode,
+            name: name,
+            fc1Id: fc1Id,
+            fc2Id: fc2Id
+        })
+    })
+    .then(function(data) { return data.json(); })
+    .then(function(response) {
+        if (response.status != 'OK') {
+            alert('에러가 발생했습니다.');
+            return;
+        }
+        callback(response);
+    });
+}
+
+
+function removeFoodCategory1(fc1Id) {
+    if (!confirm('정말 삭제하시겠습니까?')) return;
+
+    fetch('/webapi/food/category1/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fc1Id: fc1Id })
+    })
+    .then((data) => { return data.json(); })
+    .then((response) => {
+        if (response.status != 'OK') {
+            if (response.status == 'ERR_EXISTS_CATEGORY2') {
+                alert('연관된 하위 카테고리 데이터가 존재합니다.');
+            } else if (response.status == 'ERR_EXISTS_FOOD') {
+                alert('연관된 음식 데이터가 존재합니다.');
+            } else {
+                alert('에러가 발생했습니다.');
+            }
+            return;
+        }
+
+        alert('상위 카테고리가 삭제되었습니다.');
+        location.reload();
+        // tbodyProductBrandList.querySelector('.js-tr-food-category1[fc1Id="' + fc1Id + '"]').remove();
+    });
+}
+
+
+function removeFoodCategory2(fc2Id) {
+    if (!confirm('정말 삭제하시겠습니까?')) return;
+
+    fetch('/webapi/food/category2/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fc2Id: fc2Id })
+    })
+    .then((data) => { return data.json(); })
+    .then((response) => {
+        if (response.status != 'OK') {
+            if (response.status == 'ERR_EXISTS_FOOD') {
+                alert('연관된 음식 데이터가 존재합니다.');
+            } else {
+                alert('에러가 발생했습니다.');
+            }
+            return;
+        }
+
+        alert('하위 카테고리가 삭제되었습니다.');
+        location.reload();
+        // tbodyProductBrandList.querySelector('.js-tr-food-category1[fc1Id="' + fc1Id + '"]').remove();
+    });
+}
+
+
+function setFoodCategory2(fc1Id, fc2Id) {
+    for (let i = 0; i < category2List.length; i++) {
+        let ct = category2List[i];
+        if (ct.fc1Id == fc1Id) {
+            let html = '';
+            for (let j = 0; j < ct.fc2List.length; j++) {
+                let fc2 = ct.fc2List[j];
+                if (fc2.fc2Id == fc2Id) {
+                    html += '<option value="' + fc2.fc2Id + '" selected>' + fc2.fc2Name + '</option>';
+                } else {
+                    html += '<option value="' + fc2.fc2Id + '">' + fc2.fc2Name + '</option>';
+                }
+            }
+            selectCategory2.innerHTML = html;
+            break;
+        }
+    }
+}
+
+
 function foodInit() {
     if (menu == 'food') {
         getFoodList();
     } else if (menu == 'food_detail') {
         getFood(inputHiddenFId.value);
+    } else if (menu == 'food_category') {
+        getFoodCategory1List((response) => {
+
+            if (response.status != 'OK') {
+                alert('에러가 발생했습니다.');
+                return;
+            }
+
+            let foodCategory1List = response.result;
+            let html = '';
+            for (let i = 0; i < foodCategory1List.length; i++) {
+                let foodCategory1 = foodCategory1List[i];
+                html += '<tr class="js-tr-food-category1" fc1Id="' + foodCategory1.fc1_id + '">';
+                html +=     '<td>' + foodCategory1.fc1_id + '</td>';
+                html +=     '<td class="js-td-name">' + foodCategory1.fc1_name + '</td>';
+
+                let fc2Info = foodCategory1.fc2_info;
+                let fc2Html = '';
+                if (fc2Info) {
+                    for (let j = 0; j < fc2Info.split('|').length; j++) {
+                        let fc2Str = fc2Info.split('|')[j];
+                        let fc2Id = fc2Str.split(':')[0];
+                        let fc2Name = fc2Str.split(':')[1];
+                        fc2Html += '<button class="js-button-food-category2 default" fc2Id="' + fc2Id + '">' + fc2Name + '</button>';
+                    }
+                }
+                
+                html +=     '<td class="food-category2">' + fc2Html + '</td>';
+                html +=     '<td class="buttons">';
+                html +=         '<button class="js-button-add default">하위 카테고리 추가</button>';
+                html +=         '<button class="js-button-modify default">수정</button>';
+                html +=         '<button class="js-button-remove default remove">삭제</button>';
+                html +=     '</td>';
+                html += '</tr>';
+            }
+
+            tbodyFoodCategoryList.innerHTML = html;
+            tbodyFoodCategoryList.querySelectorAll('.js-button-remove').forEach((buttonRemove) => {
+                buttonRemove.addEventListener('click', function() {
+                    let fc1Id = this.parentElement.parentElement.getAttribute('fc1Id');
+                    removeFoodCategory1(fc1Id);
+                });
+            });
+            tbodyFoodCategoryList.querySelectorAll('.js-button-modify').forEach((buttonModify) => {
+                buttonModify.addEventListener('click', function() {
+                    let origin_name = this.parentElement.parentElement.querySelector('.js-td-name').innerText;
+                    let value = prompt('상위 카테고리 이름 변경', origin_name);
+                    if (!value) return;
+                    let name = value.trim();
+                    if (name == '') {
+                        alert('상위 카테고리 이름을 입력해주세요.');
+                        return;
+                    }
+
+                    if (origin_name === name) return;
+
+                    let fc1Id = this.parentElement.parentElement.getAttribute('fc1Id');
+
+                    saveFoodCategory1('MODIFY', fc1Id, name, (response) => {
+                        alert('음식 상위 카테고리 이름이 수정되었습니다.');
+                        location.reload();
+                    });
+                });
+            });
+            tbodyFoodCategoryList.querySelectorAll('.js-button-add').forEach((buttonnAdd) => {
+                buttonnAdd.addEventListener('click', function() {
+                    let value = prompt('하위 카테고리 추가');
+                    if (!value) return;
+                    let name = value.trim();
+                    if (name == '') {
+                        alert('하위 카테고리 이름을 입력해주세요.');
+                        return;
+                    }
+
+                    let fc1Id = this.parentElement.parentElement.getAttribute('fc1Id');
+
+                    saveFoodCategory2('ADD', fc1Id, null, name, (response) => {
+                        alert('하위 카테고리가 추가되었습니다.');
+                        location.reload();
+                    });
+                });
+            });
+            tbodyFoodCategoryList.querySelectorAll('.js-tr-food-category1').forEach((trFoodCategory1) => {
+                // let fc1Id = trFoodCategory1.getAttribute('fc1Id');
+                trFoodCategory1.querySelectorAll('.js-button-food-category2').forEach((buttonFoodCategory2) => {
+                    buttonFoodCategory2.addEventListener('click', function() {
+
+                        let fc2Id = this.getAttribute('fc2Id');
+
+                        if (confirm('하위 카테고리를 삭제하시겠습니까?')) {
+                            removeFoodCategory2(fc2Id);
+                        } else {
+                            let origin_name = this.innerText;
+                            let value = prompt('하위 카테고리 이름 변경', origin_name);
+                            if (!value) return;
+                            let name = value.trim();
+                            if (name == '') {
+                                alert('하위 카테고리 이름을 입력해주세요.');
+                                return;
+                            }
+
+                            if (origin_name === name) return;
+
+                            saveFoodCategory2('MODIFY', null, fc2Id, name, (response) => {
+                                alert('음식 하위 카테고리 이름이 수정되었습니다.');
+                                location.reload();
+                            });
+                        }
+                    });
+                });
+            });
+        });
     }
 
     if (buttonCancel) {
@@ -230,7 +495,7 @@ function foodInit() {
                     formData.append('type', 'THUMB');
                     formData.append('dataType', 'food');
                     formData.append('targetId', fId);
-    
+
                     uploadImage(formData, (response) => {
                         if (response.status != 'OK') {
                             alert("에러가 발생했습니다.");
@@ -315,7 +580,7 @@ function foodInit() {
             html +=                 '<tr>';
             html +=                     '<th>ID</th>';
             html +=                     '<th>이름</th>';
-            html +=                     '<th>효과</th>';
+            // html +=                     '<th>효과</th>';
             html +=                 '</tr>';
             html +=             '</thead>';
             html +=             '<tbody class="js-tbody-nutrient-list"></tbody>';
@@ -344,7 +609,7 @@ function foodInit() {
                     html += '<tr class="js-tr-nutrient ' + ((selectedNIdList.indexOf(nutrient.n_id) === -1) ? '': 'selected') + '" nId="' + nutrient.n_id + '" nName="' + nutrient.n_name + '" >';
                     html +=     '<td>' + nutrient.n_id + '</td>';
                     html +=     '<td>' + nutrient.n_name + '</td>';
-                    html +=     '<td>' + effectToString(nutrient.n_effect) + '</td>';
+                    // html +=     '<td>' + effectToString(nutrient.n_effect) + '</td>';
                     html += '</tr>';
                 }
                 tbodyNutrientList.innerHTML = html;
@@ -391,6 +656,40 @@ function foodInit() {
                 divThumbnail.style.backgroundImage = 'url(' + result + ')';
             });
         });
+    }
+
+    if (buttonFoodCategoryAdd) {
+        buttonFoodCategoryAdd.addEventListener('click', () => {
+            let value = prompt('상위 카테고리 추가');
+            if (!value) return;
+            let name = value.trim();
+            if (name == '') {
+                alert('상위 카테고리 이름을 입력해주세요.');
+                return;
+            }
+
+            saveFoodCategory1('ADD', null, name, (response) => {
+                alert('상위 카테고리가 추가되었습니다.');
+                location.reload();
+            });
+        });
+    }
+
+    if (selectCategory1) {
+        selectCategory1.addEventListener('change', function() {
+            setFoodCategory2(this.value, null);
+        });
+    }
+
+    if (inputHiddenFoodCategoryData) {
+        category2List = JSON.parse(inputHiddenFoodCategoryData.value);
+
+        // selectCategory2 세팅
+        if (selectCategory2) {
+            if (category2List.length > 0) {
+                setFoodCategory2(category2List[0].fc1Id, null);
+            }
+        }
     }
 }
 foodInit();

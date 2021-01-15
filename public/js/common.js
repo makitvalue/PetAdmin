@@ -26,6 +26,11 @@ function idToBodyPart(bpId) {
 }
 
 
+function removeSpace(value) {
+    return value.replace(/(\s*)/g, '');
+}
+
+
 // 이미지 인풋 onchange 처리 함수
 function changeInputImage(event, callback) {
     var files = event.target.files;
@@ -167,6 +172,14 @@ function initCommon() {
             buttonKeyword.addEventListener('click', function() {
                 this.remove();
             });
+        });
+    }
+
+    if (inputKeywordAdd) {
+        inputKeywordAdd.addEventListener('keypress', (event) => {
+            if (event.which == 13){
+                buttonKeywordAdd.click();
+            }
         });
     }
 }

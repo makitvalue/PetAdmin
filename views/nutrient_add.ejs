@@ -17,21 +17,8 @@
     </div>
 
     <div class="form-box">
-        <p>카테고리</p>
-        <select class="js-select-category default">
-            <% for (let i = 0; i < foodNutrientCategoryList.length; i++) { %>
-                <option value="<%= foodNutrientCategoryList[i].fnc_id %>" <% if (i == 0) { %>selected<% } %>><%= foodNutrientCategoryList[i].fnc_name %></option>
-            <% } %>
-        </select>
-    </div>
-
-    <div class="form-box">
-        <p>영양소 효과</p>
-        <select class="js-select-effect default">
-            <option selected value="NORMAL">별 효과 없음</option>
-            <option value="POSITIVE">긍정적 영양소</option>
-            <option value="NEGATIVE">부정적 영양소</option>
-        </select>
+        <p>영양소 간단설명</p>
+        <input type="text" class="js-input-desc-short default" />
     </div>
 
     <div class="form-box">

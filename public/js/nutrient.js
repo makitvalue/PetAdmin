@@ -1,14 +1,15 @@
 
 const tbodyNutrientList = document.querySelector('.js-tbody-nutrient-list');
 const inputName = document.querySelector('.js-input-name');
-const selectEffect = document.querySelector('.js-select-effect');
+// const selectEffect = document.querySelector('.js-select-effect');
 const textareaDesc = document.querySelector('.js-textarea-desc');
 const textareaDescOver = document.querySelector('.js-textarea-desc-over');
 const buttonCancel = document.querySelector('.js-button-cancel');
 const buttonNutrientAdd = document.querySelector('.js-button-nutrient-add');
 const buttonNutrientSave = document.querySelector('.js-button-nutrient-save');
 const inputHiddenNId = document.querySelector('.js-input-hidden-n-id');
-const selectCategory = document.querySelector('.js-select-category');
+const inputDescShort = document.querySelector('.js-input-desc-short');
+// const selectCategory = document.querySelector('.js-select-category');
 
 
 function getNutrientList() {
@@ -28,7 +29,7 @@ function getNutrientList() {
             html += '<tr class="js-tr-nutrient" nId="' + nutrient.n_id + '">';
             html +=     '<td>' + nutrient.n_id + '</td>';
             html +=     '<td>' + nutrient.n_name + '</td>';
-            html +=     '<td>' + effectToString(nutrient.n_effect) + '</td>';
+            // html +=     '<td>' + effectToString(nutrient.n_effect) + '</td>';
             html +=     '<td class="buttons">';
             html +=         '<a href="/nutrient/detail/' + nutrient.n_id + '"><button class="default">자세히</button></a>';
             html +=         '<button class="js-button-remove default remove">삭제</button>';
@@ -91,10 +92,11 @@ function getNutrient(nId) {
         let nutrient = response.result;
 
         inputName.value = nutrient.n_name;
-        selectEffect.value = nutrient.n_effect;
+        inputDescShort.value = nutrient.n_desc_short;
+        // selectEffect.value = nutrient.n_effect;
         textareaDesc.value = nutrient.n_desc;
         textareaDescOver.value = nutrient.n_desc_over;
-        selectCategory.value = nutrient.n_fnc_id;
+        // selectCategory.value = nutrient.n_fnc_id;
 
         let keywordList = nutrient.n_keyword.split('|');
 
@@ -116,7 +118,8 @@ function getNutrient(nId) {
 
 function saveNutrient(mode, callback) {
     let name = inputName.value.trim();
-    let effect = selectEffect.value;
+    // let effect = selectEffect.value;
+    let descShort = inputDescShort.value.trim();
     let desc = textareaDesc.value.trim();
     let descOver = textareaDescOver.value.trim();
 
@@ -130,10 +133,18 @@ function saveNutrient(mode, callback) {
         keywordList.push(buttonKeyword.innerText);
     });
 
-    if (keywordList.length == 0) {
-        alert('영양소 검색어 키워드를 입력해주세요.');
-        return;
-    } 
+    let reName = removeSpace(name, '');
+    if (!keywordList.includes(name)) {
+        keywordList.push(name);
+    }
+    if (!keywordList.includes(reName)) {
+        keywordList.push(reName);
+    }
+
+    // if (keywordList.length == 0) {
+    //     alert('영양소 검색어 키워드를 입력해주세요.');
+    //     return;
+    // }
 
     let keyword = keywordList.join('|');
 
@@ -143,11 +154,12 @@ function saveNutrient(mode, callback) {
         body: JSON.stringify({
             mode: mode,
             name: name,
-            effect: effect,
+            // effect: effect,
+            descShort: descShort,
             desc: desc,
             descOver: descOver,
             keyword: keyword,
-            fncId: selectCategory.value,
+            // fncId: selectCategory.value,
             nId: (mode === 'MODIFY') ? inputHiddenNId.value : ''
         })
     })
