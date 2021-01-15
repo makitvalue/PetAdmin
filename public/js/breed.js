@@ -422,7 +422,7 @@ function initBreed() {
             });
 
             html = '';
-            for (let i = 1; i < 5; i++) {
+            for (let i = 1; i < 6; i++) {
                 html += '<option value="' + i + '" ' + ((i == 1) ? 'selected' : '') + '>' + i + '</option>';
             }
             selectBcs.innerHTML = html;
