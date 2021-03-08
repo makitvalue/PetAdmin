@@ -13,19 +13,19 @@ const { getConnection } = require('../lib/database');
 //         let query = "SELECT * FROM t_crawlers WHERE c_id = ?";
 //         let params = [133];
 //         const [result1, fields1] = await pool.query(query, params);
-    
+
 //         // let crawler = null;
 //         // if (result1.length > 0) crawler = result1[0];
-    
+
 //         query = "SELECT * FROM t__places DWHERE p_id = ?";
 //         params = [2];
 //         const [result2, fields2] = await pool.query(query, params);
-    
+
 //         // let place = null;
 //         // if (result2.length > 0) place = result2[0];
 
 //         res.json({ status: 'OK', result: result1 });
-        
+
 //     } catch (err) {
 //         console.log(err);
 //         res.json({ status: 'ERR' });
@@ -34,7 +34,7 @@ const { getConnection } = require('../lib/database');
 
 
 router.get('/', (req, res) => {
-    
+
     let id = req.query.id;
     let query = "SELECT * FROM t_products WHERE p_id = ?";
     let params = [id];
@@ -52,7 +52,7 @@ router.get('/', (req, res) => {
                 res.json({ status: 'ERR_MYSQL' });
                 return;
             }
-            
+
             conn.release();
             res.json({ status: 'OK' });
         });
@@ -91,9 +91,9 @@ router.get('/nutrient/get', async (req, res) => {
         res.json({status: 'OK', result: result[0]});
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'}); 
+        res.json({status: 'ERROR_SERVER'});
     }
-    
+
 });
 //영양소 저장 (추가, 수정)
 router.post('/nutrient/save', async (req, res) => {
@@ -103,9 +103,9 @@ router.post('/nutrient/save', async (req, res) => {
         let name = req.body.name;
         let keyword = req.body.keyword;
         let desc = req.body.desc;
-        let descOver = req.body.descOver; 
+        let descOver = req.body.descOver;
         let descShort = req.body.descShort;
-    
+
         if (f.isNone(mode) || f.isNone(name) || f.isNone(keyword)) {
             res.json({status: 'ERR_WRONG_PARAM'});
             return;
@@ -113,7 +113,7 @@ router.post('/nutrient/save', async (req, res) => {
 
         let query = "";
         let params = [name, keyword, desc, descOver, descShort];
-    
+
         if (mode === 'ADD') {
             query += "INSERT INTO t_nutrients(n_name, n_keyword, n_desc, n_desc_over, n_desc_short) VALUES(?, ?, ?, ?, ?)";
         } else if (mode === 'MODIFY') {
@@ -134,15 +134,15 @@ router.post('/nutrient/save', async (req, res) => {
         let [result, fields] = await pool.query(query, params);
 
         res.json({status: 'OK'});
-    
+
 
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'}); 
+        res.json({status: 'ERROR_SERVER'});
     }
 
 });
-//영양소 삭제 
+//영양소 삭제
 router.post('/nutrient/delete', async (req, res) => {
     try {
         let nId = req.body.nId;
@@ -175,22 +175,22 @@ router.post('/nutrient/delete', async (req, res) => {
         if (existResult[0].mfnCnt > 0) {
             res.json({status: 'ERR_EXISTS_FOOD'});
             return;
-        } 
+        }
 
         if (existResult[0].msnfCnt > 0) {
             res.json({status: 'ERR_EXISTS_SYMPTOM'});
             return;
-        } 
+        }
 
         if (existResult[0].mpnfCnt > 0) {
             res.json({status: 'ERR_EXISTS_PRODUCT'});
             return;
-        } 
+        }
 
         if (existResult[0].mdnfCnt > 0) {
             res.json({status: 'ERR_EXISTS_DISEASE'});
             return;
-        } 
+        }
 
         let deleteQuery = "DELETE FROM t_nutrients WHERE n_id = ?";
         let deleteParams = [nId];
@@ -198,10 +198,10 @@ router.post('/nutrient/delete', async (req, res) => {
         let [deleteResult, deleteFields] = await pool.query(deleteQuery, deleteParams);
         res.json({status: 'OK'});
 
-        
+
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'}); 
+        res.json({status: 'ERROR_SERVER'});
     }
 });
 
@@ -214,7 +214,7 @@ router.get('/food/get/all', async (req, res) => {
         res.json({status: 'OK', result: result});
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'}); 
+        res.json({status: 'ERROR_SERVER'});
     }
 });
 //특정 음식 조회
@@ -252,10 +252,10 @@ router.get('/food/get', async (req ,res) => {
 
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'}); 
+        res.json({status: 'ERROR_SERVER'});
     }
 });
-//음식 삭제 
+//음식 삭제
 router.post('/food/delete', async (req, res) => {
     try {
         let fId = req.body.fId;
@@ -297,23 +297,23 @@ router.post('/food/delete', async (req, res) => {
             let nutrientFoodDeleteQuery = 'DELETE FROM t_maps_food_nutrient WHERE mfn_f_id = ?';
             let nutrientFoodDeleteParams = [fId];
             await pool.query(nutrientFoodDeleteQuery, nutrientFoodDeleteParams);
-        } 
+        }
 
         if (result[0].msnfCnt > 0) {
             res.json({status: 'ERR_EXISTS_SYMPTOM'});
             return;
-        } 
+        }
 
         if (result[0].mpnfCnt > 0) {
             res.json({status: 'ERR_EXISTS_PRODUCT'});
             return;
-        } 
+        }
 
         if (result[0].mdnfCnt > 0) {
             res.json({status: 'ERR_EXISTS_DISEASE'});
             return;
-        } 
-        
+        }
+
         await pool.query(deleteQuery, deleteParams);
 
         if (!f.isNone(thumbnailPath)) {
@@ -325,10 +325,10 @@ router.post('/food/delete', async (req, res) => {
 
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'}); 
+        res.json({status: 'ERROR_SERVER'});
     }
 
-    
+
 
 });
 //음식 저장 (추가, 수정)
@@ -383,16 +383,16 @@ router.post('/food/save', async (req ,res) => {
                 query = 'INSERT INTO t_maps_food_nutrient(mfn_f_id, mfn_n_id) VALUES';
                 nutrientList.forEach((nutrient, index) => {
                     if (index != 0) {
-                        query += ', (' + fId + ', ' + nutrient + ')';                    
+                        query += ', (' + fId + ', ' + nutrient + ')';
                     } else {
                         query += ' (' + fId + ', ' + nutrient + ')';
                     }
                 });
                 [result, fields] = await pool.query(query);
-            } 
+            }
 
             res.json({status: 'OK', fId: fId});
-            
+
         } else if (mode === 'MODIFY') {
 
             query = 'DELETE FROM t_maps_food_nutrient WHERE mfn_f_id = ?';
@@ -403,22 +403,22 @@ router.post('/food/save', async (req ,res) => {
                 query = 'INSERT INTO t_maps_food_nutrient(mfn_f_id, mfn_n_id) VALUES';
                 nutrientList.forEach((nutrient, index) => {
                     if (index != 0) {
-                        query += ', (' + fId + ', ' + nutrient + ')';                    
+                        query += ', (' + fId + ', ' + nutrient + ')';
                     } else {
                         query += ' (' + fId + ', ' + nutrient + ')';
                     }
                 });
 
                 [result, fields] = await pool.query(query);
-            } 
+            }
             res.json({status: 'OK'});
         } else {
             res.json({status: 'ERR_WRONG_MODE'});
         }
-        
+
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'}); 
+        res.json({status: 'ERROR_SERVER'});
     }
 });
 
@@ -431,7 +431,7 @@ router.get('/disease/get/all', async (req, res) => {
         res.json({status: 'OK', result: result});
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'}); 
+        res.json({status: 'ERROR_SERVER'});
     }
 });
 //특정 질병 조회
@@ -475,10 +475,10 @@ router.get('/disease/get', async (req, res) => {
         }});
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'}); 
+        res.json({status: 'ERROR_SERVER'});
     }
 
-    
+
 });
 //질병 삭제
 router.post('/disease/delete', async (req, res) => {
@@ -516,32 +516,32 @@ router.post('/disease/delete', async (req, res) => {
             deleteQuery += "FROM t_diseases AS dTab ";
             deleteQuery += "JOIN t_maps_disease_nutrient_food AS mdnfTab ON mdnfTab.mdnf_d_id = dTab.d_id ";
             deleteQuery += "WHERE dTab.d_id = ?";
-        } 
+        }
 
         if (result[0].msdCnt > 0) {
             res.json({status: 'ERR_EXISTS_SYMPTOM'});
             return;
-        } 
+        }
 
         if (result[0].mpdCnt > 0) {
             res.json({status: 'ERR_EXISTS_PRODUCT'});
             return;
-        } 
+        }
 
         if (result[0].mbagdCnt > 0) {
             res.json({status: 'ERR_EXISTS_BREED_AGE_GROUP'});
             return;
-        } 
+        }
         let deleteParams = [dId];
         [result, fields] = await pool.query(deleteQuery, deleteParams);
         res.json({status: 'OK'});
 
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'}); 
+        res.json({status: 'ERROR_SERVER'});
     }
 
-    
+
 });
 //질병 저장 (추가, 수정)
 router.post('/disease/save', async (req, res) => {
@@ -556,7 +556,7 @@ router.post('/disease/save', async (req, res) => {
         let nutrientFoodData = req.body.nutrientFoodData;
         let symptomData = req.body.symptomData;
         let operation = req.body.operation;
-        
+
         if (f.isNone(mode) || f.isNone(name) || f.isNone(keyword) || f.isNone(bpId) || f.isNone(operation)) {
             res.json({status: 'ERR_WRONG_PARAM'});
             return;
@@ -596,7 +596,7 @@ router.post('/disease/save', async (req, res) => {
                 query = 'INSERT INTO t_maps_disease_nutrient_food(mdnf_d_id, mdnf_type, mdnf_target_id) VALUES ';
                 nutrientFoodData.forEach((data, index) => {
                     if (index != 0) {
-                        query += ', (' + dId + ', "' + data.type + '", ' + data.targetId + ')';                    
+                        query += ', (' + dId + ', "' + data.type + '", ' + data.targetId + ')';
                     } else {
                         query += ' (' + dId + ', "' + data.type +'", ' + data.targetId + ')';
                     }
@@ -610,9 +610,9 @@ router.post('/disease/save', async (req, res) => {
                     query = 'INSERT INTO t_maps_symptom_disease(msd_s_id, msd_d_id) VALUES ';
                     symptomData.forEach((data, index) => {
                         if (index != 0) {
-                            query += ', (' + data + ', ' + dId + ') ';                    
+                            query += ', (' + data + ', ' + dId + ') ';
                         } else {
-                            query += '(' + data + ', ' + dId + ') '; 
+                            query += '(' + data + ', ' + dId + ') ';
                         }
                     });
 
@@ -634,7 +634,7 @@ router.post('/disease/save', async (req, res) => {
                 query = 'INSERT INTO t_maps_disease_nutrient_food(mdnf_d_id, mdnf_type, mdnf_target_id) VALUES';
                 nutrientFoodData.forEach((data, index) => {
                     if (index != 0) {
-                        query += ', (' + dId + ', "' + data.type + '", ' + data.targetId + ')';                    
+                        query += ', (' + dId + ', "' + data.type + '", ' + data.targetId + ')';
                     } else {
                         query += ' (' + dId + ', "' + data.type +'", ' + data.targetId + ')';
                     }
@@ -647,14 +647,14 @@ router.post('/disease/save', async (req, res) => {
                 [result, fields] = await pool.query(query, params);
 
                 //관련된 증상이 있는지 확인
-                if (symptomData.length > 0) { 
+                if (symptomData.length > 0) {
                     query = 'INSERT INTO t_maps_symptom_disease(msd_s_id, msd_d_id) VALUES ';
                     params = [dId];
                     symptomData.forEach((data, index) => {
                         if (index != 0) {
-                            query += ', (' + data + ', ' + dId + ') ';                    
+                            query += ', (' + data + ', ' + dId + ') ';
                         } else {
-                            query += '(' + data + ', ' + dId + ') '; 
+                            query += '(' + data + ', ' + dId + ') ';
                         }
                     });
 
@@ -682,9 +682,9 @@ router.post('/disease/save', async (req, res) => {
                 query = 'INSERT INTO t_maps_symptom_disease(msd_s_id, msd_d_id) VALUES ';
                 symptomData.forEach((data, index) => {
                     if (index != 0) {
-                        query += ', (' + data + ', ' + dId + ') ';                    
+                        query += ', (' + data + ', ' + dId + ') ';
                     } else {
-                        query += '(' + data + ', ' + dId + ') '; 
+                        query += '(' + data + ', ' + dId + ') ';
                     }
                 });
 
@@ -700,7 +700,7 @@ router.post('/disease/save', async (req, res) => {
         }
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'}); 
+        res.json({status: 'ERROR_SERVER'});
     }
 
 });
@@ -714,7 +714,7 @@ router.get('/symptom/get/all', async (req, res) => {
         res.json({status: 'OK', result: result});
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'}); 
+        res.json({status: 'ERROR_SERVER'});
     }
 });
 //특정 증상 조회
@@ -761,13 +761,13 @@ router.get('/symptom/get', async (req, res) => {
 
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'}); 
+        res.json({status: 'ERROR_SERVER'});
     }
-    
-    
+
+
 
 });
-//증상 삭제 
+//증상 삭제
 router.post('/symptom/delete', async (req, res) => {
 
     try {
@@ -785,22 +785,22 @@ router.post('/symptom/delete', async (req, res) => {
             res.json({status: 'ERR_EXISTS_DISEASE'});
             return;
         } else {
-            let query = 'DELETE FROM t_symptoms WHERE s_id = ?';    
+            let query = 'DELETE FROM t_symptoms WHERE s_id = ?';
             let params = [sId];
             [result, fields] = await pool.query(query, params);
 
             // query = 'DELETE FROM t_maps_symptom_disease WHERE msd_s_id = ?';
             // [result, fields] = await pool.query(query, params);
-    
+
             query = 'DELETE FROM t_maps_symptom_nutrient_food WHERE msnf_s_id = ?';
             [result, fields] = await pool.query(query, params);
-    
+
             res.json({status: 'OK'});
         }
 
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'}); 
+        res.json({status: 'ERROR_SERVER'});
     }
 
 
@@ -815,7 +815,7 @@ router.post('/symptom/save', async (req, res) => {
         let bpId = req.body.bpId;
         let nutrientFoodData = req.body.nutrientFoodData;
         let diseaseData = req.body.diseaseData;
-        
+
         if (f.isNone(mode) || f.isNone(name) || f.isNone(keyword) || f.isNone(bpId)) {
             res.json({status: 'ERR_WRONG_PARAM'});
             return;
@@ -846,16 +846,16 @@ router.post('/symptom/save', async (req, res) => {
             res.json({status: 'ERR_WRONG_MODE'});
             return;
         }
-        
+
 
         if (nutrientFoodData.length > 0) {
             query = '';
             if (mode === 'ADD') { // 추가일떄
-                
+
                 query = 'INSERT INTO t_maps_symptom_nutrient_food(msnf_s_id, msnf_type, msnf_target_id) VALUES ';
                 nutrientFoodData.forEach((data, index) => {
                     if (index != 0) {
-                        query += ', (' + sId + ', "' + data.type + '", ' + data.targetId + ')';                    
+                        query += ', (' + sId + ', "' + data.type + '", ' + data.targetId + ')';
                     } else {
                         query += ' (' + sId + ', "' + data.type +'", ' + data.targetId + ')';
                     }
@@ -867,9 +867,9 @@ router.post('/symptom/save', async (req, res) => {
                     query = 'INSERT INTO t_maps_symptom_disease(msd_d_id, msd_s_id) VALUES ';
                     diseaseData.forEach((data, index) => {
                         if (index != 0) {
-                            query += ', (' + data + ', ' + sId + ') ';                    
+                            query += ', (' + data + ', ' + sId + ') ';
                         } else {
-                            query += '(' + data + ', ' + sId + ') '; 
+                            query += '(' + data + ', ' + sId + ') ';
                         }
                     });
 
@@ -890,7 +890,7 @@ router.post('/symptom/save', async (req, res) => {
                 query = 'INSERT INTO t_maps_symptom_nutrient_food(msnf_s_id, msnf_type, msnf_target_id) VALUES';
                 nutrientFoodData.forEach((data, index) => {
                     if (index != 0) {
-                        query += ', (' + sId + ', "' + data.type + '", ' + data.targetId + ')';                    
+                        query += ', (' + sId + ', "' + data.type + '", ' + data.targetId + ')';
                     } else {
                         query += ' (' + sId + ', "' + data.type +'", ' + data.targetId + ')';
                     }
@@ -904,20 +904,20 @@ router.post('/symptom/save', async (req, res) => {
                 [result, fiedls] = await pool.query(query, params);
 
                 //관련된 질병이 있는지 확인
-                if (diseaseData.length > 0) { 
+                if (diseaseData.length > 0) {
                     query = 'INSERT INTO t_maps_symptom_disease(msd_d_id, msd_s_id) VALUES ';
                     diseaseData.forEach((data, index) => {
                         if (index != 0) {
-                            query += ', (' + data + ', ' + sId + ') ';                    
+                            query += ', (' + data + ', ' + sId + ') ';
                         } else {
-                            query += '(' + data + ', ' + sId + ') '; 
+                            query += '(' + data + ', ' + sId + ') ';
                         }
                     });
 
                     //관련된 질병 INSERT 실행
                     [result, fiedls] = await pool.query(query);
                     res.json({status: 'OK', result: result});
-        
+
                 } else {
                     res.json({status: 'OK', result: result});
                 }
@@ -938,9 +938,9 @@ router.post('/symptom/save', async (req, res) => {
                 query = 'INSERT INTO t_maps_symptom_disease(msd_d_id, msd_s_id) VALUES ';
                 diseaseData.forEach((data, index) => {
                     if (index != 0) {
-                        query += ', (' + data + ', ' + sId + ') ';                    
+                        query += ', (' + data + ', ' + sId + ') ';
                     } else {
-                        query += '(' + data + ', ' + sId + ') '; 
+                        query += '(' + data + ', ' + sId + ') ';
                     }
                 });
 
@@ -957,18 +957,18 @@ router.post('/symptom/save', async (req, res) => {
 
         }
 
-        
+
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'}); 
+        res.json({status: 'ERROR_SERVER'});
     }
 
-    
+
 
 });
 
 
-//전체제품 가져오기 
+//전체제품 가져오기
 router.get('/product/get/all', async (req, res) => {
     try {
         let query = "SELECT * FROM t_products AS pTab";
@@ -979,7 +979,7 @@ router.get('/product/get/all', async (req, res) => {
         res.json({status: 'OK', result: result});
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'}); 
+        res.json({status: 'ERROR_SERVER'});
     }
 });
 //제품 저장 (등록, 수정)
@@ -999,7 +999,7 @@ router.post('/product/save', async (req, res) => {
         let recommend = req.body.recommend;
         let feedNutrients = req.body.feedNutrients;
         let nutrientFoodData = req.body.nutrientFoodData;
-        
+
         if (f.isNone(pcId) || f.isNone(pbId) || f.isNone(name) || f.isNone(keyword)) {
             res.json({status: 'ERR_WRONG_PARAM'});
             return;
@@ -1025,7 +1025,7 @@ router.post('/product/save', async (req, res) => {
                 query = 'INSERT INTO t_maps_product_nutrient_food(mpnf_p_id, mpnf_type, mpnf_target_id) VALUES ';
                 nutrientFoodData.forEach((data, index) => {
                     if (index != 0) {
-                        query += ', (' + pId + ', "' + data.type + '", ' + data.targetId + ')';                    
+                        query += ', (' + pId + ', "' + data.type + '", ' + data.targetId + ')';
                     } else {
                         query += ' (' + pId + ', "' + data.type +'", ' + data.targetId + ')';
                     }
@@ -1035,7 +1035,7 @@ router.post('/product/save', async (req, res) => {
 
             query = 'DELETE FROM t_feed_nutrients WHERE fn_p_id = ?';
             params = [pId];
-            await pool.query(query, params);        
+            await pool.query(query, params);
 
             //카테고리가 제품일때
             if (pcId == 1) {
@@ -1043,21 +1043,21 @@ router.post('/product/save', async (req, res) => {
                 let feedParams = [
                     ((feedNutrients.prot) ? feedNutrients.prot : null),
                     ((feedNutrients.fat) ? feedNutrients.fat : null),
-                    ((feedNutrients.fibe) ? feedNutrients.fibe : null), 
-                    ((feedNutrients.ash) ? feedNutrients.ash : null), 
-                    ((feedNutrients.calc) ? feedNutrients.calc : null), 
-                    ((feedNutrients.phos) ? feedNutrients.phos : null), 
-                    ((feedNutrients.mois) ? feedNutrients.mois : null), 
+                    ((feedNutrients.fibe) ? feedNutrients.fibe : null),
+                    ((feedNutrients.ash) ? feedNutrients.ash : null),
+                    ((feedNutrients.calc) ? feedNutrients.calc : null),
+                    ((feedNutrients.phos) ? feedNutrients.phos : null),
+                    ((feedNutrients.mois) ? feedNutrients.mois : null),
                     pId
                 ];
                 [result, fields] = await pool.query(feedQuery, feedParams);
             }
             res.json({status: 'OK', pId: pId});
-            
+
         } else if (mode === 'MODIFY') {
             //제품 수정일때
 
-            pId = req.body.pId; 
+            pId = req.body.pId;
 
             if (f.isNone(pId)) {
                 res.json({status: 'ERR_WRONG_PARAM'});
@@ -1073,14 +1073,14 @@ router.post('/product/save', async (req, res) => {
             //관련 영양소/음식 테이블 삭제
             query = 'DELETE FROM t_maps_product_nutrient_food WHERE mpnf_p_id = ?';
             params = [pId];
-            await pool.query(query, params);    
+            await pool.query(query, params);
 
             //관련 영양소/음식 테이블 수정
             if (nutrientFoodData.length > 0) {
                 query = 'INSERT INTO t_maps_product_nutrient_food(mpnf_p_id, mpnf_type, mpnf_target_id) VALUES ';
                 nutrientFoodData.forEach((data, index) => {
                     if (index != 0) {
-                        query += ', (' + pId + ', "' + data.type + '", ' + data.targetId + ')';                    
+                        query += ', (' + pId + ', "' + data.type + '", ' + data.targetId + ')';
                     } else {
                         query += ' (' + pId + ', "' + data.type +'", ' + data.targetId + ')';
                     }
@@ -1090,7 +1090,7 @@ router.post('/product/save', async (req, res) => {
 
             query = 'DELETE FROM t_feed_nutrients WHERE fn_p_id = ?';
             params = [pId];
-            await pool.query(query, params);     
+            await pool.query(query, params);
 
             //카테고리가 제품일때
             if (pcId == 1) {
@@ -1098,11 +1098,11 @@ router.post('/product/save', async (req, res) => {
                 let feedParams = [
                     ((feedNutrients.prot) ? feedNutrients.prot : null),
                     ((feedNutrients.fat) ? feedNutrients.fat : null),
-                    ((feedNutrients.fibe) ? feedNutrients.fibe : null), 
-                    ((feedNutrients.ash) ? feedNutrients.ash : null), 
-                    ((feedNutrients.calc) ? feedNutrients.calc : null), 
-                    ((feedNutrients.phos) ? feedNutrients.phos : null), 
-                    ((feedNutrients.mois) ? feedNutrients.mois : null), 
+                    ((feedNutrients.fibe) ? feedNutrients.fibe : null),
+                    ((feedNutrients.ash) ? feedNutrients.ash : null),
+                    ((feedNutrients.calc) ? feedNutrients.calc : null),
+                    ((feedNutrients.phos) ? feedNutrients.phos : null),
+                    ((feedNutrients.mois) ? feedNutrients.mois : null),
                     pId];
                 [result, fields] = await pool.query(feedQuery, feedParams);
             }
@@ -1112,10 +1112,10 @@ router.post('/product/save', async (req, res) => {
         }
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'}); 
+        res.json({status: 'ERROR_SERVER'});
     }
 
-    
+
 
 
 });
@@ -1131,14 +1131,14 @@ router.get('/product/get', async (req, res) => {
         let query = 'SELECT * FROM t_products WHERE p_id = ?';
         let params = [pId];
         let [result, fields] = await pool.query(query, params);
-        
+
         if (result.length < 1) {
             res.json({status: 'ERR_NO_DATA'});
             return;
         }
-    
+
         let productInfo = result[0];
-    
+
         query = 'SELECT * FROM t_feed_nutrients WHERE fn_p_id = ?';
         params = [pId];
         [result, fields] = await pool.query(query, params);
@@ -1161,13 +1161,13 @@ router.get('/product/get', async (req, res) => {
 
         let nutrientFoodInfo = result;
 
-    
+
         res.json({status: 'OK', result: {
             product: productInfo,
             feedNutrients: feedNutrientInfo,
             imageList: imageList,
             nutrientFoodList: nutrientFoodInfo
-        }});  
+        }});
 
     } catch (error) {
         console.log(error);
@@ -1190,18 +1190,18 @@ router.post('/product/delete', async (req, res) => {
         existCheckQuery += ' LEFT JOIN (SELECT pr_p_id, COUNT(*) AS prCnt FROM t_product_reviews GROUP BY pr_p_id) AS prTab '
             existCheckQuery += ' ON pTab.p_id = prTab.pr_p_id';
         existCheckQuery += ' WHERE pTab.p_id = ?';
-           
+
         let existCheckParams = [pId];
         let [result, fields] = await pool.query(existCheckQuery, existCheckParams);
-        
+
         let thumbnailPath = result[0].p_thumbnail;
         let originThumbnailPath = `${thumbnailPath.split('.')[0]}_original.${thumbnailPath.split('.')[1]}`;
-        
+
         if (result[0].mppCnt > 0) {
             res.json({status: 'ERR_EXISTS_PET'});
             return;
         }
-        
+
         if (result[0].prCnt > 0) {
             res.json({status: 'ERR_EXISTS_REVIEW'});
             return;
@@ -1218,11 +1218,11 @@ router.post('/product/delete', async (req, res) => {
         let imageSelectQuery = 'SELECT * FROM t_images WHERE i_data_type = "product" AND i_target_id = ?';
         let imageSelectParams = [pId];
         let [imageResult, imageFields] = await pool.query(imageSelectQuery, imageSelectParams);
-        
+
         if (imageResult.length > 0) {
             let originImagePath = '';
             imageResult.forEach((item, index) => {
-                originImagePath = `${item.i_path.split('.')[0]}_original.${item.i_path.split('.')[1]}`; 
+                originImagePath = `${item.i_path.split('.')[0]}_original.${item.i_path.split('.')[1]}`;
                 fs.unlinkSync(`public${item.i_path}`);
                 fs.unlinkSync(`public${originImagePath}`);
             });
@@ -1230,16 +1230,16 @@ router.post('/product/delete', async (req, res) => {
 
         fs.unlinkSync(`public${thumbnailPath}`);
         fs.unlinkSync(`public${originThumbnailPath}`);
-        
+
         deleteQuery = "DELETE FROM t_images WHERE i_data_type = 'product' AND i_target_id = ?";
         deleteParams = [pId];
         await pool.query(deleteQuery, deleteParams);
 
         res.json({status: 'OK'});
-        
+
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'}); 
+        res.json({status: 'ERROR_SERVER'});
     }
 });
 
@@ -1252,7 +1252,7 @@ router.get('/product/category/get/all', async (req, res) => {
         res.json({status: 'OK', result: result});
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'}); 
+        res.json({status: 'ERROR_SERVER'});
     }
 });
 //제품 카테고리 저장 (입력, 수정)
@@ -1291,7 +1291,7 @@ router.post('/product/category/save', async (req, res) => {
 
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'}); 
+        res.json({status: 'ERROR_SERVER'});
     }
 
 });
@@ -1324,10 +1324,10 @@ router.post('/product/category/delete', async (req, res) => {
 
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'}); 
+        res.json({status: 'ERROR_SERVER'});
     }
 
-    
+
 });
 
 
@@ -1339,7 +1339,7 @@ router.get('/product/brand/get/all', async (req, res) => {
         res.json({status: 'OK', result: result});
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'}); 
+        res.json({status: 'ERROR_SERVER'});
     }
 });
 //제품 브랜드 저장 (입력, 수정)
@@ -1348,15 +1348,15 @@ router.post('/product/brand/save', async (req, res) => {
         let mode = req.body.mode; // ADD, MODIFY
         let pbId;
         let name = req.body.name;
-    
+
         if (f.isNone(name)) {
             res.json({status: 'ERR_WRONG_PARAM'});
             return;
         }
-    
+
         let query = '';
         let params = [name];
-    
+
         if (mode === 'ADD') {
             query = 'INSERT INTO t_product_brands(pb_name) VALUES(?) ';
         } else if (mode === 'MODIFY') {
@@ -1365,7 +1365,7 @@ router.post('/product/brand/save', async (req, res) => {
                 res.json({status: 'ERR_WRONG_PARAM'});
                 return;
             }
-    
+
             query = "UPDATE t_product_brands SET";
             query += " pb_name = ?";
             query += " WHERE pb_id = ?";
@@ -1377,12 +1377,12 @@ router.post('/product/brand/save', async (req, res) => {
 
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'}); 
+        res.json({status: 'ERROR_SERVER'});
     }
 
 
 });
-//제품 브랜드 삭제 
+//제품 브랜드 삭제
 router.post('/product/brand/delete', async (req, res) => {
 
     try {
@@ -1391,25 +1391,25 @@ router.post('/product/brand/delete', async (req, res) => {
             res.json({status: 'ERR_WRONG_PARAM'});
             return;
         }
-    
+
         let existCheckQuery = 'SELECT * FROM t_products WHERE p_pb_id = ?';
         let existCheckParams = [pbId];
         let [result, fields] = await pool.query(existCheckQuery, existCheckParams);
 
         if (result.length > 0) {
             res.json({status: 'ERR_EXISTS_PRODUCT'});
-            return; 
+            return;
         } else {
             let deleteQuery = 'DELETE FROM t_product_brands WHERE pb_id = ?';
             let deleteParams = [pbId];
             [result, fields] = await pool.query(deleteQuery, deleteParams);
             res.json({status: 'OK'});
         }
-    
+
 
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'}); 
+        res.json({status: 'ERROR_SERVER'});
     }
 
 
@@ -1424,7 +1424,7 @@ router.get('/breed/get/all', async (req, res) => {
         res.json({status: 'OK', result: result});
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'}); 
+        res.json({status: 'ERROR_SERVER'});
     }
 
 });
@@ -1458,7 +1458,7 @@ router.get('/breed/get', async (req, res) => {
 
    } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'}); 
+        res.json({status: 'ERROR_SERVER'});
    }
 });
 //견종 저장 (입력, 수정)
@@ -1466,20 +1466,20 @@ router.post('/breed/save', async (req, res) => {
     try {
         let mode = req.body.mode; // ADD, MODIFY
         let bId;
-        let bType = req.body.bType; 
+        let bType = req.body.bType;
         let name = req.body.name;
         let keyword = req.body.keyword;
         let breedAgeGroups = req.body.breedAgeGroups;
         let deleteBreedAgeGroups = req.body.deleteBreedAgeGroups;
-    
+
         if (f.isNone(name) || f.isNone(keyword) || f.isNone(bType)) {
             res.json({status: 'ERR_WRONG_PARAM'});
             return;
         }
-    
+
         let query = '';
         let params = [name, keyword, bType];
-    
+
         if (mode === 'ADD') {
             query = 'INSERT INTO t_breeds(b_name, b_keyword, b_type) VALUES(?, ?, ?) ';
         } else if (mode === 'MODIFY') {
@@ -1488,7 +1488,7 @@ router.post('/breed/save', async (req, res) => {
                 res.json({status: 'ERR_WRONG_PARAM'});
                 return;
             }
-    
+
             query = "UPDATE t_breeds SET";
             query += " b_name = ?,";
             query += " b_keyword = ?,";
@@ -1500,7 +1500,7 @@ router.post('/breed/save', async (req, res) => {
         }
 
         let [result, fields] = await pool.query(query, params);
-        
+
         if (mode === 'ADD') {
             bId = result.insertId;
         }
@@ -1516,7 +1516,7 @@ router.post('/breed/save', async (req, res) => {
             });
             [result, fields] = await pool.query(query);
         }
-    
+
         if (breedAgeGroups.length > 0) {
 
             if (mode === 'ADD') {
@@ -1536,16 +1536,16 @@ router.post('/breed/save', async (req, res) => {
                         query += `(${item.bagId}, ${bId}, ${item.minAge}, ${item.maxAge})`;
                     } else {
                         query += `, (${item.bagId}, ${bId}, ${item.minAge}, ${item.maxAge})`;
-                    } 
+                    }
                 });
             }
             [result, fields] = await pool.query(query);
-        } 
+        }
         res.json({status: 'OK'});
 
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'}); 
+        res.json({status: 'ERROR_SERVER'});
     }
 
 
@@ -1559,7 +1559,7 @@ router.post('/breed/delete', async (req, res) => {
             res.json({status: 'ERR_WRONG_PARAM'});
             return;
         }
-    
+
         let existCheckQuery = '';
         existCheckQuery += 'SELECT * ';
         existCheckQuery +='FROM t_breeds AS bTab ';
@@ -1568,7 +1568,7 @@ router.post('/breed/delete', async (req, res) => {
             existCheckQuery += 'LEFT JOIN (SELECT bag_b_id, COUNT(*) AS bagCnt FROM t_breed_age_groups GROUP BY bag_b_id) AS bagTab ';
                 existCheckQuery += 'ON bTab.b_id = bagTab.bag_b_id ';
         existCheckQuery += 'WHERE bTab.b_id = ?';
-    
+
         let existCheckParams = [bId];
 
         let [result, fields] = await pool.query(existCheckQuery, existCheckParams);
@@ -1581,12 +1581,12 @@ router.post('/breed/delete', async (req, res) => {
         if (result[0].peCnt > 0) {
             res.json({status: 'ERR_EXISTS_PET'});
             return;
-        } 
+        }
 
         if (result[0].bagCnt > 0) {
             res.json({status: 'ERR_EXISTS_BREED_AGE_GROUP'});
             return;
-        } 
+        }
 
         let deleteQuery = 'DELETE FROM t_breeds WHERE b_id = ?';
         let deleteParams = [bId];
@@ -1595,7 +1595,7 @@ router.post('/breed/delete', async (req, res) => {
 
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'}); 
+        res.json({status: 'ERROR_SERVER'});
     }
 
 });
@@ -1629,7 +1629,7 @@ router.post('/breed/weak/disease/add', async (req, res) => {
         res.json({status: 'ERR_WRONG_PARAM'});
         return;
     }
-    
+
     let query = 'INSERT INTO t_maps_breed_age_group_disease(mbagd_bag_id, mbagd_d_id, mbagd_bcs) VALUES(?, ?, ?)';
     let params = [bagId, dId, bcs];
     let [result, fields] = await pool.query(query, params);
@@ -1668,7 +1668,7 @@ router.post('/breed/weak/disease/modify', async (req, res) => {
     let [result, fields] = await pool.query(query, params);
 
     res.json({status: 'OK'});
-    
+
     // bcs, dId
 });
 
@@ -1681,7 +1681,7 @@ router.get('/inoculation/get/all', async (req, res) => {
         res.json({status: 'OK', result: result});
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'}); 
+        res.json({status: 'ERROR_SERVER'});
     }
 });
 //접종테이블 저장 (추가, 수정)
@@ -1718,11 +1718,11 @@ router.post('/inoculation/save', async (req, res) => {
             res.json({status: 'ERR_WRONG_MODE'});
             return;
         }
-        
+
 
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'});  
+        res.json({status: 'ERROR_SERVER'});
     }
 });
 //접종테이블 삭제
@@ -1746,12 +1746,12 @@ router.post('/inoculation/delete', async (req, res) => {
 
         let query = 'DELETE FROM t_inoculations WHERE in_id = ?';
         let params = [inId];
-        await pool.query(query, params); 
+        await pool.query(query, params);
         res.json({status: 'OK'});
 
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'}); 
+        res.json({status: 'ERROR_SERVER'});
     }
 
 });
@@ -1763,12 +1763,12 @@ router.get('/food/category1/get/all', async (req, res) => {
         let query = "SELECT * FROM t_food_categories1 AS fc1Tab";
         query += " LEFT JOIN (SELECT fc2_fc1_id, GROUP_CONCAT(CONCAT_WS(':', fc2_id, fc2_name) SEPARATOR '|') AS fc2_info FROM t_food_categories2 GROUP BY fc2_fc1_id) AS fc2Tab";
         query += " ON fc1Tab.fc1_id = fc2Tab.fc2_fc1_id;";
-        
+
         let [result, fields] = await pool.query(query);
         res.json({status: 'OK', result: result});
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'}); 
+        res.json({status: 'ERROR_SERVER'});
     }
 });
 //음식 카테고리1 저장 (입력, 수정)
@@ -1805,11 +1805,11 @@ router.post('/food/category1/save', async (req, res) => {
             res.json({status: 'ERR_WRONG_MODE'});
             return;
         }
-        
+
 
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'});  
+        res.json({status: 'ERROR_SERVER'});
     }
 });
 //음식 카테고리1 삭제
@@ -1831,7 +1831,7 @@ router.post('/food/category1/delete', async (req, res) => {
     let existCheckParams = [fc1Id];
 
     let [result, fields] = await pool.query(existCheckQuery, existCheckParams);
-    
+
     if (result[0].fc2Cnt > 0) {
         res.json({status: 'ERR_EXISTS_CATEGORY2'});
         return;
@@ -1839,7 +1839,7 @@ router.post('/food/category1/delete', async (req, res) => {
 
     if (result[0].fCnt > 0) {
         res.json({status: 'ERR_EXISTS_FOOD'});
-        return; 
+        return;
     }
 
     let query = 'DELETE FROM t_food_categories1 WHERE fc1_id = ?';
@@ -1888,11 +1888,11 @@ router.post('/food/category2/save', async (req, res) => {
             res.json({status: 'ERR_WRONG_MODE'});
             return;
         }
-        
+
 
     } catch (error) {
         console.log(error);
-        res.json({status: 'ERROR_SERVER'});  
+        res.json({status: 'ERROR_SERVER'});
     }
 });
 //음식 카테고리2 삭제
@@ -1912,10 +1912,10 @@ router.post('/food/category2/delete', async (req, res) => {
     let existCheckParams = [fc2Id];
 
     let [result, fields] = await pool.query(existCheckQuery, existCheckParams);
-    
+
     if (result[0].fCnt > 0) {
         res.json({status: 'ERR_EXISTS_FOOD'});
-        return; 
+        return;
     }
 
     let query = 'DELETE FROM t_food_categories2 WHERE fc2_id = ?';
@@ -1926,7 +1926,7 @@ router.post('/food/category2/delete', async (req, res) => {
 });
 
 
-//이미지 저장 
+//이미지 저장
 router.post('/upload/image', async (req, res) => {
     let form = new formidable.IncomingForm();
     form.encoding = 'utf-8';
@@ -1943,7 +1943,7 @@ router.post('/upload/image', async (req, res) => {
         let dataType = body.dataType;
         let type = body.type; // THUMB, IMAGE, IMAGE_DETAIL
         let targetId = body.targetId; // 데이터 아이디
-        
+
         let imageName = f.generateRandomId();
         let imageFilePath = `public/images/${dataType}/${imageName}_original.jpg`;
 
@@ -1961,7 +1961,7 @@ router.post('/upload/image', async (req, res) => {
             fs.copyFile(imageFilePath, reImageFilePath, async () => {
 
                 if (originFileSize < 200000) {
-        
+
                 } else {
                     let reSize = originFileSize;
                     let per = 0;
@@ -1974,23 +1974,23 @@ router.post('/upload/image', async (req, res) => {
                         reSize = fs.statSync(reImageFilePath).size;
                     }
                 }
-    
+
                 if (type === 'THUMB') {
                     // UPDATE data thumbnail
                     let query = '';
                     let params = [reImagePath, targetId];
-    
+
                     if (dataType === 'food') {
                         query = 'UPDATE t_foods SET f_thumbnail = ? WHERE f_id = ? ';
                     } else if (dataType === 'product') {
-                        query = 'UPDATE t_products SET p_thumbnail = ? WHERE p_id = ?';                    
+                        query = 'UPDATE t_products SET p_thumbnail = ? WHERE p_id = ?';
                     } else {
                         res.json({status: 'ERR_WRONG_DATA_TYPE'});
                         return;
                     }
                     let [result, fields] = await pool.query(query, params);
-    
-                } 
+
+                }
                  else {
                     // INSERT images
                     let query = "INSERT INTO t_images (i_type, i_path, i_target_id, i_data_type) VALUES (?, ?, ?, ?)";
@@ -2007,7 +2007,7 @@ router.post('/upload/image', async (req, res) => {
 //이미지 삭제
 router.post('/delete/image', async (req, res) => {
     let deleteList = req.body.deleteList;
-    
+
     if (f.isNone(deleteList)) {
         res.json({status: 'ERR_WRONG_PARAM'});
         return;
@@ -2017,10 +2017,10 @@ router.post('/delete/image', async (req, res) => {
     let query = 'DELETE FROM t_images WHERE';
 
     deleteList.forEach((item, index) => {
-        let originImagePath = `${item.path.split('.')[0]}_original.${item.path.split('.')[1]}`; 
+        let originImagePath = `${item.path.split('.')[0]}_original.${item.path.split('.')[1]}`;
         fs.unlinkSync(`public${item.path}`);
         fs.unlinkSync(`public${originImagePath}`);
-        
+
         if (item.type !== 'THUMB') {
             if (index == deleteList.length - 1) query += ` i_id = ${item.iId}`;
             else query += ` i_id = ${item.iId} OR`;
@@ -2033,5 +2033,93 @@ router.post('/delete/image', async (req, res) => {
     }
     res.json({status: 'OK'});
 });
+
+
+router.get('/notice/get/all', async (req, res) => {
+    let query = "SELECT * FROM t_notices ORDER BY no_created_date DESC";
+    let [result, fields] = await pool.query(query);
+    res.json({ status: 'OK', result: result });
+});
+
+
+router.post('/notice/delete', async (req, res) => {
+    let noId = req.body.noId;
+
+    let query = "DELETE FROM t_notices WHERE no_id = ?";
+    let params = [noId];
+    await pool.query(query, params);
+
+    res.json({ status: 'OK' });
+});
+
+
+router.post('/notice/save', async (req, res) => {
+
+    let mode = req.body.mode;
+    let title = req.body.title;
+    let contents = req.body.contents;
+    let noId = req.body.noId;
+
+    let query = "";
+    let params = [];
+
+    if (mode == 'ADD') {
+        query = "INSERT INTO t_notices (no_title, no_contents) VALUES (?, ?)";
+        params = [title, contents];
+
+    } else {
+        query = "UPDATE t_notices SET no_title = ?, no_contents = ?, no_updated_date = NOW() WHERE no_id = ?";
+        params = [title, contents, noId];
+    }
+
+    await pool.query(query, params);
+    res.json({ status: 'OK' });
+});
+
+
+router.get('/notice/get', async (req, res) => {
+    let noId = req.query.noId;
+    let query = "SELECT * FROM t_notices WHERE no_id = ?";
+    let params = [noId];
+    let [result, fields] = await pool.query(query, params);
+    if (result.length == 0) {
+        res.json({ status: 'ERR_NO_NOTICE' });
+        return;
+    }
+    res.json({ status: 'OK', result: result[0] });
+});
+
+
+router.get('/question/get/all', async (req, res) => {
+    let query = "SELECT * FROM t_questions AS qTab";
+    query += " JOIN t_users AS uTab ON uTab.u_id = qTab.q_u_id";
+    query += " ORDER BY qTab.q_created_date ASC";
+    let [result, fields] = await pool.query(query);
+    res.json({ status: 'OK', result: result });
+});
+
+
+router.get('/question/get', async (req, res) => {
+    let qId = req.query.qId;
+    let query = "SELECT * FROM t_questions AS qTab";
+    query += " JOIN t_users AS uTab ON uTab.u_id = qTab.q_u_id";
+    query += " WHERE qTab.q_id = ?";
+    let params = [qId];
+    let [result, fields] = await pool.query(query, params);
+    res.json({ status: 'OK', result: result[0] });
+});
+
+
+router.post('/question/answer', async (req, res) => {
+    let qId = req.body.qId;
+    let answer = req.body.answer;
+
+    let query = "UPDATE t_questions SET q_status = 'A', q_answer = ?, q_answered_date = NOW() WHERE q_id = ?";
+    let params = [answer, qId];
+    await pool.query(query, params);
+
+    res.json({ status: 'OK' });
+});
+
 
 module.exports = router;

@@ -35,6 +35,11 @@
         <link rel="stylesheet" type="text/css" href="/css/inoculation.css" />
     <% } else if (menu == 'food_nutrient_category') { %>
         <link rel="stylesheet" type="text/css" href="/css/food_nutrient_category.css" />
+
+    <% } else if (menu == 'notice' || menu == 'notice_add' || menu == 'notice_detail') { %>
+        <link rel="stylesheet" type="text/css" href="/css/notice.css" />
+    <% } else if (menu == 'question' || menu == 'question_detail') { %>
+        <link rel="stylesheet" type="text/css" href="/css/question.css" />
     <% } %>
 </head>
 <body>
@@ -51,7 +56,6 @@
         <a href="/"><div class="main-menu">홈</div></a>
         <div class="main-menu">데이터 관리</div>
         <ul class="sub-menu">
-            <!-- <a href="/food_nutrient/category"><li>음식/영양소 카테고리</li></a> -->
             <a href="/nutrient"><li>영양소</li></a>
             <a href="/food/category"><li>음식 카테고리</li></a>
             <a href="/food"><li>음식</li></a>
@@ -64,6 +68,10 @@
             <a href="/inoculation"><li>접종</li></a>
         </ul>
         <a href="/user"><div class="main-menu">사용자 관리</div></a>
+        <ul class="sub-menu">
+            <a href="/notice"><li>공지사항</li></a>
+            <a href="/question"><li>1:1 문의</li></a>
+        </ul>
     </nav>
 
     <article>
@@ -71,64 +79,76 @@
     <% if (menu == 'login') { %>
         <% include ./login %>
 
-    <% } else if (menu == 'main') { %> 
+    <% } else if (menu == 'main') { %>
         <% include ./main %>
 
-    <% } else if (menu == 'nutrient') { %> 
+    <% } else if (menu == 'nutrient') { %>
         <% include ./nutrient %>
-    <% } else if (menu == 'nutrient_add') { %> 
+    <% } else if (menu == 'nutrient_add') { %>
         <% include ./nutrient_add %>
-    <% } else if (menu == 'nutrient_detail') { %> 
+    <% } else if (menu == 'nutrient_detail') { %>
         <% include ./nutrient_detail %>
 
-    <% } else if (menu == 'food') { %> 
+    <% } else if (menu == 'food') { %>
         <% include ./food %>
-    <% } else if (menu == 'food_add') { %> 
+    <% } else if (menu == 'food_add') { %>
         <% include ./food_add %>
-    <% } else if (menu == 'food_detail') { %> 
+    <% } else if (menu == 'food_detail') { %>
         <% include ./food_detail %>
-    <% } else if (menu == 'food_category') { %> 
+    <% } else if (menu == 'food_category') { %>
         <% include ./food_category %>
 
-    <% } else if (menu == 'disease') { %> 
+    <% } else if (menu == 'disease') { %>
         <% include ./disease %>
-    <% } else if (menu == 'disease_add') { %> 
+    <% } else if (menu == 'disease_add') { %>
         <% include ./disease_add %>
-    <% } else if (menu == 'disease_detail') { %> 
+    <% } else if (menu == 'disease_detail') { %>
         <% include ./disease_detail %>
 
-    <% } else if (menu == 'symptom') { %> 
+    <% } else if (menu == 'symptom') { %>
         <% include ./symptom %>
-    <% } else if (menu == 'symptom_add') { %> 
+    <% } else if (menu == 'symptom_add') { %>
         <% include ./symptom_add %>
-    <% } else if (menu == 'symptom_detail') { %> 
+    <% } else if (menu == 'symptom_detail') { %>
         <% include ./symptom_detail %>
 
-    <% } else if (menu == 'product') { %> 
+    <% } else if (menu == 'product') { %>
         <% include ./product %>
-    <% } else if (menu == 'product_add') { %> 
+    <% } else if (menu == 'product_add') { %>
         <% include ./product_add %>
-    <% } else if (menu == 'product_detail') { %> 
+    <% } else if (menu == 'product_detail') { %>
         <% include ./product_detail %>
-    <% } else if (menu == 'product_category') { %> 
+    <% } else if (menu == 'product_category') { %>
         <% include ./product_category %>
-    <% } else if (menu == 'product_brand') { %> 
+    <% } else if (menu == 'product_brand') { %>
         <% include ./product_brand %>
 
-    <% } else if (menu == 'breed') { %> 
+    <% } else if (menu == 'breed') { %>
         <% include ./breed %>
-    <% } else if (menu == 'breed_add') { %> 
+    <% } else if (menu == 'breed_add') { %>
         <% include ./breed_add %>
-    <% } else if (menu == 'breed_detail') { %> 
+    <% } else if (menu == 'breed_detail') { %>
         <% include ./breed_detail %>
-    <% } else if (menu == 'breed_weak_disease') { %> 
+    <% } else if (menu == 'breed_weak_disease') { %>
         <% include ./breed_weak_disease %>
 
-    <% } else if (menu == 'inoculation') { %> 
+    <% } else if (menu == 'inoculation') { %>
         <% include ./inoculation %>
 
-    <% } else if (menu == 'food_nutrient_category') { %> 
+    <% } else if (menu == 'food_nutrient_category') { %>
         <% include ./food_nutrient_category %>
+
+    <% } else if (menu == 'notice') { %>
+        <% include ./notice %>
+    <% } else if (menu == 'notice_add') { %>
+        <% include ./notice_add %>
+    <% } else if (menu == 'notice_detail') { %>
+        <% include ./notice_detail %>
+
+    <% } else if (menu == 'question') { %>
+        <% include ./question %>
+    <% } else if (menu == 'question_detail') { %>
+        <% include ./question_detail %>
     <% } %>
 
     </article>
@@ -161,6 +181,10 @@
         <script src="/js/inoculation.js"></script>
     <% } else if (menu == 'food_nutrient_category') { %>
         <script src="/js/food_nutrient_category.js"></script>
+    <% } else if (menu == 'notice' || menu == 'notice_add' || menu == 'notice_detail') { %>
+        <script src="/js/notice.js"></script>
+    <% } else if (menu == 'question' || menu == 'question_detail') { %>
+        <script src="/js/question.js"></script>
     <% } %>
 
 </body>
